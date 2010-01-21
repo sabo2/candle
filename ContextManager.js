@@ -108,10 +108,6 @@ var SVGNS = "http://www.w3.org/2000/svg",
 var VML = 0,
 	SVG = 3,
 
-	PATH_MOVE   = '',	// ‚Ç‚¿‚ç‚Å‚àŽg—p‚·‚é
-	PATH_LINE   = '',	//  ª
-	PATH_CLOSE  = '',	//  ª
-
 	EL_ID_HEADER = "canvas_o_",
 
 	DEF_LINEWIDTH = 1;
@@ -138,6 +134,18 @@ var VectorContext = function(type, idname){
 	this.canvasid = EL_ID_HEADER+idname;
 	this.currentpath = [];
 	this.lastpath    = '';
+
+	// define const
+	if(this.type===SVG){
+		this.PATH_MOVE  = S_PATH_MOVE;
+		this.PATH_LINE  = S_PATH_LINE;
+		this.PATH_CLOSE = S_PATH_CLOSE;
+	}
+	else if(this.type===VML){
+		this.PATH_MOVE  = V_PATH_MOVE;
+		this.PATH_LINE  = V_PATH_LINE;
+		this.PATH_CLOSE = V_PATH_CLOSE;
+	}
 
 	this.initElement(idname);
 };
@@ -277,17 +285,17 @@ VectorContext.prototype = {
 		this.lastpath = '';
 	},
 	closePath : function(){
-		this.currentpath.push(PATH_CLOSE);
-		this.lastpath = PATH_CLOSE;
+		this.currentpath.push(this.PATH_CLOSE);
+		this.lastpath = this.PATH_CLOSE;
 	},
 	moveTo : function(x,y){
-		if(this.type===SVG){ this.currentpath.push(PATH_MOVE,x,y);}else{ this.currentpath.push(PATH_MOVE,x*Z-Z2,y*Z-Z2);}
-		this.lastpath = PATH_MOVE;
+		if(this.type===SVG){ this.currentpath.push(this.PATH_MOVE,x,y);}else{ this.currentpath.push(this.PATH_MOVE,x*Z-Z2,y*Z-Z2);}
+		this.lastpath = this.PATH_MOVE;
 	},
 	lineTo : function(x,y){
-		if(this.lastpath!==PATH_LINE){ this.currentpath.push(PATH_LINE);}
+		if(this.lastpath!==this.PATH_LINE){ this.currentpath.push(this.PATH_LINE);}
 		if(this.type===SVG){ this.currentpath.push(x,y);}else{ this.currentpath.push(x*Z-Z2,y*Z-Z2);}
-		this.lastpath = PATH_LINE;
+		this.lastpath = this.PATH_LINE;
 	},
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
 		if(this.type===VML){ cx=cx*Z-Z2, cy=cy*Z-Z2, r=r*Z;}
@@ -303,7 +311,7 @@ VectorContext.prototype = {
 			if(sy==ey){ sy+=0.125;}
 			var unknownflag = (startRad>endRad)^(Math.abs(endRad-startRad)>Math.PI);
 			var islong = ((antiClockWise^unknownflag)?1:0), sweep = ((islong==0^unknownflag)?1:0);
-			this.currentpath.push(PATH_MOVE,sx,sy,S_PATH_ARCTO,r,r,0,islong,sweep,ex,ey);
+			this.currentpath.push(this.PATH_MOVE,sx,sy,S_PATH_ARCTO,r,r,0,islong,sweep,ex,ey);
 			this.lastpath = S_PATH_ARCTO;
 		}
 	},
@@ -346,18 +354,18 @@ VectorContext.prototype = {
 	pathRect : function(size){
 		var x=size[0], y=size[1], w=size[2], h=size[3];
 		if(this.type===VML){ x=x*Z-Z2,y=y*Z-Z2, w=w*Z, h=h*Z;}
-		return [PATH_MOVE,x,y,PATH_LINE,(x+w),y,(x+w),(y+h),x,(y+h),PATH_CLOSE].join(' ');
+		return [this.PATH_MOVE,x,y,this.PATH_LINE,(x+w),y,(x+w),(y+h),x,(y+h),this.PATH_CLOSE].join(' ');
 	},
 
 	setLinePath : function(){
 		var _args = arguments, _len = _args.length, svg=(this.type===SVG);
 		this.currentpath = [];
 		for(var i=0,len=_len-((_len|1)?1:2);i<len;i+=2){
-			if     (i==0){ this.currentpath.push(PATH_MOVE);}
-			else if(i==2){ this.currentpath.push(PATH_LINE);}
+			if     (i==0){ this.currentpath.push(this.PATH_MOVE);}
+			else if(i==2){ this.currentpath.push(this.PATH_LINE);}
 			this.currentpath.push((svg?_args[i]:_args[i]*Z-Z2), (svg?_args[i+1]:_args[i+1]*Z-Z2));
 		}
-		if(_args[_len-1]){ this.currentpath.push(PATH_CLOSE);}
+		if(_args[_len-1]){ this.currentpath.push(this.PATH_CLOSE);}
 	},
 	setOffsetLinePath : function(){
 		var _args = arguments, _len = _args.length, svg=(this.type===SVG), m=[_args[0],_args[1]];
@@ -367,17 +375,17 @@ VectorContext.prototype = {
 			m[i+1] = _args[i+1] + m[1];
 		}
 		for(var i=0,len=_len-((_len|1)?1:2);i<len;i+=2){
-			if     (i==0){ this.currentpath.push(PATH_MOVE);}
-			else if(i==2){ this.currentpath.push(PATH_LINE);}
+			if     (i==0){ this.currentpath.push(this.PATH_MOVE);}
+			else if(i==2){ this.currentpath.push(this.PATH_LINE);}
 			this.currentpath.push((svg?m[i]:m[i]*Z-Z2), (svg?m[i+1]:m[i+1]*Z-Z2));
 		}
-		if(_args[_len-1]){ this.currentpath.push(PATH_CLOSE);}
+		if(_args[_len-1]){ this.currentpath.push(this.PATH_CLOSE);}
 	},
 
 	strokeLine : function(x1,y1,x2,y2){
 		if(this.type===VML){ x1=x1*Z-Z2, y1=y1*Z-Z2, x2=x2*Z-Z2, y2=y2*Z-Z2;}
 		var stack = this.currentpath;
-		this.currentpath = [PATH_MOVE,x1,y1,PATH_LINE,x2,y2];
+		this.currentpath = [this.PATH_MOVE,x1,y1,this.PATH_LINE,x2,y2];
 		this.addVectorElement(false,false,true,[]);
 		this.currentpath = stack;
 	},
@@ -385,8 +393,8 @@ VectorContext.prototype = {
 		if(this.type===VML){ cx=cx*Z-Z2, cy=cy*Z-Z2, l=l*Z;}
 		var stack = this.currentpath;
 		this.currentpath = [];
-		this.currentpath.push(PATH_MOVE,(cx-l),(cy-l),PATH_LINE,(cx+l),(cy+l));
-		this.currentpath.push(PATH_MOVE,(cx-l),(cy+l),PATH_LINE,(cx+l),(cy-l));
+		this.currentpath.push(this.PATH_MOVE,(cx-l),(cy-l),this.PATH_LINE,(cx+l),(cy+l));
+		this.currentpath.push(this.PATH_MOVE,(cx-l),(cy+l),this.PATH_LINE,(cx+l),(cy-l));
 		this.addVectorElement(false,false,true,[]);
 		this.currentpath = stack;
 	},
@@ -394,7 +402,7 @@ VectorContext.prototype = {
 		var stack = this.currentpath;
 		this.currentpath = [];
 		this.arc(cx,cy,r,0,_2PI,false);
-		this.currentpath.push(PATH_CLOSE);
+		this.currentpath.push(this.PATH_CLOSE);
 		this.addVectorElement(false,true,false,[]);
 		this.currentpath = stack;
 	},
@@ -402,7 +410,7 @@ VectorContext.prototype = {
 		var stack = this.currentpath;
 		this.currentpath = [];
 		this.arc(cx,cy,r,0,_2PI,false);
-		this.currentpath.push(PATH_CLOSE);
+		this.currentpath.push(this.PATH_CLOSE);
 		this.addVectorElement(false,false,true,[]);
 		this.currentpath = stack;
 	},
@@ -710,17 +718,6 @@ var ContextManager = (function(){
 			text.push("v\\:shape { behavior: url(#default#VML); position:relative; width:100%; height:100%; }");
 			text.push("v\\:textbox { behavior: url(#default#VML); }");
 			_doc.createStyleSheet().cssText = text.join('');
-
-			// define const
-			PATH_MOVE  = V_PATH_MOVE;
-			PATH_LINE  = V_PATH_LINE;
-			PATH_CLOSE = V_PATH_CLOSE;
-		}
-		if(o.svg){
-			// define const
-			PATH_MOVE  = S_PATH_MOVE;
-			PATH_LINE  = S_PATH_LINE;
-			PATH_CLOSE = S_PATH_CLOSE;
 		}
 		if(o.sl){
 			// uuCanvas.js‚ð—LŒø‚É‚·‚é
