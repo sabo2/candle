@@ -1,0 +1,54 @@
+/* ----------------------------------------------------------------------- */
+/*   静的なVMLを使用する時にこう書くと表示できる、ってやつ。               */
+/* ----------------------------------------------------------------------- */
+/*
+<!--
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+-->
+<!--
+<div class="vmlbase" id="vml_base"><v:group id="vml_parent" coordorigin="0,0" coordsize="200,200">
+	<v:group id="vml_baseline">
+		<!-- <v:line from="-40,0" to="40,0" strokecolor="gray" strokeweight="4px" /> -->
+		<!-- <v:line from="0,-40" to="0,40" strokecolor="gray" strokeweight="4px" /> -->
+		<v:shape filled="false" strokecolor="gray" strokeweight="4px" path="m -40 0 l 40 0 e" />
+		<v:shape filled="false" strokecolor="gray" strokeweight="4px" path="m 0 -40 l 0 40 e" />
+	</v:group>
+	<v:group id="vml_back"></v:group>
+	<v:group id="vml_top">
+		<v:shape filled="false" strokecolor="blue" strokeweight="4px" path="m 10 10 l 10 190 190 190 190 10 x e" />
+		<v:shape filled="false" strokecolor="red" strokeweight="4px" path="m 30 20 l 60 20 60 220 30 220 x e" />
+		<v:shape filled="false" strokecolor="red" strokeweight="4px" path="m 20 30 l 20 60 220 60 220 30 x e" />
+	</v:group>
+	<v:group id="vml_text">
+		<v:rect style="left:20px;top:120px;width:120px;height:40px;" filled="false" stroked="true" textboxrect="0,0,160,80">
+			<v:textbox style="v-text-anchor:middle-center;">テキスト表示</v:textbox>
+		</v:rect>
+	</v:group>
+</v:group></div>
+
+<div class="vmlbase" id="vml_base3"><v:group id="vml_parent3" coordsize="400,200">
+	<v:shape strokecolor="red" path="m 50,150 l 150,50, 350,50 e" />
+	<v:oval style="left:50px; top:50px; width:80px; height:80px" fillcolor="#ffcccc" strokecolor="red" strokeweight="1" />
+</v:group></div>
+-->
+*/
+/* ----------------------------------------------------------------------- */
+/*   上とほぼ同じやつのSVG版                                               */
+/* ----------------------------------------------------------------------- */
+/*
+<svg id="svg_parent" width="200" height="200" shape-rendering="crispEdges" style="border:solid 1px silver;">
+	<g id="svg_base" stroke="gray" stroke-width="4px">
+		<polyline points="-40,0 40,0" />
+		<polyline points="0,-40 0,40" />
+	</g>
+	<g id="svg_back"></g>
+	<g id="svg_top">
+		<rect x="20" y="30" width="30" height="200" stroke-width="4px" stroke="red" fill="none" />
+		<rect x="30" y="20" width="200" height="30" stroke-width="4px" stroke="red" fill="none" />
+	</g>
+	<g id="svg_text">
+		<text x="120" y="20" text-anchor="middle" dominant-baseline="middle" transform="rotate(270 120 20)">テキスト表示</text>
+	</g>
+</svg>
+*/
