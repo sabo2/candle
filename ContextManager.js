@@ -656,9 +656,12 @@ var ContextManager = (function(){
 				parent.appendChild(canvas);
 			}
 
-			if(this.sl){ var context = canvas.getContext("2d");}
-			//if(this.canvas){ context.initElement(idname);}
-			if(this.canvas){ new CanvasRenderingContext2D_wrapper(idname);}
+			if(this.canvas){
+				new CanvasRenderingContext2D_wrapper(idname);
+			}
+			else if(this.sl){
+				uuCanvas.init(canvas, false);
+			}
 		}
 	};
 
