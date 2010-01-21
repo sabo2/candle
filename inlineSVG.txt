@@ -1,0 +1,168 @@
+inlineSVGの例
+	<svg id="svg_parent" width="200" height="200" shape-rendering="crispEdges" style="border:solid 1px silver;">
+		<g id="svg_base" stroke="gray" stroke-width="4px">
+			<polyline points="-40,0 40,0" />
+			<polyline points="0,-40 0,40" />
+		</g>
+		<g id="svg_back"></g>
+		<g id="svg_top">
+			<rect x="20" y="30" width="30" height="200" stroke-width="4px" stroke="red" fill="none" />
+			<rect x="30" y="20" width="200" height="30" stroke-width="4px" stroke="red" fill="none" />
+		</g>
+		<g id="svg_text">
+			<text x="120" y="20" text-anchor="middle" dominant-baseline="middle" transform="rotate(270 120 20)">テキスト表示</text>
+		</g>
+	</svg>
+
+svg:svgのviewBox属性
+	viewBox="0 0 120 150"
+	中の座標系を指定できる
+
+svg:svgのshape-rendering属性
+	auto               バランス ※指定なしの場合
+	optimizeSpeed      速度重視
+	crispEdges         鮮明さ重視(アンチエイリアスかけない)
+	geometricPrecision 正確さ重視(アンチエイリアスかける)
+	inherit            親要素から継承 ※親要素で指定があった場合
+
+// svg:svgの子要素には、タグ＋改行文字の部分もTEXTNODEとして含まれる＠Firefox3.6rc1
+// ちょっと注意が必要かも。
+
+// svg:svgではstyleのz-indexの指定が効かない＠Firefox
+// childNodesの順に描画されるので、svg:gタグを順に入れその中にinserteforeとかappendChildすると吉。
+
+VMLの例
+	v\:group, v\:shape, v\:rect, v\:line, v\:oval, v\:path { behavior: url(#default#VML); display:inline-block; position:relative; }
+
+	<v:group id="vml_parent" coordsize="200,200">
+		<v:group id="svg_base">
+			<v:line from="-40,0" to="40,0" strokecolor="gray" strokeweight="4px" />
+			<v:line from="0,-40" to="0,40" strokecolor="gray" strokeweight="4px" />
+		</v:group>
+		<v:group id="svg_back"></v:group>
+		<v:group id="svg_top">
+			<v:rect style="left:20px;top:30px;width:30px;height:200px;" strokecolor="red" strokeweight="4px" fill="false" />
+			<v:rect style="left:30px;top:20px;width:200px;height:30px;" strokecolor="red" strokeweight="4px" fill="false" />
+		</v:group>
+		<v:group id="svg_text">
+			<v:rect print="false">
+				<v:textbox style="left:120px;top:20px;" v-text-anchor="middle-center" transform="rotate(270 120 20)">テキスト表示</v:textbox>
+			</v:rect>
+		</v:group>
+	</v:group>
+
+v:groupのcoordsize, coordorigin属性
+	中の座標系を指定できる
+	coordoriginは左上の(x,y) coordsizeは(width,height)
+
+動的な追加
+	var rect = document.createElementNS("http://www.w3.org/2000/svg", "svg:rect");
+	rect.setAttribute("x", "85");
+	rect.setAttribute("y", "5");
+	rect.setAttribute("width", "100");
+	rect.setAttribute("height", "100");
+	rect.setAttribute("stroke-width", "4px");
+	rect.setAttribute("stroke", "black");
+	rect.setAttribute("fill", "lime");
+	document.getElementById("svg_back").appendChild(rect);
+
+RECT要素
+	g.fillStyle = "black";
+	g.fillRect(20, 30, 60, 120);
+
+	<rect x="20" y="30" width="60" height="120" fill="black" />
+
+	g.strokeStyle = "black";
+	g.lineWidth = 1;
+	g.strokeRect(20, 30, 60, 120);
+
+	/* どっちも同じ */
+	<rect x="20" y="30" width="60" height="120" stroke="black" stroke-width="1" fill-opacity="0" />
+	<rect x="20" y="30" width="60" height="120" stroke="black" stroke-width="1" fill="none" />
+
+CIRCLE要素
+	g.fillStyle = "black";
+	g.beginPath();
+	g.arc(120, 150, 80 , 0, Math.PI*2, false);
+	g.fill();
+
+	<circle cx="120" cy="150" r="80" fill="black" />
+
+LINE要素
+	g.strokeStyle = "black";
+	g.lineWidth = 1;
+	g.beginPath();
+	g.moveTo(20, 30);
+	g.lineTo(90, 80);
+	g.closePath(); /* あってもなくてもいいはず */
+	g.stroke();
+
+	/* どっちも同じ */
+	<line x1="20" y1="30" x2="90" y2="80" stroke="black" stroke-width="1" />
+
+POLYLINE要素
+	g.strokeStyle = "black";
+	g.lineWidth = 1;
+	g.beginPath();
+	g.moveTo(20, 30);
+	g.lineTo(90, 80);
+	g.lineTo(20, 130);
+	g.stroke();
+
+	/* どれも同じ */
+	<path d="M 20 30 L 90 80 L 20 130" stroke="black" stroke-width="1" fill="none" />
+	<path d="M 20 30 l 70 50 l -70 50" stroke="black" stroke-width="1" fill="none" />
+	<polyline points="20,30 90,80 20,130" stroke="black" stroke-width="1" fill="none" />
+
+POLYGON要素
+	g.fillStyle = "black";
+	g.lineWidth = 1;
+	g.beginPath();
+	g.moveTo(20, 30);
+	g.lineTo(90, 80);
+	g.lineTo(20, 130);
+	g.closePath();
+	g.fill();
+
+	/* どれも同じ */
+	<path d="M 20 30 L 90 80 L 20 130 z" fill="black" />
+	<path d="M 20 30 l 70 50 l -70 50 z" fill="black" />
+	<polygon points="20,30 90,80 20,130" fill="black" />
+
+	// PATHのMとかLとかは、小文字だと相対指定らしい
+	// lineやrect、arcにも使える複雑な図形向け
+
+×とか表示したい場合
+	g.strokeStyle = "blue";
+	g.lineWidth = 1;
+	g.beginPath();
+	g.moveTo(30, 80);
+	g.lineTo(80, 30);
+	g.stroke();
+	g.beginPath();
+	g.moveTo(30, 30);
+	g.lineTo(80, 80);
+	g.stroke();
+
+	<g stroke="blue" stroke-width="1" fill="none">
+		<line x1="30" y1="30" x2="80" y2="80" stroke="blue" stroke-width="1" />
+		<line x1="30" y1="80" x2="80" y2="30" stroke="blue" stroke-width="1" />
+	</g>
+
+	// 属性はグループでまとめて指定できる
+
+Graphic.jsでCanvas->SVGの置き換えに必要なやつ
+	pzpr限定
+		g.vml, g.vid, g.zidx, g.pelements, g.elements
+	プロパティ
+		g.fillStyle, g.strokeStyle, g.lineWidth
+	関数
+		g.fillRect(), g.strokeRect(), g.fill(), g.stroke(), g.arc(),
+		g.beginPath(), g.closePath(), g.moveTo(), g.lineTo(), g._clear()
+
+	新規追加が必要と思われるやつ
+		g.currentLayer, g.addLayer()
+
+	コメントアウト中
+		g.font, g.textAlign, g.textBaseline, g.fillText()
+		g.enabledash
