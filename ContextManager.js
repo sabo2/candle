@@ -11,12 +11,17 @@ var _win = this,
 	_2PI = 2*Math.PI,
 
 	_IE = !!(window.attachEvent && !window.opera),
-	_tag = '',
 
-	initialized = false,
-	debugmode   = true,
 	Z  = 10,
 	Z2 = Z/2,
+
+	flags = {
+		debugmode : true,
+		useUC     : false, // uuCanvas(SlverLightモード)
+		pathUC    : 'src/uuCanvas.js',
+		useFC     : false, // FlashCanvas.js
+		pathFC    : 'flashcanvas.js'
+	},
 
 	BEFOREEND = 'BeforeEnd';
 
@@ -140,6 +145,7 @@ VectorContext.prototype = {
 	/* additional functions (for initialize) */
 	initElement : function(idname){
 		var child = _doc.getElementById(this.canvasid);
+
 		if(!child){
 			var parent = _doc.getElementById(idname);
 			var rect = getRectSize(parent);
@@ -151,7 +157,7 @@ VectorContext.prototype = {
 			parent.style.display  = 'block';
 			parent.style.position = 'relative';
 			parent.style.overflow = 'hidden';
-			if(debugmode){
+			if(flags.debugmode){
 				parent.style.backgroundColor = "#efefef";
 				parent.style.border = "solid 1px silver";
 			}
@@ -474,7 +480,7 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		parent.style.display  = 'block';
 		parent.style.position = 'relative';
 		parent.style.overflow = 'hidden';
-		if(debugmode){
+		if(flags.debugmode){
 			parent.style.backgroundColor = "#efefef";
 			parent.style.border = "solid 1px silver";
 		}
@@ -623,6 +629,7 @@ var ContextManager = (function(){
 
 	o.vml    = false;
 	o.sl     = false;
+	o.flash  = false;
 	o.svg    = false;
 	o.canvas = false;
 
@@ -639,7 +646,8 @@ var ContextManager = (function(){
 		for(var i=0;i<idlist.length;i++){ this.initElementById(idlist[i]);}
 	};
 	o.initElementById = function(idname){
-		if(!initialized){ this.firstInit();}
+		var canvasid = EL_ID_HEADER + idname;
+		if(!!_doc.getElementById(canvasid)){ return;}
 
 		if(this.vml){
 			new VectorContext(VML, idname);
@@ -647,37 +655,52 @@ var ContextManager = (function(){
 		else if(this.svg){
 			new VectorContext(SVG, idname);
 		}
-		else if(this.canvas || this.sl){
-			var canvasid = EL_ID_HEADER + idname;
-
+		else if(this.canvas || this.sl || this.flash){
 			/* 追加した後じゃないと、getContext～initElementできない */
 			var parent = _doc.getElementById(idname);
-			var canvas = _doc.getElementById(canvasid);
-			if(!canvas){
-				canvas = _doc.createElement('canvas');
-				canvas.id = canvasid;
-				parent.appendChild(canvas);
-			}
+			canvas = _doc.createElement('canvas');
+			canvas.id = canvasid;
+			parent.appendChild(canvas);
 
 			if(this.canvas){
 				new CanvasRenderingContext2D_wrapper(idname);
 			}
 			else if(this.sl){
 				uuCanvas.init(canvas, false);
+				parent.getContext = function(type){ return canvas.getContext(type);}
+			}
+			else if(this.flash){
+				FlashCanvas.initElement(canvas);
+				parent.getContext = function(type){ return canvas.getContext(type);}
 			}
 		}
 	};
-
 	o.select = function(type){
-		if(this.vml || this.sl){ return;}
+		if(this.vml || this.sl || this.flash){ return;}
 		else if(this.svg && type=='canvas'){ this.svg=false; this.canvas=true; }
 		else if(this.canvas && type=='svg'){ this.svg=true;  this.canvas=false;}
 	};
-	o.firstInit = function(){
-		if(initialized){ return;}
 
-		if(this.sl){ }
-		else if(this.vml){
+	// この関数は、ContextManager.jsが読み込まれた時に一回だけ実行されます。
+	(function(){
+		var enableCanvas = (!!_doc.createElement('canvas').getContext);
+		var enableSVG    = (!!_doc.createElementNS && !!_doc.createElementNS(SVGNS, 'svg').suspendRedraw);
+		var enableFlash  = (flags.useFC);
+		var enableSL     = (flags.useUC && _IE && (function(){
+			try {
+				var a=["1.0","2.0","3.0","4.0"], i=a.length, o=new ActiveXObject("AgControl.AgControl");
+				while(i--){ if(o.IsVersionSupported(a[i])){ return true;} }
+			} catch(e){}
+			return false;
+		})());
+
+		if     (enableSVG)   { o.svg    = true;}
+		else if(enableCanvas){ o.canvas = true;}
+		else if(enableSL)    { o.sl     = true;}
+		else if(enableFlash) { o.flash  = true;}
+		else                 { o.vml    = true;}
+
+		if(o.vml){
 			/* addNameSpace for VML */
 			_doc.namespaces.add("v", "urn:schemas-microsoft-com:vml");
 
@@ -693,43 +716,21 @@ var ContextManager = (function(){
 			PATH_LINE  = V_PATH_LINE;
 			PATH_CLOSE = V_PATH_CLOSE;
 		}
-		else if(this.svg){
+		if(o.svg){
 			// define const
 			PATH_MOVE  = S_PATH_MOVE;
 			PATH_LINE  = S_PATH_LINE;
 			PATH_CLOSE = S_PATH_CLOSE;
 		}
-		else if(this.canvas){
-			//addCanvasFunctions();
+		if(o.sl){
+			// uuCanvas.jsを有効にする
+			_doc.write('<script type="text/xaml" id="xaml"><?xml version="1.0"?>\n');
+			_doc.write('  <Canvas xmlns="http://schemas.microsoft.com/client/2007"></Canvas></script>\n');
+			_doc.write(['<script type="text/javascript" src="',flags.pathUC,'"></script>\n'].join(''));
 		}
-
-		initialized = true;
-	};
-
-	// この関数は、ContextManager.jsが読み込まれた時に一回だけ実行されます。
-	(function(){
-		var enableCanvas = (!!_doc.createElement('canvas').getContext);
-		var enableSVG    = (!!_doc.createElementNS && !!_doc.createElementNS(SVGNS, 'svg').suspendRedraw);
-
-		if     (enableSVG)   { o.svg    = true;}
-		else if(enableCanvas){ o.canvas = true;}
-		else if(_IE){
-			var issl = (function() {
-				try {
-					var a=["1.0","2.0","3.0","4.0"], i=4, o=new ActiveXObject("AgControl.AgControl");
-					while(i--){ if(o.IsVersionSupported(a[i])){ return true;} }
-				} catch(err) {}
-				return false;
-			})();
-
-			if(issl){
-				// SilverLight有効時はuuCanvas.jsを有効にする
-				_doc.write('<script type="text/xaml" id="xaml"><?xml version="1.0"?>\n');
-				_doc.write('  <Canvas xmlns="http://schemas.microsoft.com/client/2007"></Canvas></script>\n');
-				_doc.write('<script type="text/javascript" src="src/uuCanvas.js"></script>\n');
-				o.sl = true;
-			}
-			else{ o.vml = true;}
+		if(o.flash){
+			// FlashCanvasを読み込む
+			_doc.write(['<script type="text/javascript" src="',flags.pathFC,'"></script>\n'].join(''));
 		}
 	})();
 
