@@ -627,9 +627,12 @@ var ContextManager = (function(){
 	o.canvas = false;
 
 	o.initAllElement = function(){
+		this.initElementsByClassName('canvas');
+	};
+	o.initElementsByClassName = function(classname){
 		var elements = _doc.getElementsByTagName('div');
 		for(var i=0;i<elements.length;i++){
-			if(elements[i].className.match(/canvas/)){ this.initElementById(elements[i].id);}
+			if(elements[i].className.match(classname)){ this.initElementById(elements[i].id);}
 		}
 	};
 	o.initElementsById = function(idlist){
