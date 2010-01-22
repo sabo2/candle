@@ -124,7 +124,8 @@ var VectorContext = function(type, idname){
 	this.textBaseline = 'middle';
 
 	// 外部から変更される追加プロパティ
-	this.vid    = '';
+	this.vid      = '';
+	this.elements = [];
 
 	// variables for internal
 	this.type   = type;
@@ -191,6 +192,7 @@ VectorContext.prototype = {
 		svgtop.setAttribute('viewBox', [0,0,width,height].join(' '));
 
 		parent.appendChild(svgtop);
+		this.elements["bg_"] = svgtop;
 		return svgtop;
 	},
 	appendVML : function(parent, width, height){
@@ -203,6 +205,7 @@ VectorContext.prototype = {
 		vmltop.coordsize = [width*Z, height*Z].join(',');
 
 		parent.appendChild(vmltop);
+		this.elements["bg_"] = vmltop;
 		return vmltop;
 	},
 	setLayer : function(layerid){
@@ -261,12 +264,13 @@ VectorContext.prototype = {
 	},
 	clearCanvas : function(){
 		document.getElementById(this.idname).innerHTML = '';
+		this.elements = [];
 		this.initElement(this.idname);
 	},
 
 	setColor : function(rgbstr){
 		if(this.vid){
-			var el = _doc.getElementById(this.vid);
+			var el = this.elements[this.vid];
 			var color = parsecolor(rgbstr);
 			if(type===SVG){
 				if     (el.fill  !=='none'){ el.setAttribute('fill',  color);}
@@ -325,7 +329,7 @@ VectorContext.prototype = {
 	fillText : function(text,x,y){ switch(this.type){
 	case SVG:
 		var el = _doc.createElementNS(SVGNS,'text');
-		if(!!this.vid){ el.setAttribute('id', this.vid); }
+		if(!!this.vid){ this.elements[this.vid] = el;}
 		el.setAttribute('x', x);
 		el.setAttribute('y', y);
 		el.appendChild(_doc.createTextNode(text));
@@ -345,6 +349,7 @@ VectorContext.prototype = {
 		ar.push(V_CLOSETAG_SHAPE);
 
 		this.target.insertAdjacentHTML(BEFOREEND, ar.join(''));
+		if(!!this.vid){ this.elements[this.vid] = _doc.getElementById(this.vid);}
 		break;
 	}},
 
@@ -418,7 +423,7 @@ VectorContext.prototype = {
 	addVectorElement : function(isrect,isfill,isstroke,size){ switch(this.type){
 	case SVG:
 		var el = _doc.createElementNS(SVGNS,'path');
-		if(!!this.vid){ el.setAttribute(S_ATT_ID, this.vid); }
+		if(!!this.vid){ this.elements[this.vid] = el;}
 		el.setAttribute(S_ATT_FILL,   (isfill ? parsecolor(this.fillStyle) : S_NONE));
 		el.setAttribute(S_ATT_STROKE, (isstroke ? parsecolor(this.strokeStyle) : S_NONE));
 		if(isstroke){
@@ -446,6 +451,7 @@ VectorContext.prototype = {
 		ar.push(V_ATT_END);
 		ar.push(V_TAGEND_NULL);
 		this.target.insertAdjacentHTML(BEFOREEND, ar.join(''));
+		if(!!this.vid){ this.elements[this.vid] = _doc.getElementById(this.vid);}
 		break;
 	}}
 };
