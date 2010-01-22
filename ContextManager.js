@@ -16,7 +16,7 @@ var _win = this,
 	Z2 = Z/2,
 
 	flags = {
-		debugmode : true,
+		debugmode : false,
 		useUC     : false, // uuCanvas(SlverLightÉÇÅ[Éh)
 		pathUC    : 'src/uuCanvas.js',
 		useFC     : false, // FlashCanvas.js
@@ -40,14 +40,14 @@ function parsecolor(rgbstr){
 	}
 	return rgbstr;
 }
-function parsecolorrev(str){
-	if(rgbstr.match(/\#([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])/)){
+function parsecolorrev(colorstr){
+	if(colorstr.match(/\#([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])/)){
 		var m0 = parseInt(RegExp.$1,16).toString();
 		var m1 = parseInt(RegExp.$2,16).toString();
 		var m2 = parseInt(RegExp.$3,16).toString();
 		return ["rgb(",m[0],',',m[1],',',m[2],")"].join('');
 	}
-	return rgbstr;
+	return colorstr;
 }
 function _extend(obj, ads){
 	for(var name in ads){ obj[name] = ads[name];}
@@ -160,6 +160,7 @@ VectorContext.prototype = {
 			var rect = getRectSize(parent);
 			if     (this.type===SVG){ child = this.appendSVG(parent,rect.width,rect.height);}
 			else if(this.type===VML){ child = this.appendVML(parent,rect.width,rect.height);}
+			parent.appendChild(child);
 
 			var self = this;
 			//parent.className = "canvas";
@@ -182,7 +183,7 @@ VectorContext.prototype = {
 	appendSVG : function(parent, width, height){
 		var svgtop = _doc.createElementNS(SVGNS,'svg');
 		svgtop.setAttribute('id', this.canvasid);
-		svgtop.setAttribute('unselectable', 'on');
+//		svgtop.setAttribute('unselectable', 'on');
 		svgtop.setAttribute(S_ATT_RENDERING, 'crispEdges');
 
 		svgtop.setAttribute('font-size', "10px");
@@ -191,21 +192,20 @@ VectorContext.prototype = {
 		svgtop.setAttribute('height', height);
 		svgtop.setAttribute('viewBox', [0,0,width,height].join(' '));
 
-		parent.appendChild(svgtop);
-		this.elements["bg_"] = svgtop;
 		return svgtop;
 	},
 	appendVML : function(parent, width, height){
 		var vmltop = _doc.createElement('v:group');
 		vmltop.id = this.canvasid;
-		vmltop.unselectable = 'on';
+//		vmltop.unselectable = 'on';
 
+		vmltop.style.position = 'relative';
+		vmltop.style.left   = '-2px';
+		vmltop.style.top    = '-2px';
 		vmltop.style.width  = width + 'px';
 		vmltop.style.height = height + 'px';
 		vmltop.coordsize = [width*Z, height*Z].join(',');
 
-		parent.appendChild(vmltop);
-		this.elements["bg_"] = vmltop;
 		return vmltop;
 	},
 	setLayer : function(layerid){
@@ -272,7 +272,7 @@ VectorContext.prototype = {
 		if(this.vid){
 			var el = this.elements[this.vid];
 			var color = parsecolor(rgbstr);
-			if(type===SVG){
+			if(this.type===SVG){
 				if     (el.fill  !=='none'){ el.setAttribute('fill',  color);}
 				else if(el.stroke!=='none'){ el.setAttribute('stroke',color);}
 			}
@@ -628,6 +628,7 @@ CanvasRenderingContext2D_wrapper.prototype = {
 	clearCanvas : function(){
 		this.setProperties();
 		this.context.fillStyle = parsecolorrev(this.parent.style.backgroundColor);
+		alert(this.context.fillStyle);
 		var rect = getRectSize(this.parent);
 		this.context.fillRect(this.OFFSETX,this.OFFSETY,rect.width,rect.height);
 	}
@@ -646,6 +647,8 @@ var ContextManager = (function(){
 	o.flash  = false;
 	o.svg    = false;
 	o.canvas = false;
+
+	o.parse  = parsecolor;
 
 	o.initAllElement = function(){
 		this.initElementsByClassName('canvas');
