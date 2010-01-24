@@ -387,9 +387,9 @@ VectorContext.prototype = {
 			m[i] = _args[i] + m[0];
 			m[i+1] = _args[i+1] + m[1];
 		}
-		for(var i=0,len=_len-((_len|1)?1:2);i<len;i+=2){
-			if     (i==0){ this.currentpath.push(this.PATH_MOVE);}
-			else if(i==2){ this.currentpath.push(this.PATH_LINE);}
+		for(var i=2,len=_len-((_len|1)?1:2);i<len;i+=2){
+			if     (i==2){ this.currentpath.push(this.PATH_MOVE);}
+			else if(i==4){ this.currentpath.push(this.PATH_LINE);}
 			this.currentpath.push((svg?m[i]:m[i]*Z-Z2), (svg?m[i+1]:m[i+1]*Z-Z2));
 		}
 		if(_args[_len-1]){ this.currentpath.push(this.PATH_CLOSE);}
