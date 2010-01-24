@@ -138,17 +138,24 @@ var VectorContext = function(type, idname){
 	this.canvasid = EL_ID_HEADER+idname;
 	this.currentpath = [];
 	this.lastpath    = '';
+	this.isAA = false;
+
+	this.canvas = false;
+	this.vml    = false;
+	this.svg    = false;
 
 	// define const
 	if(this.type===SVG){
 		this.PATH_MOVE  = S_PATH_MOVE;
 		this.PATH_LINE  = S_PATH_LINE;
 		this.PATH_CLOSE = S_PATH_CLOSE;
+		this.svg = true;
 	}
 	else if(this.type===VML){
 		this.PATH_MOVE  = V_PATH_MOVE;
 		this.PATH_LINE  = V_PATH_LINE;
 		this.PATH_CLOSE = V_PATH_CLOSE;
+		this.vml = true;
 	}
 
 	this.initElement(idname);
@@ -317,6 +324,7 @@ VectorContext.prototype = {
 			var islong = ((antiClockWise^unknownflag)?1:0), sweep = ((islong==0^unknownflag)?1:0);
 			this.currentpath.push(this.PATH_MOVE,sx,sy,S_PATH_ARCTO,r,r,0,islong,sweep,ex,ey);
 			this.lastpath = S_PATH_ARCTO;
+			this.isAA = true;
 		}
 	},
 
@@ -429,7 +437,7 @@ VectorContext.prototype = {
 		if(isstroke){
 			el.setAttribute(S_ATT_STROKEWIDTH, (!!this.lineWidth ? this.lineWidth : S_DEF_LINEWIDTH)+'px');
 		}
-		if(this.lastpath==S_PATH_ARCTO){ el.setAttribute(S_ATT_RENDERING, 'auto');}
+		if(this.isAA){ el.setAttribute(S_ATT_RENDERING, 'auto'); this.isAA = false;}
 		el.setAttribute('d', (isrect ? this.pathRect(size) : this.currentpath.join(' ')));
 
 		this.target.appendChild(el);
@@ -470,6 +478,10 @@ CanvasRenderingContext2D_wrapper = function(idname){
 	this.context = null;
 	this.OFFSETX = 0;
 	this.OFFSETY = 0;
+
+	this.canvas = true;
+	this.vml    = false;
+	this.svg    = false;
 
 	this.initElement(idname);
 };
