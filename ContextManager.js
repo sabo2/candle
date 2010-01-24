@@ -268,18 +268,15 @@ VectorContext.prototype = {
 		this.initElement(this.idname);
 	},
 
-	setColor : function(rgbstr){
-		if(this.vid){
-			var el = this.elements[this.vid];
-			var color = parsecolor(rgbstr);
-			if(this.type===SVG){
-				if     (el.fill  !=='none'){ el.setAttribute('fill',  color);}
-				else if(el.stroke!=='none'){ el.setAttribute('stroke',color);}
-			}
-			else if(this.type===VML){
-				if     (!!el.fillcolor)  { el.fillcolor   = color;}
-				else if(!!el.strokecolor){ el.strokecolor = color;}
-			}
+	setColor : function(){
+		var el = this.elements[this.vid];
+		if(this.type===SVG){
+			if(el.getAttribute('fill')  !=='none'){ el.setAttribute('fill',  parsecolor(this.fillStyle));}
+			if(el.getAttribute('stroke')!=='none'){ el.setAttribute('stroke',parsecolor(this.strokeStyle));}
+		}
+		else if(this.type===VML){
+			if(!!el.fillcolor)  { el.fillcolor   = parsecolor(this.fillStyle);}
+			if(!!el.strokecolor){ el.strokecolor = parsecolor(this.strokeStyle);}
 		}
 	},
 
@@ -626,11 +623,12 @@ CanvasRenderingContext2D_wrapper.prototype = {
 	},
 
 	clearCanvas : function(){
-		this.setProperties();
-		this.context.fillStyle = parsecolorrev(this.parent.style.backgroundColor);
-		alert(this.context.fillStyle);
-		var rect = getRectSize(this.parent);
-		this.context.fillRect(this.OFFSETX,this.OFFSETY,rect.width,rect.height);
+		if(!!this.parent.style.backgroundColor){
+			this.setProperties();
+			this.context.fillStyle = parsecolorrev(this.parent.style.backgroundColor);
+			var rect = getRectSize(this.parent);
+			this.context.fillRect(this.OFFSETX,this.OFFSETY,rect.width,rect.height);
+		}
 	}
 
 };
