@@ -35,7 +35,10 @@ function getRectSize(el){
 function parsecolor(rgbstr){
 	if(rgbstr.match(/rgb\(/)){
 		var m = rgbstr.match(/\d+/g);
-		for(var i=0;i<m.length;i++){ m[i]=parseInt(m[i]).toString(16);}
+		for(var i=0;i<m.length;i++){
+			m[i]=parseInt(m[i]).toString(16);
+			if(m[i].length==1){ m[i] = "0"+m[i];}
+		}
 		return ["#",m[0],m[1],m[2]].join('');
 	}
 	return rgbstr;
