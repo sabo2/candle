@@ -558,7 +558,7 @@ CanvasRenderingContext2D_wrapper.prototype = {
 	moveTo : function(x,y){ this.context.moveTo(x+this.OFFSETX,y+this.OFFSETY);},
 	lineTo : function(x,y){ this.context.lineTo(x+this.OFFSETX,y+this.OFFSETY);},
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
-		this.context.arc(cx+this.OFFSETX,cy+this.OFFSETY,r,startRad,endRad,antiCloskWise);
+		this.context.arc(cx+this.OFFSETX,cy+this.OFFSETY,r,startRad,endRad,antiClockWise);
 	},
 
 	/* Canvas API functions (for drawing) */
