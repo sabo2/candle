@@ -1,3 +1,5 @@
+// ContextManager.js rev16
+
 (function(){
 
 /* ------------- */
@@ -25,6 +27,15 @@ var _win = this,
 
 	BEFOREEND = 'BeforeEnd';
 
+/* ---------- */
+/*   arrays   */
+/* ---------- */
+var _hex = (function(){
+	var tbl = [];
+	for(var r=256;r<512;r++){ tbl[r-256]=r.toString(16).substr(1);}
+	return tbl;
+})();
+
 /* ------------ */
 /*   ‹¤’ÊŠÖ”   */
 /* ------------ */
@@ -33,13 +44,9 @@ function getRectSize(el){
 			 height:(el.offsetHeight || el.clientHeight)};
 }
 function parsecolor(rgbstr){
-	if(rgbstr.match(/rgb\(/)){
+	if(rgbstr.substr(0,4)==='rgb('){
 		var m = rgbstr.match(/\d+/g);
-		for(var i=0;i<m.length;i++){
-			m[i]=parseInt(m[i]).toString(16);
-			if(m[i].length==1){ m[i] = "0"+m[i];}
-		}
-		return ["#",m[0],m[1],m[2]].join('');
+		return ["#",_hex[m[0]],_hex[m[1]],_hex[m[2]]].join('');
 	}
 	return rgbstr;
 }
@@ -48,7 +55,7 @@ function parsecolorrev(colorstr){
 		var m0 = parseInt(RegExp.$1,16).toString();
 		var m1 = parseInt(RegExp.$2,16).toString();
 		var m2 = parseInt(RegExp.$3,16).toString();
-		return ["rgb(",m[0],',',m[1],',',m[2],")"].join('');
+		return ["rgb(",m0,',',m1,',',m2,")"].join('');
 	}
 	return colorstr;
 }
