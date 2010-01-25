@@ -1,4 +1,4 @@
-// ContextManager.js rev17
+// ContextManager.js rev18
  
 (function(){
 
@@ -97,9 +97,7 @@ var V_TAG_GROUP   = '<v:group unselectable="on"',
 	V_PATH_LINE   = ' l',
 	V_PATH_CLOSE  = ' x',
 	V_PATH_NOSTROKE = ' ns',
-	V_PATH_NOFILL   = ' nf',
-
-	V_DEF_LINEWIDTH = 1;
+	V_PATH_NOFILL   = ' nf';
 
 /* ------------------------------------------- */
 /*   VectorContext(SVG)クラス用const文字列集   */
@@ -131,7 +129,7 @@ var VectorContext = function(type, idname){
 	// canvasに存在するプロパティ＆デフォルト値
 	this.fillStyle    = 'black';
 	this.strokeStyle  = 'black';
-	this.lineWidth    = DEF_LINEWIDTH;
+	this.lineWidth    = 1;
 	this.textAlign    = 'center';
 	this.textBaseline = 'middle';
 
@@ -285,18 +283,6 @@ VectorContext.prototype = {
 		document.getElementById(this.idname).innerHTML = '';
 		this.elements = [];
 		this.initElement(this.idname);
-	},
-
-	setColor : function(){
-		var el = this.elements[this.vid];
-		if(this.type===SVG){
-			if(el.getAttribute('fill')  !=='none'){ el.setAttribute('fill',  parsecolor(this.fillStyle));}
-			if(el.getAttribute('stroke')!=='none'){ el.setAttribute('stroke',parsecolor(this.strokeStyle));}
-		}
-		else if(this.type===VML){
-			if(!!el.fillcolor)  { el.fillcolor   = parsecolor(this.fillStyle);}
-			if(!!el.strokecolor){ el.strokecolor = parsecolor(this.strokeStyle);}
-		}
 	},
 
 	/* Canvas API functions (for path) */
@@ -540,7 +526,6 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		this.parent = parent;
 	},
 	setLayer    : function(layerid){ },
-	setColor    : function(rgbstr) { },
 	getContextElement : function(){ return document.getElementById(this.canvasid);},
 	getLayerElement   : function(){ return document.getElementById(this.canvasid);},
 
