@@ -1,4 +1,4 @@
-// ContextManager.js rev21
+// ContextManager.js rev22
  
 (function(){
 
@@ -250,7 +250,7 @@ VectorContext.prototype = {
 		}
 		else{ this.initElement(this.idname);}
 	},
-	getContextElement : function(){ return document.getElementById(this.canvasid);},
+	getContextElement : function(){ return _doc.getElementById(this.canvasid);},
 	getLayerElement   : function(){ return this.target;},
 
 	changeSize : function(width,height){
@@ -282,7 +282,7 @@ VectorContext.prototype = {
 		}
 	},
 	clearCanvas : function(){
-		document.getElementById(this.idname).innerHTML = '';
+		_doc.getElementById(this.idname).innerHTML = '';
 		this.elements = [];
 		this.initElement(this.idname);
 	},
@@ -475,6 +475,13 @@ VectorContext.prototype = {
 /*   Canvas追加関数群   */
 /* -------------------- */
 CanvasRenderingContext2D_wrapper = function(idname, type){
+	// canvasに存在するプロパティ＆デフォルト値
+	this.fillStyle    = 'black';
+	this.strokeStyle  = 'black';
+	this.lineWidth    = 1;
+	this.textAlign    = 'center';
+	this.textBaseline = 'middle';
+
 	this.OFFSETX = 0;
 	this.OFFSETY = 0;
 
@@ -525,8 +532,8 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		this.parent = parent;
 	},
 	setLayer    : function(layerid){ },
-	getContextElement : function(){ return document.getElementById(this.canvasid);},
-	getLayerElement   : function(){ return document.getElementById(this.canvasid);},
+	getContextElement : function(){ return _doc.getElementById(this.canvasid);},
+	getLayerElement   : function(){ return _doc.getElementById(this.canvasid);},
 
 	changeSize : function(width,height){
 		this.parent.style.width  = width + 'px';
