@@ -1,4 +1,4 @@
-// ContextManager.js rev19
+// ContextManager.js rev20
  
 (function(){
 
@@ -83,6 +83,7 @@ var V_TAG_GROUP   = '<v:group unselectable="on"',
 	V_ATT_ID    = ' id="',
 	V_ATT_PATH  = ' path="',
 	V_ATT_STYLE = ' style="',
+	V_ATT_COORDSIZE    = ' coordsize="100,100"',
 	V_ATT_FILLCOLOR    = ' fillcolor="',
 	V_ATT_STROKECOLOR  = ' strokecolor="',
 	V_ATT_STROKEWEIGHT = ' strokeweight="',
@@ -212,16 +213,14 @@ VectorContext.prototype = {
 		return svgtop;
 	},
 	appendVML : function(parent, width, height){
-		var vmltop = _doc.createElement('v:group');
+		var vmltop = _doc.createElement('div');
 		vmltop.id = this.canvasid;
-//		vmltop.unselectable = 'on';
 
 		vmltop.style.position = 'relative';
 		vmltop.style.left   = '-2px';
 		vmltop.style.top    = '-2px';
 		vmltop.style.width  = width + 'px';
 		vmltop.style.height = height + 'px';
-		vmltop.coordsize = [width*Z, height*Z].join(',');
 
 		return vmltop;
 	},
@@ -236,7 +235,7 @@ VectorContext.prototype = {
 					layer.setAttribute('unselectable', 'on');
 				}
 				else{
-					layer = _doc.createElement('v:group');
+					layer = _doc.createElement('div');
 					layer.id = lid;
 					layer.unselectable = 'on';
 				}
@@ -264,7 +263,6 @@ VectorContext.prototype = {
 		else if(this.type==VML){
 			child.style.width  = width + 'px';
 			child.style.height = height + 'px';
-			child.coordsize = [width*Z, height*Z].join(',');
 		}
 		this.clearCanvas();
 	},
@@ -450,6 +448,7 @@ VectorContext.prototype = {
 	case VML:
 		var ar = [V_TAG_SHAPE];
 		if(!!this.vid){ ar = [V_TAG_SHAPE, V_ATT_ID, this.vid, V_ATT_END]; }
+		ar.push(V_ATT_COORDSIZE);
 		if(isfill){
 			ar.push(V_ATT_FILLCOLOR, parsecolor(this.fillStyle), V_ATT_END);
 		}
@@ -732,7 +731,7 @@ var ContextManager = (function(){
 			/* addStyleSheet for VML */
 			var text = [];
 			text.push("v\\:group { behavior: url(#default#VML); display:inline; position:absolute; width:100%; height:100%; overflow:hidden; }");
-			text.push("v\\:shape { behavior: url(#default#VML); position:relative; width:100%; height:100%; }");
+			text.push("v\\:shape { behavior: url(#default#VML); position:absolute; width:10px; height:10px; }");
 			text.push("v\\:textbox, v\\:stroke { behavior: url(#default#VML); }");
 			_doc.createStyleSheet().cssText = text.join('');
 		}
