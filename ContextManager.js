@@ -1,5 +1,5 @@
-// ContextManager.js rev16
-
+// ContextManager.js rev17
+ 
 (function(){
 
 /* ------------- */
@@ -24,6 +24,12 @@ var _win = this,
 		useFC     : false, // FlashCanvas.js
 		pathFC    : 'flashcanvas.js'
 	},
+
+	VML = 0,
+	SVG = 1,
+	CANVAS = 2,
+	SL     = 3,
+	FLASH  = 4,
 
 	BEFOREEND = 'BeforeEnd';
 
@@ -115,12 +121,8 @@ var SVGNS = "http://www.w3.org/2000/svg",
 /* --------------------------------- */
 /*   VectorContextクラス用変数など   */
 /* --------------------------------- */
-var VML = 0,
-	SVG = 3,
-
-	EL_ID_HEADER = "canvas_o_",
-
-	DEF_LINEWIDTH = 1;
+var EL_ID_HEADER = "canvas_o_",
+	EMPTY = '';
 
 /* ----------------------- */
 /*   VectorContextクラス   */
@@ -486,24 +488,19 @@ VectorContext.prototype = {
 /* -------------------- */
 /*   Canvas追加関数群   */
 /* -------------------- */
-CanvasRenderingContext2D_wrapper = function(idname){
-	// canvasに存在するプロパティ＆デフォルト値
-	this.fillStyle    = 'black';
-	this.strokeStyle  = 'black';
-	this.lineWidth    = DEF_LINEWIDTH;
-	this.textAlign    = 'center';
-	this.textBaseline = 'middle';
-
-	this.context = null;
+CanvasRenderingContext2D_wrapper = function(type){
 	this.OFFSETX = 0;
 	this.OFFSETY = 0;
 
-	this.canvas = true;
-	this.vml    = false;
+	this.vml    = (type===VML);
 	this.svg    = false;
+	this.canvas = (type===CANVAS);
+	this.sl     = (type===SL);
+	this.flash  = (type===FLASH);
 
 	this.initElement(idname);
 };
+
 //function addCanvasFunctions(){ _extend(CanvasRenderingContext2D.prototype, {
 CanvasRenderingContext2D_wrapper.prototype = {
 	/* extend functions (initialize) */
@@ -512,6 +509,11 @@ CanvasRenderingContext2D_wrapper.prototype = {
 
 		var parent = _doc.getElementById(idname);
 		var canvas = _doc.getElementById(this.canvasid);
+
+		if     (this.vml)  { _win.uuCanvas.init(canvas, true);}
+		else if(this.sl)   { _win.uuCanvas.init(canvas, false);}
+		else if(this.flash){ _win.FlashCanvas.initElement(canvas);}
+
 		var rect = getRectSize(parent);
 
 		canvas.width  = rect.width;
@@ -712,17 +714,9 @@ var ContextManager = (function(){
 			canvas.id = canvasid;
 			parent.appendChild(canvas);
 
-			if(this.canvas){
-				new CanvasRenderingContext2D_wrapper(idname);
-			}
-			else if(this.sl){
-				uuCanvas.init(canvas, false);
-				parent.getContext = function(type){ return canvas.getContext(type);}
-			}
-			else if(this.flash){
-				FlashCanvas.initElement(canvas);
-				parent.getContext = function(type){ return canvas.getContext(type);}
-			}
+			if(this.canvas)    { new CanvasRenderingContext2D_wrapper(idname, CANVAS);}
+			else if(this.sl)   { new CanvasRenderingContext2D_wrapper(idname, SL);    }
+			else if(this.flash){ new CanvasRenderingContext2D_wrapper(idname, FLASH); }
 		}
 	};
 	o.select = function(type){
