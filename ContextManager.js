@@ -1,4 +1,4 @@
-// ContextManager.js rev20
+// ContextManager.js rev21
  
 (function(){
 
@@ -216,7 +216,7 @@ VectorContext.prototype = {
 		var vmltop = _doc.createElement('div');
 		vmltop.id = this.canvasid;
 
-		vmltop.style.position = 'relative';
+		vmltop.style.position = 'absolute';
 		vmltop.style.left   = '-2px';
 		vmltop.style.top    = '-2px';
 		vmltop.style.width  = width + 'px';
@@ -238,6 +238,9 @@ VectorContext.prototype = {
 					layer = _doc.createElement('div');
 					layer.id = lid;
 					layer.unselectable = 'on';
+					layer.style.position = 'absolute';
+					layer.style.left   = '0px';
+					layer.style.top    = '0px';
 				}
 
 				this.initElement(this.idname);
@@ -274,7 +277,8 @@ VectorContext.prototype = {
 			child.setAttribute('viewBox', m.join(' '));
 		}
 		else if(this.type==VML){
-			child.coordorigin = [left*Z, top*Z].join(',');
+			child.style.left = (-left-2)+'px';
+			child.style.top  = (-top -2)+'px';
 		}
 	},
 	clearCanvas : function(){
@@ -338,9 +342,9 @@ VectorContext.prototype = {
 		break;
 
 	case VML:
-		var ar = [V_TAG_SHAPE];
-		ar.push(V_ATT_STYLE, V_STYLE_LEFT,(x*Z-Z2),V_STYLE_END, V_STYLE_TOP,(y*Z-Z2),V_STYLE_END, V_ATT_END,
-				V_ATT_PATH, this.pathRect([x,y,200,30]), V_PATH_CLOSE, V_PATH_NOFILL, V_PATH_NOSTROKE, V_ATT_END,
+		var ar = [V_TAG_SHAPE, V_ATT_COORDSIZE];
+		ar.push(V_ATT_STYLE, V_STYLE_LEFT,x,V_STYLE_END, V_STYLE_TOP,y,V_STYLE_END, V_ATT_END,
+				V_ATT_PATH, this.pathRect([x,y,200,30]), V_PATH_NOFILL, V_PATH_NOSTROKE, V_ATT_END,
 				V_TAGEND,
 
 				V_TAG_TEXTBOX);
@@ -470,7 +474,7 @@ VectorContext.prototype = {
 /* -------------------- */
 /*   Canvasí«â¡ä÷êîåQ   */
 /* -------------------- */
-CanvasRenderingContext2D_wrapper = function(type){
+CanvasRenderingContext2D_wrapper = function(idname, type){
 	this.OFFSETX = 0;
 	this.OFFSETY = 0;
 
