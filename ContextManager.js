@@ -1,4 +1,4 @@
-// ContextManager.js rev18
+// ContextManager.js rev19
  
 (function(){
 
@@ -341,15 +341,14 @@ VectorContext.prototype = {
 
 	case VML:
 		var ar = [V_TAG_SHAPE];
-		ar.push(V_ATT_STYLE, V_STYLE_LEFT,(x*Z-Z2),V_STYLE_END, V_STYLE_TOP,(y*Z-Z2),V_STYLE_END, V_ATT_END);
-		ar.push(V_ATT_PATH, this.pathRect([x,y,200,30]), V_PATH_CLOSE, V_PATH_NOFILL, V_PATH_NOSTROKE, V_ATT_END);
-		ar.push(V_TAGEND);
+		ar.push(V_ATT_STYLE, V_STYLE_LEFT,(x*Z-Z2),V_STYLE_END, V_STYLE_TOP,(y*Z-Z2),V_STYLE_END, V_ATT_END,
+				V_ATT_PATH, this.pathRect([x,y,200,30]), V_PATH_CLOSE, V_PATH_NOFILL, V_PATH_NOSTROKE, V_ATT_END,
+				V_TAGEND,
 
-		ar.push(V_TAG_TEXTBOX);
+				V_TAG_TEXTBOX);
 		if(!!this.vid){ ar.push(V_ATT_ID, this.vid, V_ATT_END); }
-		ar.push(V_ATT_STYLE_TEXTBOX, V_TAGEND, text, V_CLOSETAG_TEXTBOX);
-
-		ar.push(V_CLOSETAG_SHAPE);
+		ar.push(V_ATT_STYLE_TEXTBOX, V_TAGEND, text, V_CLOSETAG_TEXTBOX,
+				V_CLOSETAG_SHAPE);
 
 		this.target.insertAdjacentHTML(BEFOREEND, ar.join(''));
 		if(!!this.vid){ this.elements[this.vid] = _doc.getElementById(this.vid);}
@@ -441,9 +440,7 @@ VectorContext.prototype = {
 		if(!!this.vid){ this.elements[this.vid] = el;}
 		el.setAttribute(S_ATT_FILL,   (isfill ? parsecolor(this.fillStyle) : S_NONE));
 		el.setAttribute(S_ATT_STROKE, (isstroke ? parsecolor(this.strokeStyle) : S_NONE));
-		if(isstroke){
-			el.setAttribute(S_ATT_STROKEWIDTH, (!!this.lineWidth ? this.lineWidth : S_DEF_LINEWIDTH)+'px');
-		}
+		if(isstroke) { el.setAttribute(S_ATT_STROKEWIDTH, this.lineWidth, 'px');}
 		if(this.isAA){ el.setAttribute(S_ATT_RENDERING, 'auto'); this.isAA = false;}
 		el.setAttribute('d', (isrect ? this.pathRect(size) : this.currentpath.join(' ')));
 
@@ -452,19 +449,19 @@ VectorContext.prototype = {
 
 	case VML:
 		var ar = [V_TAG_SHAPE];
-		if(!!this.vid){ ar.push(V_ATT_ID, this.vid, V_ATT_END); }
+		if(!!this.vid){ ar = [V_TAG_SHAPE, V_ATT_ID, this.vid, V_ATT_END]; }
 		if(isfill){
 			ar.push(V_ATT_FILLCOLOR, parsecolor(this.fillStyle), V_ATT_END);
 		}
 		if(isstroke){
-			ar.push(V_ATT_STROKECOLOR, parsecolor(this.strokeStyle), V_ATT_END);
-			ar.push(V_ATT_STROKEWEIGHT, (!!this.lineWidth ? this.lineWidth+'px' : V_DEF_LINEWIDTH+'px'), V_ATT_END);
+			ar.push(V_ATT_STROKECOLOR, parsecolor(this.strokeStyle), V_ATT_END,
+					V_ATT_STROKEWEIGHT, this.lineWidth, 'px', V_ATT_END);
 		}
-		ar.push(V_ATT_PATH, (isrect ? this.pathRect(size) : this.currentpath.join(' ')));
-		if(!isfill)  { ar.push(V_PATH_NOFILL);}
-		if(!isstroke){ ar.push(V_PATH_NOSTROKE);}
-		ar.push(V_ATT_END);
-		ar.push(V_TAGEND_NULL);
+		ar.push(V_ATT_PATH, (isrect ? this.pathRect(size) : this.currentpath.join(' ')),
+				(!isfill ? V_PATH_NOFILL : EMPTY),
+				(!isstroke ? V_PATH_NOSTROKE : EMPTY),
+				V_ATT_END,
+				V_TAGEND_NULL);
 		this.target.insertAdjacentHTML(BEFOREEND, ar.join(''));
 		if(!!this.vid){ this.elements[this.vid] = _doc.getElementById(this.vid);}
 		break;
@@ -501,7 +498,6 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		else if(this.flash){ _win.FlashCanvas.initElement(canvas);}
 
 		var rect = getRectSize(parent);
-
 		canvas.width  = rect.width;
 		canvas.height = rect.height;
 		canvas.style.position = 'relative';
