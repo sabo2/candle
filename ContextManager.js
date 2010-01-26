@@ -1,4 +1,4 @@
-// ContextManager.js rev24
+// ContextManager.js rev25
  
 (function(){
 
@@ -251,6 +251,7 @@ VectorContext.prototype = {
 		return this.content.findName(this.canvasid);
 	},
 	setLayer : function(layerid){
+		this.initElement(this.idname);
 		if(!!layerid){
 			var lid = [this.canvasid,"layer",layerid].join('_');
 			var layer = (this.type!==SL ? _doc.getElementById(lid) : this.content.findName(lid));
@@ -259,9 +260,11 @@ VectorContext.prototype = {
 					layer = _doc.createElementNS(SVGNS,'g');
 					layer.setAttribute('id', lid);
 					layer.setAttribute('unselectable', 'on');
+					this.target.appendChild(layer);
 				}
 				else if(this.type===SL){
 					layer = this.content.createFromXaml(['<Canvas Name="',lid,'"/>'].join(''));
+					this.target.children.add(layer);
 				}
 				else{
 					layer = _doc.createElement('div');
@@ -270,16 +273,11 @@ VectorContext.prototype = {
 					layer.style.position = 'absolute';
 					layer.style.left   = '0px';
 					layer.style.top    = '0px';
+					this.target.appendChild(layer);
 				}
-
-				this.initElement(this.idname);
-
-				if(this.type!==SL){ this.target.appendChild(layer);}
-				else{ this.target.children.add(layer);}
 			}
 			this.target = layer;
 		}
-		else{ this.initElement(this.idname);}
 	},
 	getContextElement : function(){ return _doc.getElementById(this.canvasid);},
 	getLayerElement   : function(){ return this.target;},
