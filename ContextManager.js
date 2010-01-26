@@ -1,4 +1,4 @@
-// ContextManager.js rev25
+// ContextManager.js rev26
  
 (function(){
 
@@ -343,7 +343,7 @@ VectorContext.prototype = {
 		this.lastpath = this.PATH_LINE;
 	},
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
-		if(this.type===VML){ cx=cx*Z-Z2, cy=cy*Z-Z2, r=r*Z;}
+		if(this.type===VML){ cx=cx*Z-Z2, cy=cy*Z-Z2, r=_mf(r*Z);}
 		var sx = _mf(cx + r*_mc(startRad)), sy = _mf(cy + r*_ms(startRad)),
 			ex = _mf(cx + r*_mc(endRad)),   ey = _mf(cy + r*_ms(endRad));
 		if(this.type===VML){
@@ -458,7 +458,7 @@ VectorContext.prototype = {
 		this.currentpath = stack;
 	},
 	strokeCross : function(cx,cy,l){
-		if(this.type===VML){ cx=cx*Z-Z2, cy=cy*Z-Z2, l=l*Z;}
+		if(this.type===VML){ cx=cx*Z-Z2, cy=cy*Z-Z2, l=_mf(l*Z);}
 		var stack = this.currentpath;
 		this.currentpath = [];
 		this.currentpath.push(this.PATH_MOVE,(cx-l),(cy-l),this.PATH_LINE,(cx+l),(cy+l));
