@@ -8,10 +8,10 @@
 
 function onload_func(){
 
-	ContextManager.select('svg');
+//	ContextManager.select('sl');
 	ContextManager.initElementById('vml_base');
 
-	ContextManager.select('canvas');
+//	ContextManager.select('vml');
 	ContextManager.initElementById('vml_base2');
 
 	g = document.getElementById('vml_base').getContext("2d");
@@ -111,6 +111,7 @@ function onload_func(){
 	if     (ContextManager.vml){ title.innerHTML = 'VML test 1';}
 	else if(ContextManager.svg){ title.innerHTML = 'SVG test 1';}
 	else if(ContextManager.canvas){ title.innerHTML = 'Canvas test 1';}
+	else if(ContextManager.sl) { title.innerHTML = 'Silverlight test 1';}
 }
 </script>
 </head>
