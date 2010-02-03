@@ -1,4 +1,4 @@
-// ContextManager.js rev31
+// ContextManager.js rev32
  
 (function(){
 
@@ -132,6 +132,10 @@ var VectorContext = function(type, idname){
 	this.lineWidth    = 1;
 	this.textAlign    = 'center';
 	this.textBaseline = 'middle';
+
+	// changeOrigin用(Sinverlight用)
+	this.OFFSETX = 0;
+	this.OFFSETY = 0;
 
 	// 外部から変更される追加プロパティ
 	this.vid      = '';
@@ -303,7 +307,6 @@ VectorContext.prototype = {
 			child.style.width  = width + 'px';
 			child.style.height = height + 'px';
 		}
-		//this.clearCanvas();
 	},
 	changeOrigin : function(left,top){
 		var child = this.parent.firstChild;
@@ -312,10 +315,14 @@ VectorContext.prototype = {
 			m[0]=left, m[1]=top;
 			child.setAttribute('viewBox', m.join(' '));
 		}
-		else if(this.type===VML || this.type===SL){
+		else if(this.type===VML){
 			child.style.position = 'absolute';
 			child.style.left = (-left-2)+'px';
 			child.style.top  = (-top -2)+'px';
+		}
+		else if(this.type===SL){
+			this.OFFSETX = -left;//(left<0?-left:0);
+			this.OFFSETY = -top;//(top<0?-top:0);
 		}
 	},
 	clearCanvas : function(){
@@ -337,16 +344,21 @@ VectorContext.prototype = {
 		this.lastpath = this.PATH_CLOSE;
 	},
 	moveTo : function(x,y){
-		if(this.type!==VML){ this.currentpath.push(this.PATH_MOVE,x,y);}else{ this.currentpath.push(this.PATH_MOVE,x*Z-Z2,y*Z-Z2);}
+		if     (this.type===SVG){ this.currentpath.push(this.PATH_MOVE,x,y);}
+		else if(this.type===VML){ this.currentpath.push(this.PATH_MOVE,x*Z-Z2,y*Z-Z2);}
+		else if(this.type===SL) { this.currentpath.push(this.PATH_MOVE,x+this.OFFSETX,y+this.OFFSETY);}
 		this.lastpath = this.PATH_MOVE;
 	},
 	lineTo : function(x,y){
 		if(this.lastpath!==this.PATH_LINE){ this.currentpath.push(this.PATH_LINE);}
-		if(this.type!==VML){ this.currentpath.push(x,y);}else{ this.currentpath.push(x*Z-Z2,y*Z-Z2);}
+		if     (this.type===SVG){ this.currentpath.push(x,y);}
+		else if(this.type===VML){ this.currentpath.push(x*Z-Z2,y*Z-Z2);}
+		else if(this.type===SL) { this.currentpath.push(x+this.OFFSETX,y+this.OFFSETY);}
 		this.lastpath = this.PATH_LINE;
 	},
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
-		if(this.type===VML){ cx=cx*Z-Z2, cy=cy*Z-Z2, r=_mf(r*Z);}
+		if     (this.type===VML){ cx=cx*Z-Z2, cy=cy*Z-Z2, r=_mf(r*Z);}
+		else if(this.type===SL) { cx+=this.OFFSETX, cy+=this.OFFSETY;}
 		var sx = _mf(cx + r*_mc(startRad)), sy = _mf(cy + r*_ms(startRad)),
 			ex = _mf(cx + r*_mc(endRad)),   ey = _mf(cy + r*_ms(endRad));
 		if(this.type===VML){
@@ -382,7 +394,7 @@ VectorContext.prototype = {
 		break;
 
 	case SL:
-		var ar = ['<TextBlock Canvas.Left="',x,'" Canvas.Top="',y,'">',text,'</TextBlock>'];
+		var ar = ['<TextBlock Canvas.Left="',(x+this.OFFSETX),'" Canvas.Top="',(y+this.OFFSETY),'">',text,'</TextBlock>'];
 		var xaml = this.content.createFromXaml(ar.join(''));
 		if(!!this.vid){ this.elements[this.vid] = xaml;}
 		this.target.children.add(xaml);
@@ -409,7 +421,8 @@ VectorContext.prototype = {
 
 	pathRect : function(size){
 		var x=size[0], y=size[1], w=size[2], h=size[3];
-		if(this.type===VML){ x=x*Z-Z2,y=y*Z-Z2, w=w*Z, h=h*Z;}
+		if     (this.type===VML){ x=x*Z-Z2,y=y*Z-Z2, w=w*Z, h=h*Z;}
+		else if(this.type===SL) { x+=this.OFFSETX,y+=this.OFFSETY;}
 		return [this.PATH_MOVE,x,y,this.PATH_LINE,(x+w),y,(x+w),(y+h),x,(y+h),this.PATH_CLOSE].join(' ');
 	},
 
@@ -419,7 +432,10 @@ VectorContext.prototype = {
 		for(var i=0,len=_len-((_len|1)?1:2);i<len;i+=2){
 			if     (i==0){ this.currentpath.push(this.PATH_MOVE);}
 			else if(i==2){ this.currentpath.push(this.PATH_LINE);}
-			this.currentpath.push((svg?_args[i]:_args[i]*Z-Z2), (svg?_args[i+1]:_args[i+1]*Z-Z2));
+
+			if     (this.type===SVG){ this.currentpath.push(_args[i],_args[i+1]);}
+			else if(this.type===VML){ this.currentpath.push(_args[i]*Z-Z2,_args[i+1]*Z-Z2);}
+			else if(this.type===SL) { this.currentpath.push(_args[i]+this.OFFSETX,_args[i+1]+this.OFFSETY);}
 		}
 		if(_args[_len-1]){ this.currentpath.push(this.PATH_CLOSE);}
 	},
@@ -429,11 +445,14 @@ VectorContext.prototype = {
 		for(var i=2,len=_len-((_len|1)?1:2);i<len;i+=2){
 			m[i] = _args[i] + m[0];
 			m[i+1] = _args[i+1] + m[1];
+
+			if     (this.type===VML){ m[i]=m[i]*Z-Z2, m[i+1]=m[i+1]*Z-Z2;}
+			else if(this.type===SL) { m[i]+=this.OFFSETX, m[i+1]+=this.OFFSETY;}
 		}
 		for(var i=2,len=_len-((_len|1)?1:2);i<len;i+=2){
 			if     (i==2){ this.currentpath.push(this.PATH_MOVE);}
 			else if(i==4){ this.currentpath.push(this.PATH_LINE);}
-			this.currentpath.push((svg?m[i]:m[i]*Z-Z2), (svg?m[i+1]:m[i+1]*Z-Z2));
+			this.currentpath.push(m[i], m[i+1]);
 		}
 		if(_args[_len-1]){ this.currentpath.push(this.PATH_CLOSE);}
 	},
@@ -454,14 +473,16 @@ VectorContext.prototype = {
 	},
 
 	strokeLine : function(x1,y1,x2,y2){
-		if(this.type===VML){ x1=x1*Z, y1=y1*Z, x2=x2*Z, y2=y2*Z;}
+		if     (this.type===VML){ x1=x1*Z, y1=y1*Z, x2=x2*Z, y2=y2*Z;}
+		else if(this.type===SL) { x1+=this.OFFSETX, y1+=this.OFFSETY, x2+=this.OFFSETX, y2+=this.OFFSETY;}
 		var stack = this.currentpath;
 		this.currentpath = [this.PATH_MOVE,x1,y1,this.PATH_LINE,x2,y2];
 		this.addVectorElement(false,false,true,[]);
 		this.currentpath = stack;
 	},
 	strokeCross : function(cx,cy,l){
-		if(this.type===VML){ cx=cx*Z-Z2, cy=cy*Z-Z2, l=_mf(l*Z);}
+		if     (this.type===VML){ cx=cx*Z-Z2, cy=cy*Z-Z2, l=_mf(l*Z);}
+		else if(this.type===SL) { cx+=this.OFFSETX, cy+=this.OFFSETY;}
 		var stack = this.currentpath;
 		this.currentpath = [];
 		this.currentpath.push(this.PATH_MOVE,(cx-l),(cy-l),this.PATH_LINE,(cx+l),(cy+l));
@@ -538,6 +559,7 @@ CanvasRenderingContext2D_wrapper = function(type, idname){
 	this.textAlign    = 'center';
 	this.textBaseline = 'middle';
 
+	// changeOrigin用
 	this.OFFSETX = 0;
 	this.OFFSETY = 0;
 
@@ -604,7 +626,6 @@ CanvasRenderingContext2D_wrapper.prototype = {
 	changeSize : function(width,height){
 		this.parent.style.width  = width + 'px';
 		this.parent.style.height = height + 'px';
-//		this.changeCanvasSize(width,height);
 
 		var canvas = this.parent.firstChild;
 		var left = parseInt(canvas.style.left), top = parseInt(canvas.style.top);
@@ -615,25 +636,14 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		canvas.height = height;
 	},
 	changeOrigin : function(left,top){
-		var canvas = this.parent.firstChild;
-		canvas.style.position = 'relative';
-		canvas.style.left = (parseInt(canvas.style.left) - left) + 'px';
-		canvas.style.top  = (parseInt(canvas.style.top ) - top)  + 'px';
+//		var canvas = this.parent.firstChild;
+//		canvas.style.position = 'relative';
+//		canvas.style.left = (parseInt(canvas.style.left) - left) + 'px';
+//		canvas.style.top  = (parseInt(canvas.style.top ) - top)  + 'px';
 
 		this.OFFSETX = -left;//(left<0?-left:0);
 		this.OFFSETY = -top;//(top<0?-top:0);
-
-//		this.changeCanvasSize(parseInt(canvas.style.width), parseInt(canvas.style.height));
 	},
-//	changeCanvasSize : function(width,height){
-//		var canvas = this.parent.firstChild;
-//		var left = parseInt(canvas.style.left), top = parseInt(canvas.style.top);
-//		width += (left<0?-left:0); height += (top<0?-top:0);
-//		canvas.style.width  = width + 'px';
-//		canvas.style.height = height + 'px';
-//		canvas.width  = width;
-//		canvas.height = height;
-//	},
 	setProperties : function(){
 		this.context.fillStyle    = this.fillStyle;
 		this.context.strokeStyle  = this.strokeStyle;
