@@ -1,4 +1,4 @@
-// ContextManager.js rev28
+// ContextManager.js rev30
  
 (function(){
 
@@ -198,6 +198,7 @@ VectorContext.prototype = {
 			}
 			parent.unselectable = 'on';
 			parent.getContext = function(type){ return self;};
+			parent.toDataURL = function(type){ return null; /* 未サポート */ };
 			this.parent = parent;
 
 			this.target = child;
@@ -578,6 +579,9 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		parent.getContext = function(type){
 			self.context = canvas.getContext(type);
 			return self;
+		}
+		parent.toDataURL = function(type){ 
+			return (!!type ? canvas.toDataURL(type) : canvas.toDataURL());
 		}
 
 		this.parent = parent;

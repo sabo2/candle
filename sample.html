@@ -8,7 +8,7 @@
 
 function onload_func(){
 
-//	ContextManager.select('sl');
+	ContextManager.select('canvas');
 	ContextManager.initElementById('vml_base');
 
 //	ContextManager.select('vml');
@@ -112,6 +112,13 @@ function onload_func(){
 	else if(g.svg){ title.innerHTML = 'SVG test 1';}
 	else if(g.canvas){ title.innerHTML = 'Canvas test 1';}
 	else if(g.sl) { title.innerHTML = 'Silverlight test 1';}
+
+
+	var img = document.createElement('img');
+	img.src = document.getElementById('vml_base').toDataURL();
+	img.width = "100";
+//	img.style.backgroundColor = "yellow";
+	document.body.appendChild(img);
 }
 </script>
 </head>
