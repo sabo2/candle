@@ -1,4 +1,4 @@
-// ContextManager.js rev30
+// ContextManager.js rev31
  
 (function(){
 
@@ -530,7 +530,7 @@ VectorContext.prototype = {
 /* -------------------- */
 /*   Canvas追加関数群   */
 /* -------------------- */
-CanvasRenderingContext2D_wrapper = function(idname, type){
+CanvasRenderingContext2D_wrapper = function(type, idname){
 	// canvasに存在するプロパティ＆デフォルト値
 	this.fillStyle    = 'black';
 	this.strokeStyle  = 'black';
@@ -540,6 +540,11 @@ CanvasRenderingContext2D_wrapper = function(idname, type){
 
 	this.OFFSETX = 0;
 	this.OFFSETY = 0;
+
+	// variables for internal
+	this.canvasid = '';
+	this.parent   = null;
+	this.context  = null;
 
 	this.vml    = (type===VML);
 	this.svg    = false;
@@ -558,6 +563,12 @@ CanvasRenderingContext2D_wrapper.prototype = {
 
 		var parent = _doc.getElementById(idname);
 		var canvas = _doc.getElementById(this.canvasid);
+
+		if(!canvas){
+			canvas = _doc.createElement('canvas');
+			canvas.id = this.canvasid;
+			parent.appendChild(canvas);
+		}
 
 		var rect = getRectSize(parent);
 		canvas.width  = rect.width;
@@ -743,19 +754,13 @@ var ContextManager = (function(){
 		for(var i=0;i<idlist.length;i++){ this.initElementById(idlist[i]);}
 	};
 	o.initElementById = function(idname){
-		var canvasid = EL_ID_HEADER + idname;
-		if(!!_doc.getElementById(canvasid)){ return;}
+		if(!!_doc.getElementById(EL_ID_HEADER + idname)){ return;}
 
 		if     (this.current.vml){ new VectorContext(VML, idname);}
 		else if(this.current.svg){ new VectorContext(SVG, idname);}
 		else if(this.current.sl) { new VectorContext(SL,  idname);}
 		else if(this.current.canvas){
-			var parent = _doc.getElementById(idname);
-			canvas = _doc.createElement('canvas');
-			canvas.id = canvasid;
-			parent.appendChild(canvas);
-
-			new CanvasRenderingContext2D_wrapper(idname, CANVAS);
+			new CanvasRenderingContext2D_wrapper(CANVAS, idname);
 		}
 	};
 	o.select = function(type){
