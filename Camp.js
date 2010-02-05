@@ -1,4 +1,4 @@
-// Camp.js rev37
+// Camp.js rev38
  
 (function(){
 
@@ -82,9 +82,11 @@ var TypeList = function(){
 /* ------------------------------------------- */
 /*   VectorContext(VML)クラス用const文字列集   */
 /* ------------------------------------------- */
-var V_TAG_GROUP   = '<v:group unselectable="on"',
-	V_TAG_SHAPE   = '<v:shape unselectable="on"',
-	V_TAG_TEXTBOX = '<v:textbox unselectable="on"',
+var V_TAG_GROUP   = '<v:group',
+	V_TAG_SHAPE   = '<v:shape',
+	V_TAG_TEXTBOX = '<v:textbox',
+	V_EL_UNSELECTABLE = '', // デフォルトはunselectableでない
+//	V_EL_UNSELECTABLE = ' unselectable="on"',
 	V_TAGEND      = '>',
 	V_TAGEND_NULL = ' />',
 	V_CLOSETAG_SHAPE   = '</v:shape>',
@@ -207,7 +209,6 @@ VectorContext.prototype = {
 				parent.style.backgroundColor = "#efefef";
 				parent.style.border = "solid 1px silver";
 			}
-			parent.unselectable = 'on';
 			parent.getContext = function(type){ return self;};
 			parent.toDataURL = function(type){ return null; /* 未サポート */ };
 			this.parent = parent;
@@ -220,8 +221,6 @@ VectorContext.prototype = {
 	appendSVG : function(parent, width, height){
 		var svgtop = _doc.createElementNS(SVGNS,'svg');
 		svgtop.setAttribute('id', this.canvasid);
-//		svgtop.setAttribute('unselectable', 'on');
-
 		svgtop.setAttribute('font-size', "10px");
 		svgtop.setAttribute('font-family', "sans-serif");
 		svgtop.setAttribute('width', width);
@@ -269,7 +268,6 @@ VectorContext.prototype = {
 				if(this.type===SVG){
 					layer = _doc.createElementNS(SVGNS,'g');
 					layer.setAttribute('id', lid);
-					layer.setAttribute('unselectable', 'on');
 					this.target.appendChild(layer);
 				}
 				else if(this.type===SL){
@@ -279,7 +277,7 @@ VectorContext.prototype = {
 				else{
 					layer = _doc.createElement('div');
 					layer.id = lid;
-					layer.unselectable = 'on';
+					layer.unselectable = (!!V_EL_UNSELECTABLE ? 'on' : '');
 					layer.style.position = 'absolute';
 					layer.style.left   = '0px';
 					layer.style.top    = '0px';
@@ -293,6 +291,22 @@ VectorContext.prototype = {
 		if(this.type===SVG){
 			var svgtop = _doc.getElementById(this.canvasid);
 			svgtop.setAttribute(S_ATT_RENDERING, render);
+		}
+	},
+	setUnselectable : function(unsel){
+		if(unsel===(void 0)){ unsel = true;}else{ unsel = !!unsel;}
+		if(this.type===VML){
+			V_EL_UNSELECTABLE = (unsel ? ' unselectable="on"' : '');
+			this.parent.unselectable = (unsel ? 'on' : '');
+			_doc.getElementById(this.canvasid).unselectable = (unsel ? 'on' : '');
+		}
+		else if(this.type===SL){
+			this.parent.unselectable = (unsel ? 'on' : '');
+		}
+		else if(this.type===SVG){
+			this.parent.style.MozUserSelect    = (unsel ? 'none' : 'text');
+			this.parent.style.WebkitUserSelect = (unsel ? 'none' : 'text');
+			this.parent.style.userSelect       = (unsel ? 'none' : 'text');
 		}
 	},
 	getContextElement : function(){ return _doc.getElementById(this.canvasid);},
@@ -413,12 +427,12 @@ VectorContext.prototype = {
 		break;
 
 	case VML:
-		var ar = [V_TAG_SHAPE, V_ATT_COORDSIZE];
+		var ar = [V_TAG_SHAPE, V_EL_UNSELECTABLE, V_ATT_COORDSIZE];
 		ar.push(V_ATT_STYLE, V_STYLE_LEFT,x,V_STYLE_END, V_STYLE_TOP,y,V_STYLE_END, V_ATT_END,
 				V_ATT_PATH, this.pathRect([x,y,200,30]), V_PATH_NOFILL, V_PATH_NOSTROKE, V_ATT_END,
 				V_TAGEND,
 
-				V_TAG_TEXTBOX);
+				V_TAG_TEXTBOX, V_EL_UNSELECTABLE);
 		if(!!this.vid){ ar.push(V_ATT_ID, this.vid, V_ATT_END); }
 		ar.push(V_ATT_STYLE_TEXTBOX, V_TAGEND, text, V_CLOSETAG_TEXTBOX,
 				V_CLOSETAG_SHAPE);
@@ -547,8 +561,8 @@ VectorContext.prototype = {
 
 	case VML:
 		path = [path, (!isfill ? V_PATH_NOFILL : EMPTY), (!isstroke ? V_PATH_NOSTROKE : EMPTY)].join('');
-		var ar = [V_TAG_SHAPE];
-		if(!!this.vid){ ar = [V_TAG_SHAPE, V_ATT_ID, this.vid, V_ATT_END]; }
+		var ar = [V_TAG_SHAPE, V_EL_UNSELECTABLE];
+		if(!!this.vid){ ar = [V_TAG_SHAPE, V_EL_UNSELECTABLE, V_ATT_ID, this.vid, V_ATT_END]; }
 		ar.push(V_ATT_COORDSIZE, V_ATT_PATH, path, V_ATT_END);
 		if(isfill)  { ar.push(V_ATT_FILLCOLOR, parsecolor(this.fillStyle), V_ATT_END);}
 		if(isstroke){ ar.push(V_ATT_STROKECOLOR, parsecolor(this.strokeStyle), V_ATT_END, V_ATT_STROKEWEIGHT, this.lineWidth, 'px', V_ATT_END);}
@@ -634,6 +648,12 @@ CanvasRenderingContext2D_wrapper.prototype = {
 	},
 	setLayer          : function(layerid){ },
 	setRendering      : function(render) { },
+	setUnselectable : function(unsel){
+		if(unsel===(void 0)){ unsel = true;}else{ unsel = !!unsel;}
+		this.parent.style.MozUserSelect    = (unsel ? 'none' : 'text');
+		this.parent.style.WebkitUserSelect = (unsel ? 'none' : 'text');
+		this.parent.style.userSelect       = (unsel ? 'none' : 'text');
+	},
 	getContextElement : function(){ return _doc.getElementById(this.canvasid);},
 	getLayerElement   : function(){ return _doc.getElementById(this.canvasid);},
 
