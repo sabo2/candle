@@ -1,4 +1,4 @@
-// Camp.js rev35
+// Camp.js rev36
  
 (function(){
 
@@ -221,7 +221,6 @@ VectorContext.prototype = {
 		var svgtop = _doc.createElementNS(SVGNS,'svg');
 		svgtop.setAttribute('id', this.canvasid);
 //		svgtop.setAttribute('unselectable', 'on');
-		svgtop.setAttribute(S_ATT_RENDERING, 'crispEdges');
 
 		svgtop.setAttribute('font-size', "10px");
 		svgtop.setAttribute('font-family', "sans-serif");
@@ -288,6 +287,12 @@ VectorContext.prototype = {
 				}
 			}
 			this.target = layer;
+		}
+	},
+	setRendering : function(render){
+		if(this.type===SVG){
+			var svgtop = _doc.getElementById(this.canvasid);
+			svgtop.setAttribute(S_ATT_RENDERING, render);
 		}
 	},
 	getContextElement : function(){ return _doc.getElementById(this.canvasid);},
@@ -627,7 +632,8 @@ CanvasRenderingContext2D_wrapper.prototype = {
 
 		this.parent = parent;
 	},
-	setLayer    : function(layerid){ },
+	setLayer          : function(layerid){ },
+	setRendering      : function(render) { },
 	getContextElement : function(){ return _doc.getElementById(this.canvasid);},
 	getLayerElement   : function(){ return _doc.getElementById(this.canvasid);},
 
