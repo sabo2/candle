@@ -1,4 +1,4 @@
-// Camp.js rev38
+// Camp.js rev39
  
 (function(){
 
@@ -156,8 +156,9 @@ var VectorContext = function(type, idname){
 
 	// variables for internal
 	this.type   = type;
-	this.target = null;
-	this.parent = null;
+	this.target = null;	// エレメントの追加対象となるオブジェクト
+	this.parent = null;	// 親エレメントとなるdivエレメント
+	this.canvas = null;	// this.parentの直下にあるエレメント
 	this.idname = idname;
 	this.canvasid = EL_ID_HEADER+idname;
 	this.currentpath = [];
@@ -196,9 +197,10 @@ VectorContext.prototype = {
 		if(!child){
 			var parent = _doc.getElementById(idname);
 			var rect = getRectSize(parent);
-			if     (this.type===SVG){ child = this.appendSVG(parent,rect.width,rect.height);}
-			else if(this.type===SL) { child = this.appendSL (parent,rect.width,rect.height);}
-			else if(this.type===VML){ child = this.appendVML(parent,rect.width,rect.height);}
+			if     (this.type===SVG){ this.appendSVG(parent,rect.width,rect.height);}
+			else if(this.type===SL) { this.appendSL (parent,rect.width,rect.height);}
+			else if(this.type===VML){ this.appendVML(parent,rect.width,rect.height);}
+			child = this.canvas;
 
 			var self = this;
 			//parent.className = "canvas";
@@ -213,7 +215,7 @@ VectorContext.prototype = {
 			parent.toDataURL = function(type){ return null; /* 未サポート */ };
 			this.parent = parent;
 
-			this.target = child;
+			this.target = this.canvas;
 			this.addVectorElement(true,false,false,[0,0,rect.width,rect.height]);
 		}
 		this.target = child;
@@ -228,7 +230,7 @@ VectorContext.prototype = {
 		svgtop.setAttribute('viewBox', [0,0,width,height].join(' '));
 
 		parent.appendChild(svgtop);
-		return svgtop;
+		this.canvas = svgtop;
 	},
 	appendVML : function(parent, width, height){
 		var vmltop = _doc.createElement('div');
@@ -241,7 +243,7 @@ VectorContext.prototype = {
 		vmltop.style.height = height + 'px';
 
 		parent.appendChild(vmltop);
-		return vmltop;
+		this.canvas = vmltop;
 	},
 	appendSL : function(parent, width, height){
 		parent.innerHTML = [
@@ -257,7 +259,7 @@ VectorContext.prototype = {
 		].join('');
 
 		this.content = document.getElementById([this.canvasid,'object'].join('_')).content;
-		return this.content.findName(this.canvasid);
+		this.canvas  = this.content.findName(this.canvasid);
 	},
 	setLayer : function(layerid){
 		this.initElement(this.idname);
@@ -289,8 +291,7 @@ VectorContext.prototype = {
 	},
 	setRendering : function(render){
 		if(this.type===SVG){
-			var svgtop = _doc.getElementById(this.canvasid);
-			svgtop.setAttribute(S_ATT_RENDERING, render);
+			this.canvas.setAttribute(S_ATT_RENDERING, render);
 		}
 	},
 	setUnselectable : function(unsel){
@@ -298,7 +299,7 @@ VectorContext.prototype = {
 		if(this.type===VML){
 			V_EL_UNSELECTABLE = (unsel ? ' unselectable="on"' : '');
 			this.parent.unselectable = (unsel ? 'on' : '');
-			_doc.getElementById(this.canvasid).unselectable = (unsel ? 'on' : '');
+			this.canvas.unselectable = (unsel ? 'on' : '');
 		}
 		else if(this.type===SL){
 			this.parent.unselectable = (unsel ? 'on' : '');
@@ -309,7 +310,7 @@ VectorContext.prototype = {
 			this.parent.style.userSelect       = (unsel ? 'none' : 'text');
 		}
 	},
-	getContextElement : function(){ return _doc.getElementById(this.canvasid);},
+	getContextElement : function(){ return this.canvas;},
 	getLayerElement   : function(){ return this.target;},
 
 	changeSize : function(width,height){
@@ -591,8 +592,9 @@ CanvasRenderingContext2D_wrapper = function(type, idname){
 
 	// variables for internal
 	this.canvasid = '';
-	this.parent   = null;
-	this.context  = null;
+	this.parent = null;		// 親エレメントとなるdivエレメント
+	this.canvas = null;		// this.parentの直下にあるエレメント
+	this.context  = null;	// 本来のCanvasRenderingContext2Dオブジェクト
 
 	this.use = new TypeList();
 	this.use.vml    = (type===VML);
@@ -626,6 +628,8 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		canvas.style.width  = rect.width + 'px';
 		canvas.style.height = rect.height + 'px';
 
+		this.canvas = canvas;
+
 		var self = this;
 		//parent.className = "canvas";
 		parent.style.display  = 'block';
@@ -654,8 +658,8 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		this.parent.style.WebkitUserSelect = (unsel ? 'none' : 'text');
 		this.parent.style.userSelect       = (unsel ? 'none' : 'text');
 	},
-	getContextElement : function(){ return _doc.getElementById(this.canvasid);},
-	getLayerElement   : function(){ return _doc.getElementById(this.canvasid);},
+	getContextElement : function(){ return this.canvas;},
+	getLayerElement   : function(){ return this.canvas;},
 
 	changeSize : function(width,height){
 		this.parent.style.width  = width + 'px';
