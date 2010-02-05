@@ -1,4 +1,4 @@
-// Camp.js rev34
+// Camp.js rev35
  
 (function(){
 
@@ -759,25 +759,29 @@ var Camp = (function(){
 	o.color = _color;
 	o.parse = parsecolor;
 
-	o.initAllElement = function(){
+	o.initAllElements = function(){
 		this.initElementsByClassName('canvas');
 	};
-	o.initElementsByClassName = function(classname){
+	o.initElementsByClassName = function(classname, type){
 		var elements = _doc.getElementsByTagName('div');
 		for(var i=0;i<elements.length;i++){
-			if(elements[i].className.match(classname)){ this.initElementById(elements[i].id);}
+			if(elements[i].className.match(classname)){ this.initElementById(elements[i].id, type);}
 		}
 	};
-	o.initElementsById = function(idlist){
-		for(var i=0;i<idlist.length;i++){ this.initElementById(idlist[i]);}
+	o.initElementsById = function(idlist, type){
+		for(var i=0;i<idlist.length;i++){ this.initElementById(idlist[i], type);}
 	};
-	o.initElementById = function(idname){
+	o.initElementById = function(idname, type){
 		if(!!_doc.getElementById(EL_ID_HEADER + idname)){ return;}
 
-		if     (this.current.vml){ new VectorContext(VML, idname);}
-		else if(this.current.svg){ new VectorContext(SVG, idname);}
-		else if(this.current.sl) { new VectorContext(SL,  idname);}
-		else if(this.current.canvas){
+		var choice = new TypeList();
+		if((type===void 0)||(this.enable[type]!==true)){ choice = this.current;}
+		else{ choice[type] = true;}
+
+		if     (choice.svg){ new VectorContext(SVG, idname);}
+		else if(choice.sl) { new VectorContext(SL,  idname);}
+		else if(choice.vml){ new VectorContext(VML, idname);}
+		else if(choice.canvas){
 			new CanvasRenderingContext2D_wrapper(CANVAS, idname);
 		}
 	};

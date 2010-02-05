@@ -8,11 +8,8 @@
 
 function onload_func(){
 
-//	Camp.select('canvas');
 	Camp.initElementById('vml_base');
-
-//	Camp.select('vml');
-	Camp.initElementById('vml_base2');
+	Camp.initElementById('vml_base2', 'vml');
 
 	g = document.getElementById('vml_base').getContext("2d");
 	g.changeSize(200,200);
