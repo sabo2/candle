@@ -1,4 +1,4 @@
-// Camp.js rev36
+// Camp.js rev37
  
 (function(){
 
@@ -337,7 +337,7 @@ VectorContext.prototype = {
 			this.OFFSETY = -top;//(top<0?-top:0);
 		}
 	},
-	clearCanvas : function(){
+	clear : function(){
 		if(this.type!==SL){ _doc.getElementById(this.idname).innerHTML = '';}
 
 		this.elements = [];
@@ -658,6 +658,16 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		this.OFFSETX = -left;//(left<0?-left:0);
 		this.OFFSETY = -top;//(top<0?-top:0);
 	},
+	clear : function(){
+		if(!!this.parent.style.backgroundColor){
+			this.setProperties();
+			this.context.fillStyle = parsecolorrev(this.parent.style.backgroundColor);
+			var rect = getRectSize(this.parent);
+			this.context.fillRect(this.OFFSETX,this.OFFSETY,rect.width,rect.height);
+		}
+	},
+
+	/* “à•”—pŠÖ” */
 	setProperties : function(){
 		this.context.fillStyle    = this.fillStyle;
 		this.context.strokeStyle  = this.strokeStyle;
@@ -738,15 +748,6 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		this.context.beginPath();
 		this.context.arc(cx+this.OFFSETX,cy+this.OFFSETY,r,0,_2PI,false);
 		this.context.stroke();
-	},
-
-	clearCanvas : function(){
-		if(!!this.parent.style.backgroundColor){
-			this.setProperties();
-			this.context.fillStyle = parsecolorrev(this.parent.style.backgroundColor);
-			var rect = getRectSize(this.parent);
-			this.context.fillRect(this.OFFSETX,this.OFFSETY,rect.width,rect.height);
-		}
 	}
 
 };
