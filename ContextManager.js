@@ -1,4 +1,4 @@
-// ContextManager.js rev32
+// ContextManager.js rev33
  
 (function(){
 
@@ -21,8 +21,8 @@ var _win = this,
 	flags = { debugmode:false },
 	_types = ['svg','canvas','sl','flash','vml'],
 
-	VML = 0,
-	SVG = 1,
+	VML    = 0,
+	SVG    = 1,
 	CANVAS = 2,
 	SL     = 3,
 	FLASH  = 4,
@@ -67,6 +67,17 @@ function parsecolorrev(colorstr){
 function _extend(obj, ads){
 	for(var name in ads){ obj[name] = ads[name];}
 }
+
+/* ------------------ */
+/*   TypeListクラス   */
+/* ------------------ */
+var TypeList = function(){
+	this.canvas = false;
+	this.vml    = false;
+	this.svg    = false;
+	this.sl     = false;
+	this.flash  = false;
+};
 
 /* ------------------------------------------- */
 /*   VectorContext(VML)クラス用const文字列集   */
@@ -154,25 +165,21 @@ var VectorContext = function(type, idname){
 	// Silverlight用
 	this.content = null;
 
-	this.canvas = false;
-	this.vml    = false;
-	this.svg    = false;
-	this.sl     = false;
-	this.flash  = false;
+	this.use = new TypeList();
 
 	// define const
 	if(this.type===SVG || this.type===SL){
 		this.PATH_MOVE  = S_PATH_MOVE;
 		this.PATH_LINE  = S_PATH_LINE;
 		this.PATH_CLOSE = S_PATH_CLOSE;
-		if(this.type===SVG){ this.svg = true;}
-		if(this.type===SL) { this.sl  = true;}
+		if(this.type===SVG){ this.use.svg = true;}
+		if(this.type===SL) { this.use.sl  = true;}
 	}
 	else if(this.type===VML){
 		this.PATH_MOVE  = V_PATH_MOVE;
 		this.PATH_LINE  = V_PATH_LINE;
 		this.PATH_CLOSE = V_PATH_CLOSE;
-		this.vml = true;
+		this.use.vml = true;
 	}
 
 	this.initElement(idname);
@@ -568,11 +575,12 @@ CanvasRenderingContext2D_wrapper = function(type, idname){
 	this.parent   = null;
 	this.context  = null;
 
-	this.vml    = (type===VML);
-	this.svg    = false;
-	this.canvas = (type===CANVAS);
-	this.sl     = (type===SL);
-	this.flash  = (type===FLASH);
+	this.use = new TypeList();
+	this.use.vml    = (type===VML);
+	this.use.svg    = false;
+	this.use.canvas = (type===CANVAS);
+	this.use.sl     = (type===SL);
+	this.use.flash  = (type===FLASH);
 
 	this.initElement(idname);
 };
@@ -744,8 +752,8 @@ var ContextManager = (function(){
 	var _doc = document, o = {};
 
 	/* Selected & Enable types */
-	o.current = {};
-	o.enable  = {};
+	o.current = new TypeList();
+	o.enable  = new TypeList();
 
 	/* externs */
 	o.color = _color;

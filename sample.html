@@ -108,12 +108,12 @@ function onload_func(){
 	g.stroke();
 */
 	var title = document.getElementById('h1title');
-	if     (g.vml){ title.innerHTML = 'VML test 1';}
-	else if(g.svg){ title.innerHTML = 'SVG test 1';}
-	else if(g.canvas){ title.innerHTML = 'Canvas test 1';}
-	else if(g.sl) { title.innerHTML = 'Silverlight test 1';}
+	if     (g.use.vml){ title.innerHTML = 'VML test 1';}
+	else if(g.use.svg){ title.innerHTML = 'SVG test 1';}
+	else if(g.use.canvas){ title.innerHTML = 'Canvas test 1';}
+	else if(g.use.sl) { title.innerHTML = 'Silverlight test 1';}
 
-	if(document.getElementById('vml_base').getContext("2d").canvas){
+	if(document.getElementById('vml_base').getContext("2d").use.canvas){
 		var img = document.createElement('img');
 		img.src = document.getElementById('vml_base').toDataURL();
 		img.width = "100";
