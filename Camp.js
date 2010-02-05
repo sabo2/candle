@@ -1,6 +1,9 @@
-// Camp.js rev39
+// Camp.js rev40
  
 (function(){
+
+// 多重定義防止
+if(!!window.Camp){ return;}
 
 /* ------------- */
 /*   variables   */
@@ -779,30 +782,32 @@ CanvasRenderingContext2D_wrapper.prototype = {
 /* -------------------- */
 /*   Campオブジェクト   */
 /* -------------------- */
-var Camp = (function(){
-	var _doc = document, o = {};
+var Camp = function(idname, type){
+	Camp.initElementById.apply(Camp, [idname, type]);
+};
+_extend( Camp, {
+	/* externs */
+	color : _color,
+	parse : parsecolor,
 
 	/* Selected & Enable types */
-	o.current = new TypeList();
-	o.enable  = new TypeList();
+	enable  : new TypeList(),
+	current : new TypeList(),
 
-	/* externs */
-	o.color = _color;
-	o.parse = parsecolor;
-
-	o.initAllElements = function(){
+	/* functions */
+	initAllElements : function(){
 		this.initElementsByClassName('canvas');
-	};
-	o.initElementsByClassName = function(classname, type){
+	},
+	initElementsByClassName : function(classname, type){
 		var elements = _doc.getElementsByTagName('div');
 		for(var i=0;i<elements.length;i++){
 			if(elements[i].className.match(classname)){ this.initElementById(elements[i].id, type);}
 		}
-	};
-	o.initElementsById = function(idlist, type){
+	},
+	initElementsById : function(idlist, type){
 		for(var i=0;i<idlist.length;i++){ this.initElementById(idlist[i], type);}
-	};
-	o.initElementById = function(idname, type){
+	},
+	initElementById : function(idname, type){
 		if(!!_doc.getElementById(EL_ID_HEADER + idname)){ return;}
 
 		var choice = new TypeList();
@@ -815,46 +820,47 @@ var Camp = (function(){
 		else if(choice.canvas){
 			new CanvasRenderingContext2D_wrapper(CANVAS, idname);
 		}
-	};
-	o.select = function(type){
+	},
+	select : function(type){
 		if(this.enable[type]!==true){ return false;}
-		for(var i=0;i<_types.length;i++){ o.current[_types[i]]=false;}
+		for(var i=0;i<_types.length;i++){ this.current[_types[i]]=false;}
 		this.current[type] = true;
 		return true;
-	};
+	}
+});
 
-	// この関数は、ContextManager.jsが読み込まれた時に一回だけ実行されます。
-	(function(){
-		o.enable.canvas = (!!_doc.createElement('canvas').getContext);
-		o.enable.svg    = (!!_doc.createElementNS && !!_doc.createElementNS(SVGNS, 'svg').suspendRedraw);
-		o.enable.sl     = (function(){ try{ return (new ActiveXObject("AgControl.AgControl")).IsVersionSupported("1.0");}catch(e){} return false;})();
-		o.enable.flash  = false;
-		o.enable.vml    = _IE;
+/* ----------------------------------------------- */
+/* Camp.enable, Camp.currentオブジェクトデータ設定 */
+/* ----------------------------------------------- */
 
-		if(o.enable.vml){
-			/* addNameSpace for VML */
-			_doc.namespaces.add("v", "urn:schemas-microsoft-com:vml");
+	/* Camp.enable設定 */
+	Camp.enable.canvas = (!!_doc.createElement('canvas').getContext);
+	Camp.enable.svg    = (!!_doc.createElementNS && !!_doc.createElementNS(SVGNS, 'svg').suspendRedraw);
+	Camp.enable.sl     = (function(){ try{ return (new ActiveXObject("AgControl.AgControl")).IsVersionSupported("1.0");}catch(e){} return false;})();
+	Camp.enable.flash  = false;
+	Camp.enable.vml    = _IE;
 
-			/* addStyleSheet for VML */
-			var text = [];
-			text.push("v\\:group { behavior: url(#default#VML); display:inline; position:absolute; width:100%; height:100%; overflow:hidden; }");
-			text.push("v\\:shape { behavior: url(#default#VML); position:absolute; width:10px; height:10px; }");
-			text.push("v\\:textbox, v\\:stroke { behavior: url(#default#VML); }");
-			_doc.createStyleSheet().cssText = text.join('');
-		}
+	/* Camp.current設定 */
+	for(var i=0;i<_types.length;i++){ Camp.current[_types[i]]=false;}
+	if     (Camp.enable.svg)   { Camp.current.svg    = true;}
+	else if(Camp.enable.canvas){ Camp.current.canvas = true;}
+	else if(Camp.enable.sl)    { Camp.current.sl     = true;}
+	else if(Camp.enable.flash) { Camp.current.flash  = true;}
+	else if(Camp.enable.vml)   { Camp.current.vml    = true;}
 
-		for(var i=0;i<_types.length;i++){ o.current[_types[i]]=false;}
-		if     (o.enable.svg)   { o.current.svg    = true;}
-		else if(o.enable.canvas){ o.current.canvas = true;}
-		else if(o.enable.sl)    { o.current.sl     = true;}
-		else if(o.enable.flash) { o.current.flash  = true;}
-		else if(o.enable.vml)   { o.current.vml    = true;}
-	})();
+	/* 初期設定 for VML */
+	if(Camp.enable.vml){
+		/* addNameSpace for VML */
+		_doc.namespaces.add("v", "urn:schemas-microsoft-com:vml");
 
-	return o;
-})();
+		/* addStyleSheet for VML */
+		var text = [];
+		text.push("v\\:group { behavior: url(#default#VML); display:inline; position:absolute; width:100%; height:100%; overflow:hidden; }");
+		text.push("v\\:shape { behavior: url(#default#VML); position:absolute; width:10px; height:10px; }");
+		text.push("v\\:textbox, v\\:stroke { behavior: url(#default#VML); }");
+		_doc.createStyleSheet().cssText = text.join('');
+	}
 
-/* extern */
-_win.Camp = Camp;
+	_win.Camp = Camp;
 
 })();
