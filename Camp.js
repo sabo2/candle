@@ -1,4 +1,4 @@
-// ContextManager.js rev33
+// Camp.js rev34
  
 (function(){
 
@@ -745,10 +745,10 @@ CanvasRenderingContext2D_wrapper.prototype = {
 
 };
 
-/* ------------------------------ */
-/*   ContextManagerオブジェクト   */
-/* ------------------------------ */
-var ContextManager = (function(){
+/* -------------------- */
+/*   Campオブジェクト   */
+/* -------------------- */
+var Camp = (function(){
 	var _doc = document, o = {};
 
 	/* Selected & Enable types */
@@ -820,6 +820,6 @@ var ContextManager = (function(){
 })();
 
 /* extern */
-_win.ContextManager = ContextManager;
+_win.Camp = Camp;
 
 })();
