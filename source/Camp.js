@@ -1,4 +1,4 @@
-// Camp.js rev47
+// Camp.js rev51
  
 (function(){
 
@@ -467,7 +467,7 @@ VectorContext.prototype = {
 		case VML:
 			if(this.type===VML){ x=(x*Z-Z2)|0, y=(y*Z-Z2)|0;}
 			var ar = [V_TAG_GROUP, V_ATT_COORDSIZE, V_TAGEND];
-			ar.push(V_TAG_POLYLINE, V_ATT_POINTS, [x-600,y,x+600,y].join(','), V_ATT_END,
+			ar.push(V_TAG_POLYLINE, V_ATT_POINTS, [x-100,y,x+100,y].join(','), V_ATT_END,
 					V_DEF_ATT_POLYLINE, V_ATT_FILLCOLOR, parsecolor(this.fillStyle), V_ATT_END, V_TAGEND);
 			ar.push(V_TAG_PATH_FOR_TEXTPATH, V_TAG_TEXTPATH);
 			if(!!this.vid){ ar.push(V_ATT_ID, this.vid, V_ATT_END); }
