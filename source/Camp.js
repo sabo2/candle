@@ -1,4 +1,4 @@
-// Camp.js rev45
+// Camp.js rev47
  
 (function(){
 
@@ -100,7 +100,7 @@ var V_TAG_SHAPE    = '<v:shape',
 
 	V_ATT_ID     = ' id="',
 	V_ATT_PATH   = ' path="',
-	V_ATT_POINTS = ' points="'
+	V_ATT_POINTS = ' points="',
 	V_ATT_STYLE  = ' style="',
 	V_ATT_STRING = ' string="',
 	V_ATT_COORDSIZE    = ' coordsize="100,100"',
@@ -691,10 +691,10 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		parent.getContext = function(type){
 			self.context = canvas.getContext(type);
 			return self;
-		}
+		};
 		parent.toDataURL = function(type){ 
 			return (!!type ? canvas.toDataURL(type) : canvas.toDataURL());
-		}
+		};
 
 		this.parent = parent;
 	},

@@ -1,4 +1,4 @@
-// CampFire.js rev45
+// Fire.js rev47
 
 (function(){
 
@@ -267,7 +267,7 @@ function drawLineGraph(idname, json, ratio){
 /* ------------------------------ */
 function drawMarker(markerInfo, ctx, xpos, ypos){
 	if(!markerInfo){ return;}
-	var marker = markerInfo.split(/ +/g).join('').split(/,/);
+	var marker = markerInfo.split(/[ ]+/g).join('').split(/,/);
 	var markerType = marker[0];
 	var markerSize = (!!marker[1] ? parseInt(marker[1]) : 4);
 	ctx.lineWidth  = (!!marker[2] ? parseInt(marker[2]) : 1);
@@ -283,27 +283,27 @@ function drawMarker(markerInfo, ctx, xpos, ypos){
 			break;
 		case 'plus':
 			ctx.beginPath();
-			ctx.moveTo(px-markerSize, py)
-			ctx.lineTo(px+markerSize, py)
-			ctx.moveTo(px, py-markerSize)
-			ctx.lineTo(px, py+markerSize)
+			ctx.moveTo(px-markerSize, py);
+			ctx.lineTo(px+markerSize, py);
+			ctx.moveTo(px, py-markerSize);
+			ctx.lineTo(px, py+markerSize);
 			ctx.stroke();
 			break;
 		case 'triangle':
 		case 'triangle-stroke':
 			ctx.beginPath();
-			ctx.moveTo(px+markerSize*_ms(0/3*Math.PI), py-markerSize*_mc(0/3*Math.PI))
-			ctx.lineTo(px+markerSize*_ms(2/3*Math.PI), py-markerSize*_mc(2/3*Math.PI))
-			ctx.lineTo(px+markerSize*_ms(4/3*Math.PI), py-markerSize*_mc(4/3*Math.PI))
+			ctx.moveTo(px+markerSize*_ms(0/3*Math.PI), py-markerSize*_mc(0/3*Math.PI));
+			ctx.lineTo(px+markerSize*_ms(2/3*Math.PI), py-markerSize*_mc(2/3*Math.PI));
+			ctx.lineTo(px+markerSize*_ms(4/3*Math.PI), py-markerSize*_mc(4/3*Math.PI));
 			ctx.closePath();
 			if(markerType==='triangle'){ ctx.fill();}else{ ctx.stroke();}
 			break;
 		case 'invtriangle':
 		case 'invtriangle-stroke':
 			ctx.beginPath();
-			ctx.moveTo(px+markerSize*_ms(0/3*Math.PI), py+markerSize*_mc(0/3*Math.PI))
-			ctx.lineTo(px+markerSize*_ms(2/3*Math.PI), py+markerSize*_mc(2/3*Math.PI))
-			ctx.lineTo(px+markerSize*_ms(4/3*Math.PI), py+markerSize*_mc(4/3*Math.PI))
+			ctx.moveTo(px+markerSize*_ms(0/3*Math.PI), py+markerSize*_mc(0/3*Math.PI));
+			ctx.lineTo(px+markerSize*_ms(2/3*Math.PI), py+markerSize*_mc(2/3*Math.PI));
+			ctx.lineTo(px+markerSize*_ms(4/3*Math.PI), py+markerSize*_mc(4/3*Math.PI));
 			ctx.closePath();
 			if(markerType==='invtriangle'){ ctx.fill();}else{ ctx.stroke();}
 			break;
