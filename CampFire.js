@@ -1,4 +1,4 @@
-// CampFire.js rev43
+// CampFire.js rev45
 
 (function(){
 
@@ -399,7 +399,7 @@ function drawBarGraph(idname, json, ratio){
 		for(var t=0;t<xlabel.length;t++){
 			var x1=_mf(xpos[t]-bwidth), y1=_mf(ypos[t]), x2=_mf(xpos[t]+bwidth), y2=_mf(ypos_b[t]);
 			ctx.setLinePath(x1,y1, x2,y1, x2,y2, x1,y2, true);
-			ctx.fillstroke();
+			ctx.shape();
 		}
 	}
 }
@@ -453,7 +453,7 @@ function drawAreaGraph(idname, json, ratio){
 		for(var t=xlabel.length-1;t>=1;t--){ ctx.lineTo(xpos[t], ypos[t]);}
 		ctx.lineTo(xpos[0], ypos[0]);
 		ctx.closePath();
-		ctx.fillstroke();
+		ctx.shape();
 	}
 }
 

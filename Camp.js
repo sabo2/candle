@@ -1,4 +1,4 @@
-// Camp.js rev44
+// Camp.js rev45
  
 (function(){
 
@@ -437,6 +437,7 @@ VectorContext.prototype = {
 	stroke     : function(){ this.addVectorElement(false,false,true,[]);},
 	fillRect   : function(x,y,w,h){ this.addVectorElement(true,true,false,[x,y,w,h]);},
 	strokeRect : function(x,y,w,h){ this.addVectorElement(true,false,true,[x,y,w,h]);},
+	shapeRect  : function(x,y,w,h){ this.addVectorElement(true,true,true, [x,y,w,h]);},
 
 	fillText : function(text,x,y){
 		switch(this.type){
@@ -482,7 +483,7 @@ VectorContext.prototype = {
 	},
 
 	/* extended functions */
-	fillstroke : function(){ this.addVectorElement(false,true,true,[]);},
+	shape : function(){ this.addVectorElement(false,true,true,[]);},
 
 	pathRect : function(size){
 		var x=size[0], y=size[1], w=size[2], h=size[3];
@@ -569,6 +570,14 @@ VectorContext.prototype = {
 		this.arc(cx,cy,r,0,_2PI,false);
 		this.currentpath.push(this.PATH_CLOSE);
 		this.addVectorElement(false,false,true,[]);
+		this.currentpath = stack;
+	},
+	shapeCircle : function(cx,cy,r){
+		var stack = this.currentpath;
+		this.currentpath = [];
+		this.arc(cx,cy,r,0,_2PI,false);
+		this.currentpath.push(this.PATH_CLOSE);
+		this.addVectorElement(false,true,true,[]);
 		this.currentpath = stack;
 	},
 
@@ -757,10 +766,15 @@ CanvasRenderingContext2D_wrapper.prototype = {
 	fillText   : function(text,x,y){ this.setProperties(); this.context.fillText(text,x+this.OFFSETX,y+this.OFFSETY);},
 
 	/* extended functions */
-	fillstroke : function(){
+	shape : function(){
 		this.setProperties();
 		this.context.fill();
 		this.context.stroke();
+	},
+	shapeRect : function(x,y,w,h){
+		this.setProperties();
+		this.context.fillRect(x+this.OFFSETX,y+this.OFFSETY,w,h);
+		this.context.strokeRect(x+this.OFFSETX,y+this.OFFSETY,w,h);
 	},
 
 	setLinePath : function(){
@@ -811,6 +825,13 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		this.setProperties();
 		this.context.beginPath();
 		this.context.arc(cx+this.OFFSETX,cy+this.OFFSETY,r,0,_2PI,false);
+		this.context.stroke();
+	},
+	shapeCircle : function(cx,cy,r){
+		this.setProperties();
+		this.context.beginPath();
+		this.context.arc(cx+this.OFFSETX,cy+this.OFFSETY,r,0,_2PI,false);
+		this.context.fill();
 		this.context.stroke();
 	}
 
