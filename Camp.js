@@ -1,4 +1,4 @@
-// Camp.js rev41
+// Camp.js rev42
  
 (function(){
 
@@ -231,12 +231,15 @@ VectorContext.prototype = {
 				parent.style.backgroundColor = "#efefef";
 				parent.style.border = "solid 1px silver";
 			}
-			parent.getContext = function(type){ return self;};
+			parent.getContext = function(type){
+				if(!self.canvas){ self.initElement(self.idname);}
+				return self;
+			};
 			parent.toDataURL = function(type){ return null; /* 未サポート */ };
 			this.parent = parent;
 
 			this.target = this.canvas;
-			this.addVectorElement(true,false,false,[0,0,rect.width,rect.height]);
+			if(!!this.target){ this.addVectorElement(true,false,false,[0,0,rect.width,rect.height]);}
 		}
 		this.target = child;
 	},
@@ -278,8 +281,11 @@ VectorContext.prototype = {
 			'</script>'
 		].join('');
 
-		this.content = document.getElementById([this.canvasid,'object'].join('_')).content;
-		this.canvas  = this.content.findName(this.canvasid);
+		// ここでLoadされてない状態になることがあるみたい..
+		if(document.getElementById([this.canvasid,'object'].join('_')).IsLoaded){
+			this.content = document.getElementById([this.canvasid,'object'].join('_')).content;
+			this.canvas = this.content.findName(this.canvasid);
+		}
 	},
 	setLayer : function(layerid){
 		this.initElement(this.idname);
@@ -330,7 +336,10 @@ VectorContext.prototype = {
 			this.parent.style.userSelect       = (unsel ? 'none' : 'text');
 		}
 	},
-	getContextElement : function(){ return this.canvas;},
+	getContextElement : function(){
+		if(this.type===SL && !this.canvas){ this.initElement(this.idname);}
+		return this.canvas;
+	},
 	getLayerElement   : function(){ return this.target;},
 
 	changeSize : function(width,height){
