@@ -1,4 +1,4 @@
-// Fire.js rev47
+// Fire.js rev48
 
 (function(){
 
@@ -229,19 +229,19 @@ function drawLineGraph(idname, json, ratio){
 		ctx    = settingCanvas(idname, json),
 		normalize = normalizeData(json,false,ratio);
 
-	var xpos = [], mwidth = WIDTH/xlabel.length, moffset = mwidth/2;
-	for(var t=0;t<xlabel.length;t++){ xpos[t] = _mf(LEFT+t*mwidth+moffset);}
+	var mkpos = [], mwidth = WIDTH/xlabel.length, moffset = mwidth/2;
+	for(var t=0;t<xlabel.length;t++){ mkpos[t] = [(LEFT+t*mwidth+moffset)|0];}
 
 	// データ描画部
 	for(var i=0;i<json.data.length;i++){
-		var info = json.data[i], vals = info.value, ypos=[];
+		var info = json.data[i], vals = info.value;
 		if(!vals || vals.length===0 || info.display==='none'){ continue;}
 
 		// 描画する座標の所得
 		for(var t=0;t<xlabel.length;t++){
 			if(!vals[t]){ vals[t]=0;}
-			if(normalize[t]>0){ ypos[t] = TOP+_mf(HEIGHT*(1-vals[t]/normalize[t]));}
-			else              { ypos[t] = (t>0 ? ypos[t-1] : TOP+HEIGHT);}
+			if(normalize[t]>0){ mkpos[t][1] = TOP+_mf(HEIGHT*(1-vals[t]/normalize[t]));}
+			else              { mkpos[t][1] = (t>0 ? ypos[t-1] : TOP+HEIGHT);}
 		}
 
 		// 系列の色の設定
@@ -253,19 +253,19 @@ function drawLineGraph(idname, json, ratio){
 		if((!info.line || info.line!=='none') && (!json.graph.line || !json.graph.line==='none')){
 			ctx.lineWidth = '2';
 			ctx.beginPath();
-			ctx.moveTo(xpos[0], ypos[0]);
-			for(var t=1;t<xlabel.length;t++){ ctx.lineTo(xpos[t], ypos[t]);}
+			ctx.moveTo(mkpos[0][0], mkpos[0][1]);
+			for(var t=1;t<xlabel.length;t++){ ctx.lineTo(mkpos[t][0], mkpos[t][1]);}
 			ctx.stroke();
 		}
 
 		// マーカーの描画
-		drawMarker(((info.marker!==void 0) ? info.marker : json.graph.marker), ctx, xpos, ypos);
+		drawMarker(((info.marker!==void 0) ? info.marker : json.graph.marker), ctx, mkpos);
 	}
 }
 /* ------------------------------ */
 /*   折れ線グラフのマーカー描画   */
 /* ------------------------------ */
-function drawMarker(markerInfo, ctx, xpos, ypos){
+function drawMarker(markerInfo, ctx, mkpos){
 	if(!markerInfo){ return;}
 	var marker = markerInfo.split(/[ ]+/g).join('').split(/,/);
 	var markerType = marker[0];
@@ -274,8 +274,8 @@ function drawMarker(markerInfo, ctx, xpos, ypos){
 
 	if(markerType==='none'){ return;}
 
-	for(var t=0;t<xpos.length;t++){
-		var px=xpos[t], py=ypos[t];
+	for(var t=0;t<mkpos.length;t++){
+		var px=mkpos[t][0], py=mkpos[t][1];
 
 		switch(markerType){
 		case 'cross':
