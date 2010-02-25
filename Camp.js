@@ -1,4 +1,4 @@
-// Camp.js rev40
+// Camp.js rev41
  
 (function(){
 
@@ -85,29 +85,39 @@ var TypeList = function(){
 /* ------------------------------------------- */
 /*   VectorContext(VML)クラス用const文字列集   */
 /* ------------------------------------------- */
-var V_TAG_GROUP   = '<v:group',
-	V_TAG_SHAPE   = '<v:shape',
-	V_TAG_TEXTBOX = '<v:textbox',
+var V_TAG_SHAPE    = '<v:shape',
+	V_TAG_GROUP    = '<v:group',
+	V_TAG_TEXTPATH = '<v:textpath',
+	V_TAG_POLYLINE = '<v:polyline',
+	V_TAG_PATH_FOR_TEXTPATH = '<v:path textpathok="t" />';
 	V_EL_UNSELECTABLE = '', // デフォルトはunselectableでない
 //	V_EL_UNSELECTABLE = ' unselectable="on"',
 	V_TAGEND      = '>',
 	V_TAGEND_NULL = ' />',
-	V_CLOSETAG_SHAPE   = '</v:shape>',
-	V_CLOSETAG_TEXTBOX = '</v:textbox>',
+	V_CLOSETAG_SHAPE    = '</v:shape>',
+	V_CLOSETAG_GROUP    = '</v:group>',
+	V_CLOSETAG_TEXTPATH = '</v:textpath>',
+	V_CLOSETAG_POLYLINE = '</v:polyline>',
 
-	V_ATT_ID    = ' id="',
-	V_ATT_PATH  = ' path="',
-	V_ATT_STYLE = ' style="',
+	V_ATT_ID     = ' id="',
+	V_ATT_PATH   = ' path="',
+	V_ATT_POINTS = ' points="'
+	V_ATT_STYLE  = ' style="',
+	V_ATT_STRING = ' string="',
 	V_ATT_COORDSIZE    = ' coordsize="100,100"',
 	V_ATT_FILLCOLOR    = ' fillcolor="',
 	V_ATT_STROKECOLOR  = ' strokecolor="',
 	V_ATT_STROKEWEIGHT = ' strokeweight="',
 	V_ATT_END = '"',
 	V_ATT_STYLE_TEXTBOX = ' style="white-space:nowrap;cursor:default;font:10px sans-serif;"',
+	V_DEF_ATT_POLYLINE  = ' stroked="f" filled="t"',
+	V_DEF_ATT_TEXTPATH  = ' on="t" xscale="t"',
 
-	V_STYLE_LEFT = 'left:',
-	V_STYLE_TOP  = 'top:',
-	V_STYLE_END  = ';',
+	V_STYLE_LEFT  = 'left:',
+	V_STYLE_TOP   = 'top:',
+	V_STYLE_FONT  = 'font:',
+	V_STYLE_ALIGN = 'v-text-align:',
+	V_STYLE_END   = ';',
 
 	V_PATH_MOVE   = ' m',
 	V_PATH_LINE   = ' l',
@@ -130,6 +140,12 @@ var SVGNS = "http://www.w3.org/2000/svg",
 	S_ATT_STROKEWIDTH = 'stroke-width',
 	S_ATT_RENDERING   = 'shape-rendering',
 
+	SVG_ANCHOR = {
+		left   : 'start',
+		center : 'middle',
+		right  : 'end'
+	},
+
 	S_NONE = 'none';
 
 /* --------------------------------- */
@@ -146,6 +162,7 @@ var VectorContext = function(type, idname){
 	this.fillStyle    = 'black';
 	this.strokeStyle  = 'black';
 	this.lineWidth    = 1;
+	this.font         = '14px system';
 	this.textAlign    = 'center';
 	this.textBaseline = 'middle';
 
@@ -413,38 +430,48 @@ VectorContext.prototype = {
 	fillRect   : function(x,y,w,h){ this.addVectorElement(true,true,false,[x,y,w,h]);},
 	strokeRect : function(x,y,w,h){ this.addVectorElement(true,false,true,[x,y,w,h]);},
 
-	fillText : function(text,x,y){ switch(this.type){
-	case SVG:
-		var el = _doc.createElementNS(SVGNS,'text');
-		if(!!this.vid){ this.elements[this.vid] = el;}
-		el.setAttribute('x', x);
-		el.setAttribute('y', y);
-		el.appendChild(_doc.createTextNode(text));
-		this.target.appendChild(el);
-		break;
+	fillText : function(text,x,y){
+		switch(this.type){
+		case SVG:
+			var el = _doc.createElementNS(SVGNS,'text');
+			if(!!this.vid){ this.elements[this.vid] = el;}
+			el.setAttribute('x', x);
+			el.setAttribute('y', y+14*1.0);
+			el.setAttribute(S_ATT_FILL, parsecolor(this.fillStyle));
+			el.setAttribute('text-anchor', SVG_ANCHOR[this.textAlign.toLowerCase()]);
+			el.style.font = this.font;
+			el.appendChild(_doc.createTextNode(text));
+			this.target.appendChild(el);
+			break;
 
-	case SL:
-		var ar = ['<TextBlock Canvas.Left="',(x+this.OFFSETX),'" Canvas.Top="',(y+this.OFFSETY),'">',text,'</TextBlock>'];
-		var xaml = this.content.createFromXaml(ar.join(''));
-		if(!!this.vid){ this.elements[this.vid] = xaml;}
-		this.target.children.add(xaml);
-		break;
+		case SL:
+			var ar = ['<TextBlock Canvas.Left="',(x+this.OFFSETX-60),'" Canvas.Top="',(y+this.OFFSETY-15*0.7),
+					  'Width="', (60*2), '" TextAlignment="', this.textAlign,'"',
+					  'FontFamily="', 'Sans-Serif', '" FontSize="', 16,'"',
+					  '" text="',text,'" />'];
 
-	case VML:
-		var ar = [V_TAG_SHAPE, V_EL_UNSELECTABLE, V_ATT_COORDSIZE];
-		ar.push(V_ATT_STYLE, V_STYLE_LEFT,x,V_STYLE_END, V_STYLE_TOP,y,V_STYLE_END, V_ATT_END,
-				V_ATT_PATH, this.pathRect([x,y,200,30]), V_PATH_NOFILL, V_PATH_NOSTROKE, V_ATT_END,
-				V_TAGEND,
+			var xaml = this.content.createFromXaml(ar.join(''));
+			if(!!this.vid){ this.elements[this.vid] = xaml;}
+			this.target.children.add(xaml);
+			break;
 
-				V_TAG_TEXTBOX, V_EL_UNSELECTABLE);
-		if(!!this.vid){ ar.push(V_ATT_ID, this.vid, V_ATT_END); }
-		ar.push(V_ATT_STYLE_TEXTBOX, V_TAGEND, text, V_CLOSETAG_TEXTBOX,
-				V_CLOSETAG_SHAPE);
+		case VML:
+			if(this.type===VML){ x=(x*Z-Z2)|0, y=(y*Z-Z2)|0;}
+			var ar = [V_TAG_GROUP, V_ATT_COORDSIZE, V_TAGEND];
+			ar.push(V_TAG_POLYLINE, V_ATT_POINTS, [x-600,y,x+600,y].join(','), V_ATT_END,
+					V_DEF_ATT_POLYLINE, V_ATT_FILLCOLOR, parsecolor(this.fillStyle), V_ATT_END, V_TAGEND);
+			ar.push(V_TAG_PATH_FOR_TEXTPATH, V_TAG_TEXTPATH);
+			if(!!this.vid){ ar.push(V_ATT_ID, this.vid, V_ATT_END); }
+			ar.push(V_DEF_ATT_TEXTPATH, V_ATT_STRING, text, V_ATT_END,
+					V_ATT_STYLE, V_STYLE_FONT, this.font, V_STYLE_END,
+					V_STYLE_ALIGN, this.textAlign, V_STYLE_END, V_ATT_END, V_TAGEND_NULL,
+					V_CLOSETAG_POLYLINE, V_CLOSETAG_GROUP);
 
-		this.target.insertAdjacentHTML(BEFOREEND, ar.join(''));
-		if(!!this.vid){ this.elements[this.vid] = _doc.getElementById(this.vid);}
-		break;
-	}},
+			this.target.insertAdjacentHTML(BEFOREEND, ar.join(''));
+			if(!!this.vid){ this.elements[this.vid] = _doc.getElementById(this.vid);}
+			break;
+		}
+	},
 
 	/* extended functions */
 	fillstroke : function(){ this.addVectorElement(false,true,true,[]);},
@@ -586,6 +613,7 @@ CanvasRenderingContext2D_wrapper = function(type, idname){
 	this.fillStyle    = 'black';
 	this.strokeStyle  = 'black';
 	this.lineWidth    = 1;
+	this.font         = '14px system';
 	this.textAlign    = 'center';
 	this.textBaseline = 'middle';
 
@@ -699,8 +727,9 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		this.context.fillStyle    = this.fillStyle;
 		this.context.strokeStyle  = this.strokeStyle;
 		this.context.lineWidth    = this.lineWidth;
-		//this.textAlign    = this.textAlign    = 'center';
-		//this.textBaseline = this.textBaseline = 'middle';
+		this.context.font         = this.font;
+		this.context.textAlign    = this.textAlign;
+		this.context.textBaseline = this.textBaseline;
 	},
 
 	/* Canvas API functions (for path) */
@@ -855,9 +884,8 @@ _extend( Camp, {
 
 		/* addStyleSheet for VML */
 		var text = [];
-		text.push("v\\:group { behavior: url(#default#VML); display:inline; position:absolute; width:100%; height:100%; overflow:hidden; }");
-		text.push("v\\:shape { behavior: url(#default#VML); position:absolute; width:10px; height:10px; }");
-		text.push("v\\:textbox, v\\:stroke { behavior: url(#default#VML); }");
+		text.push("v\\:shape, v\\:group, v\\:polyline { behavior: url(#default#VML); position:absolute; width:10px; height:10px; }");
+		text.push("v\\:path, v\\:textpath, v\\:stroke { behavior: url(#default#VML); }");
 		_doc.createStyleSheet().cssText = text.join('');
 	}
 

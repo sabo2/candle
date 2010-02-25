@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<head>
+<script type="text/javascript" src="./Camp.js"></script>
+<script type="text/javascript">
+function onload_func(){
+	Camp('can','svg');
+	var ctx = document.getElementById('can').getContext("2d");
+	ctx.lineWidth = '1';
+	ctx.strokeStyle = "silver";
+	ctx.strokeLine(0,100,200,100);
+	ctx.strokeLine(100,0,100,200);
+
+	ctx.fillStyle = "blue";
+	ctx.font = "32px \"‚l‚r ‚oƒSƒVƒbƒN\",Sans-Serif";
+	ctx.textAlign = "center";
+	ctx.textBaseline = "hanging";
+	ctx.fillText("testfortest_2",100,100);
+
+//	var el = document.getElementById('metrix');
+//	alert([el.offsetWidth, el.offsetHeight]);
+}
+</script>
+</head>
+<body onload="javascript:onload_func();">
+<div id="can" style="border:solid 1px silver;width:200px;height:200px;"></div>
+<br>
+<!--
+<svg shape-rendering="crispEdges" style="border:solid 1px silver;width:200px;height:200px;">
+	<path d="M 0 100 L 200 100" stroke="silver" />
+	<path d="M 100 0 L 100 200" stroke="silver" />
+	<text fill="black" x="69" y="104.5" style="font:14px Sans-Serif;">testfortest</text>
+</svg>
+-->
+<!-- <div id="metrix" style="font:14px Sans-Serif;display:inline;">testfortest</div> -->
+<!-- width:62; height:15; 104.5=(100-(15*0.2))+(15*0.5) -->
+</body>
+</html>
