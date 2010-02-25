@@ -1,4 +1,4 @@
-// Camp.js rev42
+// Camp.js rev44
  
 (function(){
 
@@ -10,7 +10,6 @@ if(!!window.Camp){ return;}
 /* ------------- */
 var _win = this,
 	_doc = document,
-	_mf = Math.floor,
 	_ms = Math.sin,
 	_mc = Math.cos,
 	_2PI = 2*Math.PI,
@@ -401,22 +400,22 @@ VectorContext.prototype = {
 	},
 	moveTo : function(x,y){
 		if     (this.type===SVG){ this.currentpath.push(this.PATH_MOVE,x,y);}
-		else if(this.type===VML){ this.currentpath.push(this.PATH_MOVE,x*Z-Z2,y*Z-Z2);}
+		else if(this.type===VML){ this.currentpath.push(this.PATH_MOVE,(x*Z-Z2)|0,(y*Z-Z2)|0);}
 		else if(this.type===SL) { this.currentpath.push(this.PATH_MOVE,x+this.OFFSETX,y+this.OFFSETY);}
 		this.lastpath = this.PATH_MOVE;
 	},
 	lineTo : function(x,y){
 		if(this.lastpath!==this.PATH_LINE){ this.currentpath.push(this.PATH_LINE);}
 		if     (this.type===SVG){ this.currentpath.push(x,y);}
-		else if(this.type===VML){ this.currentpath.push(x*Z-Z2,y*Z-Z2);}
+		else if(this.type===VML){ this.currentpath.push((x*Z-Z2)|0,(y*Z-Z2)|0);}
 		else if(this.type===SL) { this.currentpath.push(x+this.OFFSETX,y+this.OFFSETY);}
 		this.lastpath = this.PATH_LINE;
 	},
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
-		if     (this.type===VML){ cx=cx*Z-Z2, cy=cy*Z-Z2, r=_mf(r*Z);}
+		if     (this.type===VML){ cx=(cx*Z-Z2)|0, cy=(cy*Z-Z2)|0, r=(r*Z)|0;}
 		else if(this.type===SL) { cx+=this.OFFSETX, cy+=this.OFFSETY;}
-		var sx = _mf(cx + r*_mc(startRad)), sy = _mf(cy + r*_ms(startRad)),
-			ex = _mf(cx + r*_mc(endRad)),   ey = _mf(cy + r*_ms(endRad));
+		var sx = (cx + r*_mc(startRad))|0, sy = (cy + r*_ms(startRad))|0,
+			ex = (cx + r*_mc(endRad))|0,   ey = (cy + r*_ms(endRad))|0;
 		if(this.type===VML){
 			var com = (antiClockWise ? 'at' : 'wa');
 			if(endRad-startRad>=2*Math.PI){ sx+=1;}
@@ -487,7 +486,7 @@ VectorContext.prototype = {
 
 	pathRect : function(size){
 		var x=size[0], y=size[1], w=size[2], h=size[3];
-		if     (this.type===VML){ x=x*Z-Z2,y=y*Z-Z2, w=w*Z, h=h*Z;}
+		if     (this.type===VML){ x=(x*Z-Z2)|0,y=(y*Z-Z2)|0, w=(w*Z)|0, h=(h*Z)|0;}
 		else if(this.type===SL) { x+=this.OFFSETX,y+=this.OFFSETY;}
 		return [this.PATH_MOVE,x,y,this.PATH_LINE,(x+w),y,(x+w),(y+h),x,(y+h),this.PATH_CLOSE].join(' ');
 	},
@@ -500,7 +499,7 @@ VectorContext.prototype = {
 			else if(i==2){ this.currentpath.push(this.PATH_LINE);}
 
 			if     (this.type===SVG){ this.currentpath.push(_args[i],_args[i+1]);}
-			else if(this.type===VML){ this.currentpath.push(_args[i]*Z-Z2,_args[i+1]*Z-Z2);}
+			else if(this.type===VML){ this.currentpath.push((_args[i]*Z-Z2)|0,(_args[i+1]*Z-Z2)|0);}
 			else if(this.type===SL) { this.currentpath.push(_args[i]+this.OFFSETX,_args[i+1]+this.OFFSETY);}
 		}
 		if(_args[_len-1]){ this.currentpath.push(this.PATH_CLOSE);}
@@ -512,7 +511,7 @@ VectorContext.prototype = {
 			m[i] = _args[i] + m[0];
 			m[i+1] = _args[i+1] + m[1];
 
-			if     (this.type===VML){ m[i]=m[i]*Z-Z2, m[i+1]=m[i+1]*Z-Z2;}
+			if     (this.type===VML){ m[i]=(m[i]*Z-Z2)|0, m[i+1]=(m[i+1]*Z-Z2)|0;}
 			else if(this.type===SL) { m[i]+=this.OFFSETX, m[i+1]+=this.OFFSETY;}
 		}
 		for(var i=2,len=_len-((_len|1)?1:2);i<len;i+=2){
@@ -547,7 +546,7 @@ VectorContext.prototype = {
 		this.currentpath = stack;
 	},
 	strokeCross : function(cx,cy,l){
-		if     (this.type===VML){ cx=cx*Z-Z2, cy=cy*Z-Z2, l=_mf(l*Z);}
+		if     (this.type===VML){ cx=(cx*Z-Z2)|0, cy=(cy*Z-Z2)|0, l=(l*Z)|0;}
 		else if(this.type===SL) { cx+=this.OFFSETX, cy+=this.OFFSETY;}
 		var stack = this.currentpath;
 		this.currentpath = [];
