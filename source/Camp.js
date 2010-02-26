@@ -1,4 +1,4 @@
-// Camp.js rev51
+// Camp.js rev52
  
 (function(){
 
@@ -879,11 +879,15 @@ _extend( Camp, {
 			new CanvasRenderingContext2D_wrapper(CANVAS, idname);
 		}
 	},
+
 	select : function(type){
 		if(this.enable[type]!==true){ return false;}
 		for(var i=0;i<_types.length;i++){ this.current[_types[i]]=false;}
 		this.current[type] = true;
 		return true;
+	},
+	setflags : function(type, value){
+		flags[type] = value;
 	}
 });
 
