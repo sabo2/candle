@@ -1,4 +1,4 @@
-// Fire.js rev48
+// Fire.js rev53
 
 (function(){
 
@@ -259,84 +259,9 @@ function drawLineGraph(idname, json, ratio){
 		}
 
 		// マーカーの描画
-		drawMarker(((info.marker!==void 0) ? info.marker : json.graph.marker), ctx, mkpos);
-	}
-}
-/* ------------------------------ */
-/*   折れ線グラフのマーカー描画   */
-/* ------------------------------ */
-function drawMarker(markerInfo, ctx, mkpos){
-	if(!markerInfo){ return;}
-	var marker = markerInfo.split(/[ ]+/g).join('').split(/,/);
-	var markerType = marker[0];
-	var markerSize = (!!marker[1] ? parseInt(marker[1]) : 4);
-	ctx.lineWidth  = (!!marker[2] ? parseInt(marker[2]) : 1);
-
-	if(markerType==='none'){ return;}
-
-	for(var t=0;t<mkpos.length;t++){
-		var px=mkpos[t][0], py=mkpos[t][1];
-
-		switch(markerType){
-		case 'cross':
-			ctx.strokeCross(px, py, markerSize);
-			break;
-		case 'plus':
-			ctx.beginPath();
-			ctx.moveTo(px-markerSize, py);
-			ctx.lineTo(px+markerSize, py);
-			ctx.moveTo(px, py-markerSize);
-			ctx.lineTo(px, py+markerSize);
-			ctx.stroke();
-			break;
-		case 'triangle':
-		case 'triangle-stroke':
-			ctx.beginPath();
-			ctx.moveTo(px+markerSize*_ms(0/3*Math.PI), py-markerSize*_mc(0/3*Math.PI));
-			ctx.lineTo(px+markerSize*_ms(2/3*Math.PI), py-markerSize*_mc(2/3*Math.PI));
-			ctx.lineTo(px+markerSize*_ms(4/3*Math.PI), py-markerSize*_mc(4/3*Math.PI));
-			ctx.closePath();
-			if(markerType==='triangle'){ ctx.fill();}else{ ctx.stroke();}
-			break;
-		case 'invtriangle':
-		case 'invtriangle-stroke':
-			ctx.beginPath();
-			ctx.moveTo(px+markerSize*_ms(0/3*Math.PI), py+markerSize*_mc(0/3*Math.PI));
-			ctx.lineTo(px+markerSize*_ms(2/3*Math.PI), py+markerSize*_mc(2/3*Math.PI));
-			ctx.lineTo(px+markerSize*_ms(4/3*Math.PI), py+markerSize*_mc(4/3*Math.PI));
-			ctx.closePath();
-			if(markerType==='invtriangle'){ ctx.fill();}else{ ctx.stroke();}
-			break;
-		case 'star':
-		case 'star-stroke':
-			ctx.beginPath();
-			ctx.moveTo(px, py-markerSize);
-			for(var i=1;i<10;i++){
-				var size = (!(i&1) ? markerSize : markerSize/2.2);
-				ctx.lineTo(px+size*_ms((i/10)*_2PI), py-size*_mc((i/10)*_2PI));
-			}
-			ctx.closePath();
-			if(markerType==='star'){ ctx.fill();}else{ ctx.stroke();}
-			break;
-		case 'diamond':
-		case 'diamond-stroke':
-			ctx.setOffsetLinePath(px,py, 0,-markerSize, markerSize,0, 0,markerSize, -markerSize,0, true);
-			if(markerType==='diamond'){ ctx.fill();}else{ ctx.stroke();}
-			break;
-		case 'square':
-			ctx.fillRect(px-markerSize,py-markerSize, 2*markerSize,2*markerSize);
-			break;
-		case 'square-stroke':
-			ctx.strokeRect(px-markerSize,py-markerSize, 2*markerSize,2*markerSize);
-			break;
-		case 'oval-stroke':
-			ctx.strokeCircle(px, py, markerSize);
-			break;
-		case 'oval':
-		default:
-			ctx.fillCircle(px, py, markerSize);
-			break;
-		}
+		var mk = ((info.marker!==void 0) ? info.marker : json.graph.marker);
+		if(mk.indexOf("-shape")>=0){ ctx.strokeStyle = (!!info['edge-color'] ? info['edge-color'] : 'black');}
+		drawMarker(mk, ctx, mkpos);
 	}
 }
 
@@ -505,6 +430,104 @@ function drawDotChart(idname, json){
 		}
 		else{
 			for(var t=0;t<xlabel.length;t++){ ctx.strokeCircle(xpos[t], ypos, rsize[t]);}
+		}
+	}
+}
+
+/* ---------------- */
+/*   マーカー描画   */
+/* ---------------- */
+function drawMarker(markerInfo, ctx, mkpos){
+	if(!markerInfo){ return;}
+	var marker = markerInfo.split(/[ ]+/g).join('').split(/,/);
+	var markerType = marker[0];
+	var markerDraw = 'fill';
+	var markerSize = (!!marker[1] ? parseInt(marker[1]) : 4);
+	ctx.lineWidth  = (!!marker[2] ? parseInt(marker[2]) : 1);
+
+	if(markerType==='none'){ return;}
+
+	var markerTypeArray = markerType.split('-');
+	if(markerTypeArray.length>1){
+		markerType = markerTypeArray[0];
+		markerDraw = markerTypeArray[1];
+	}
+
+	var generalShape = false;
+	for(var t=0;t<mkpos.length;t++){
+		var px=mkpos[t][0], py=mkpos[t][1];
+
+		switch(markerType){
+		case 'cross':
+			ctx.strokeCross(px, py, markerSize);
+			break;
+		case 'plus':
+			ctx.beginPath();
+			ctx.moveTo(px-markerSize, py);
+			ctx.lineTo(px+markerSize, py);
+			ctx.moveTo(px, py-markerSize);
+			ctx.lineTo(px, py+markerSize);
+			ctx.stroke();
+			break;
+		case 'triangle':
+			ctx.beginPath();
+			ctx.moveTo(px+markerSize*_ms(0/3*Math.PI), py-markerSize*_mc(0/3*Math.PI));
+			ctx.lineTo(px+markerSize*_ms(2/3*Math.PI), py-markerSize*_mc(2/3*Math.PI));
+			ctx.lineTo(px+markerSize*_ms(4/3*Math.PI), py-markerSize*_mc(4/3*Math.PI));
+			ctx.closePath();
+			generalShape = true;
+			break;
+		case 'invtriangle':
+			ctx.beginPath();
+			ctx.moveTo(px+markerSize*_ms(0/3*Math.PI), py+markerSize*_mc(0/3*Math.PI));
+			ctx.lineTo(px+markerSize*_ms(2/3*Math.PI), py+markerSize*_mc(2/3*Math.PI));
+			ctx.lineTo(px+markerSize*_ms(4/3*Math.PI), py+markerSize*_mc(4/3*Math.PI));
+			ctx.closePath();
+			generalShape = true;
+			break;
+		case 'star':
+			ctx.beginPath();
+			ctx.moveTo(px, py-markerSize);
+			for(var i=1;i<10;i++){
+				var size = (!(i&1) ? markerSize : markerSize/2.2);
+				ctx.lineTo(px+size*_ms((i/10)*_2PI), py-size*_mc((i/10)*_2PI));
+			}
+			ctx.closePath();
+			generalShape = true;
+			break;
+		case 'diamond':
+			ctx.setOffsetLinePath(px,py, 0,-markerSize, markerSize,0, 0,markerSize, -markerSize,0, true);
+			generalShape = true;
+			break;
+		case 'square':
+			switch(markerDraw){
+				case 'fill'  : ctx.fillRect  (px-markerSize,py-markerSize, 2*markerSize,2*markerSize); break;
+				case 'stroke': ctx.strokeRect(px-markerSize,py-markerSize, 2*markerSize,2*markerSize); break;
+				case 'shape' : ctx.shapeRect (px-markerSize,py-markerSize, 2*markerSize,2*markerSize); break;
+			}
+			break;
+		case 'oval':
+			switch(markerDraw){
+				case 'fill'  : ctx.fillCircle  (px, py, markerSize); break;
+				case 'stroke': ctx.strokeCircle(px, py, markerSize); break;
+				case 'shape' : ctx.shapeCircle (px, py, markerSize); break;
+			}
+			break;
+
+		default:
+			markerType = 'oval';
+			markerDraw = 'fill';
+			t--;
+			continue;
+			break;
+		}
+
+		if(generalShape){
+			switch(markerDraw){
+				case 'fill'  : ctx.fill  (); break;
+				case 'stroke': ctx.stroke(); break;
+				case 'shape' : ctx.shape (); break;
+			}
 		}
 	}
 }
