@@ -1,4 +1,4 @@
-// Fire.js rev53
+// Fire.js rev54
 
 (function(){
 
@@ -14,6 +14,8 @@ var _win = this,
 	_ms = Math.sin,
 	_mc = Math.cos,
 	_2PI = 2*Math.PI,
+	_IE = !!(window.attachEvent && !window.opera),
+
 	Camp = _win.Camp,
 	textContent = {};
 
@@ -37,6 +39,14 @@ Camp.Fire = function(idname){
 _extend( Camp.Fire, {
 
 	JSON : {},
+
+	/* ------------ */
+	/*   初期化用   */
+	/* ------------ */
+	initAllElements : function(){
+		var elements = _doc.getElementsByTagName('campfire');
+		for(var i=0;i<elements.length;i++){ this.dance(elements[i].id, type);}
+	},
 
 	/* -------------------- */
 	/*   グラフを生成する   */
@@ -74,6 +84,7 @@ _extend( Camp.Fire, {
 			var el2 = document.getElementById(json['data-templete']);
 			if(!!el2){
 				var text2 = (!!el2.textContent ? el2.textContent : el2.innerText);
+
 				var json2 = {};
 				try     { json2 = JSON.parse(text2);}
 				catch(e){ json2 = eval("("+text2+")");}
@@ -531,5 +542,22 @@ function drawMarker(markerInfo, ctx, mkpos){
 		}
 	}
 }
+
+
+/* ---------------------------------- */
+/* CampFire関連オブジェクトデータ設定 */
+/* ---------------------------------- */
+	var text = [];
+	text.push("campfire { display: block; }\n");
+	text.push("cdatalist { display: none; }\n");
+	document.write('<style type="text/css" rel="stylesheet">');
+	document.write(text.join(''));
+	document.write('</style>');
+
+	// IE用ハック
+	if(_IE){
+		_doc.createElement('campfire');
+		_doc.createElement('cdatalist');
+	}
 
 })();

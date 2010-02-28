@@ -1,4 +1,4 @@
-// Camp.js rev52
+// Camp.js rev54
  
 (function(){
 
@@ -854,13 +854,8 @@ _extend( Camp, {
 
 	/* functions */
 	initAllElements : function(){
-		this.initElementsByClassName('canvas');
-	},
-	initElementsByClassName : function(classname, type){
-		var elements = _doc.getElementsByTagName('div');
-		for(var i=0;i<elements.length;i++){
-			if(elements[i].className.match(classname)){ this.initElementById(elements[i].id, type);}
-		}
+		var elements = _doc.getElementsByTagName('camp');
+		for(var i=0;i<elements.length;i++){ this.initElementById(elements[i].id, type);}
 	},
 	initElementsById : function(idlist, type){
 		for(var i=0;i<idlist.length;i++){ this.initElementById(idlist[i], type);}
@@ -895,14 +890,14 @@ _extend( Camp, {
 /* Camp.enable, Camp.currentオブジェクトデータ設定 */
 /* ----------------------------------------------- */
 
-	/* Camp.enable設定 */
+//	/* Camp.enable 設定 */
 	Camp.enable.canvas = (!!_doc.createElement('canvas').getContext);
 	Camp.enable.svg    = (!!_doc.createElementNS && !!_doc.createElementNS(SVGNS, 'svg').suspendRedraw);
 	Camp.enable.sl     = (function(){ try{ return (new ActiveXObject("AgControl.AgControl")).IsVersionSupported("1.0");}catch(e){} return false;})();
 	Camp.enable.flash  = false;
 	Camp.enable.vml    = _IE;
 
-	/* Camp.current設定 */
+//	/* Camp.current設定 */
 	for(var i=0;i<_types.length;i++){ Camp.current[_types[i]]=false;}
 	if     (Camp.enable.svg)   { Camp.current.svg    = true;}
 	else if(Camp.enable.canvas){ Camp.current.canvas = true;}
@@ -919,8 +914,20 @@ _extend( Camp, {
 		var text = [];
 		text.push("v\\:shape, v\\:group, v\\:polyline { behavior: url(#default#VML); position:absolute; width:10px; height:10px; }");
 		text.push("v\\:path, v\\:textpath, v\\:stroke { behavior: url(#default#VML); }");
-		_doc.createStyleSheet().cssText = text.join('');
+		document.write('<style type="text/css" rel="stylesheet">');
+		document.write(text.join(''));
+		document.write('</style>');
 	}
+
+	/* 初期設定 for Campタグ */
+	var text = [];
+	text.push("camp { display: block; }\n");
+	document.write('<style type="text/css" rel="stylesheet">');
+	document.write(text.join(''));
+	document.write('</style>');
+
+		// IE用ハック
+	if(_IE){ _doc.createElement('camp');}
 
 	_win.Camp = Camp;
 

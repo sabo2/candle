@@ -27,7 +27,7 @@
 </script>
 <style type="text/css"> 
 <!--
-	div.graph { border:solid 1px gray; display:none;}
+	campfire { border:solid 1px gray;}
 	div.menu { color:blue; font-weight:100; text-decoration:underline; margin-right:4pt;}
 	div.menusel { color:black; font-weight:900; margin-right:4pt;}
 	td.cap { text-align: center; font-size:9pt; padding: 1pt}
@@ -36,7 +36,7 @@
 --> 
 </style> 
 </HEAD>
-<BODY onLoad="javascript:disp();">
+<BODY onLoad="javascript:chrange('month');">
 <table border=1 cellspacing=1 style="background-color:#efefef;margin-bottom:8pt;">
 <tr><td colspan=2>
 <DIV id="range_month" class="menusel" style="display:inline;" onClick="javascript:chrange('month');">åéï êÑà⁄</DIV>
@@ -45,7 +45,7 @@
 </td></tr>
 </table>
 
-<BLOCKQUOTE id="graph_series" style="display:none;">
+<cdatalist id="graph_series">
 [
 	{ label:"IE 5.5",      color:"rgb(  0,   0,  96)"},
 	{ label:"IE 6.0",      color:"rgb(  0,   0, 192)"},
@@ -69,9 +69,9 @@
 	{ label:"Opera",       color:"rgb(255, 255, 255)"},
 	{ label:"others",      display:"none"}
 ]
-</BLOCKQUOTE>
+</cdatalist>
 
-<DIV class="graph" id="graph_month">
+<campfire id="graph_month">
 {
 	main   : { type:"Line", title:"", size:[960,600], display:"block"},
 	graph  : { origin:[20,20], size:[720,540], bgcolor:"rgb(240,240,240)", marker:"star,8,1"},
@@ -104,9 +104,9 @@
 		[0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1]
 	]
 }
-</DIV>
+</campfire>
 
-<DIV class="graph" id="graph_week">
+<campfire id="graph_week">
 {
 	main   : { type:"AreaRatio", title:"", size:[960,600], display:"block"},
 	graph  : { origin:[20,20], size:[720,540], "bgcolor":"rgb(240,240,240)", "top-space":0.06},
@@ -139,9 +139,9 @@
 		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0]
 	]
 }
-</DIV>
+</campfire>
 
-<DIV class="graph" id="graph_date">
+<campfire id="graph_date">
 {
 	main   : { type:"AreaRatio", title:"", size:[960,600], display:"block"},
 	graph  : { origin:[20,20], size:[720,540], "bgcolor":"rgb(240,240,240)", marker:"oval,4"},
@@ -175,7 +175,7 @@
 		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 	]
 }
-</DIV>
+</campfire>
 
 </BODY>
 </HTML>
