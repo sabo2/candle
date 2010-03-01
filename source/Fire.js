@@ -1,4 +1,4 @@
-// Fire.js rev54
+// Fire.js rev55
 
 (function(){
 
@@ -40,28 +40,40 @@ _extend( Camp.Fire, {
 
 	JSON : {},
 
-	/* ------------ */
-	/*   初期化用   */
-	/* ------------ */
-	initAllElements : function(){
-		var elements = _doc.getElementsByTagName('campfire');
-		for(var i=0;i<elements.length;i++){ this.dance(elements[i].id, type);}
-	},
-
 	/* -------------------- */
 	/*   グラフを生成する   */
 	/* -------------------- */
+	danceAll : function(){
+		var elements = _doc.getElementsByTagName('campfire');
+		for(var i=0;i<elements.length;i++){ this.dance(elements[i].id, type);}
+	},
 	dance : function(idname, type){
 		if(typeof idname === 'string'){
-			this.generate(idname,type);
+			this.draw(idname,type);
 		}
 		else if((typeof idname === 'object') && (idname instanceof Array)){
 			for(var i=0;i<idname.length;i++){
-				this.generate(idname[i],type);
+				this.draw(idname[i],type);
 			}
 		}
 	},
-	generate : function(idname, type){
+
+	/* -------------------- */
+	/*   グラフを描画する   */
+	/* -------------------- */
+	draw : function(idname, type){
+		var json = this.JSON[idname];
+		if(!json || !json.data){
+			this.parseData(idname);
+			json = this.JSON[idname];
+		}
+		if(!!type){ json.main.type = type;}
+
+		this.drawGraph(idname);
+	},
+
+	/* 入力されたデータを解析する */
+	parseData : function(idname){
 		var el = document.getElementById(idname);
 		if(!el){ return;}
 
@@ -106,16 +118,13 @@ _extend( Camp.Fire, {
 			if(!json.data[i].value){ json.data[i].display='none';}
 		}
 
-		if(!!type){ json.main.type = type;}
 		this.JSON[idname] = json;
-
-		/* グラフを描画する */
-		this.redraw(idname);
 	},
-	redraw : function(idname){
+	/* グラフを描画する */
+	drawGraph : function(idname){
 		var json = this.JSON[idname];
 
-		if(!json.data){ return;}
+		if(!json || !json.data){ return;}
 		switch(json.main.type.toLowerCase()){
 			case 'point':         drawPointGraph(idname,json, false); break;
 			case 'pointratio':    drawPointGraph(idname,json, true ); break;
