@@ -1,4 +1,4 @@
-// Camp.js rev58
+// Camp.js rev59
  
 (function(){
 
@@ -122,7 +122,9 @@ var V_TAG_SHAPE    = '<v:shape',
 	V_PATH_LINE   = ' l',
 	V_PATH_CLOSE  = ' x',
 	V_PATH_NOSTROKE = ' ns',
-	V_PATH_NOFILL   = ' nf';
+	V_PATH_NOFILL   = ' nf',
+
+	V_HEIGHT = { top:-0.3, hanging:-0.3, middle:0, alphabetic:0.4, bottom:0.45 };
 
 /* ------------------------------------------- */
 /*   VectorContext(SVG)クラス用const文字列集   */
@@ -147,6 +149,8 @@ var SVGNS = "http://www.w3.org/2000/svg",
 
 	S_NONE = 'none',
 
+	S_HEIGHT = { top:-0.7, hanging:-0.66, middle:-0.35, alphabetic:0, bottom:0.1 },
+
 /* ------------------------------------------ */
 /*   VectorContext(SL)クラス用const文字列集   */
 /* ------------------------------------------ */
@@ -157,7 +161,17 @@ var SVGNS = "http://www.w3.org/2000/svg",
 /*   VectorContextクラス用変数など   */
 /* --------------------------------- */
 	EL_ID_HEADER = "canvas_o_",
+	ME    = null,
 	EMPTY = '';
+
+function initME(){
+	ME = _doc.createElement('div');
+	ME.style.display  = 'inline';
+	ME.style.position = 'absolute';
+	ME.style.left     = '-9000px';
+	ME.innerHTML = '';
+	_doc.body.appendChild(ME);
+}
 
 /* ----------------------- */
 /*   VectorContextクラス   */
@@ -448,10 +462,13 @@ VectorContext.prototype = {
 	fillText : function(text,x,y){
 		switch(this.type){
 		case SVG:
+			ME.style.font = this.font; ME.innerHTML = text;
+			var top = y - (ME.offsetHeight * S_HEIGHT[this.textBaseline.toLowerCase()]);
+
 			var el = _doc.createElementNS(SVGNS,'text');
 			if(!!this.vid){ this.elements[this.vid] = el;}
 			el.setAttribute('x', x);
-			el.setAttribute('y', y+14*1.0);
+			el.setAttribute('y', top);
 			el.setAttribute(S_ATT_FILL, parsecolor(this.fillStyle));
 			el.setAttribute('text-anchor', SVG_ANCHOR[this.textAlign.toLowerCase()]);
 			el.style.font = this.font;
@@ -469,15 +486,18 @@ VectorContext.prototype = {
 			var xaml = this.content.createFromXaml(ar.join(''));
 			if(!!this.vid){ this.elements[this.vid] = xaml;}
 
-			var offset = xaml.ActualHeight*SL_HEIGHT[this.textBaseline.toLowerCase()];
+			var offset = xaml.ActualHeight * SL_HEIGHT[this.textBaseline.toLowerCase()];
 			xaml["Canvas.Top"] = y+this.OFFSETY - (!isNaN(offset)?offset:0);
 			this.target.children.add(xaml);
 			break;
 
 		case VML:
-			if(this.type===VML){ x=(x*Z-Z2)|0, y=(y*Z-Z2)|0;}
+			x=(x*Z-Z2)|0, y=(y*Z-Z2)|0;
+			ME.style.font = this.font; ME.innerHTML = text;
+			var top = y - ((ME.offsetHeight * V_HEIGHT[this.textBaseline.toLowerCase()])*Z-Z2)|0;
+
 			var ar = [V_TAG_GROUP, V_ATT_COORDSIZE, V_TAGEND];
-			ar.push(V_TAG_POLYLINE, V_ATT_POINTS, [x-100,y,x+100,y].join(','), V_ATT_END,
+			ar.push(V_TAG_POLYLINE, V_ATT_POINTS, [x-100,top,x+100,top].join(','), V_ATT_END,
 					V_DEF_ATT_POLYLINE, V_ATT_FILLCOLOR, parsecolor(this.fillStyle), V_ATT_END, V_TAGEND);
 			ar.push(V_TAG_PATH_FOR_TEXTPATH, V_TAG_TEXTPATH);
 			if(!!this.vid){ ar.push(V_ATT_ID, this.vid, V_ATT_END); }
@@ -872,6 +892,7 @@ _extend( Camp, {
 	},
 	initElementById : function(idname, type){
 		if(!!_doc.getElementById(EL_ID_HEADER + idname)){ return;}
+		if(!ME){ initME();}
 
 		var choice = new TypeList();
 		if((type===void 0)||(this.enable[type]!==true)){ choice = this.current;}
