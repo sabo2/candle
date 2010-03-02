@@ -1,4 +1,4 @@
-// Camp.js rev64
+// Camp.js rev65
  
 (function(){
 
@@ -171,6 +171,8 @@ function initME(){
 	ME.style.left     = '-9000px';
 	ME.innerHTML = '';
 	_doc.body.appendChild(ME);
+
+	Camp.ME = ME;
 }
 
 /* ----------------------- */
@@ -902,6 +904,7 @@ _extend( Camp, {
 	/* externs */
 	color : _color,
 	parse : parsecolor,
+	ME    : null,
 
 	/* Selected & Enable types */
 	enable  : new TypeList(),

@@ -1,4 +1,4 @@
-// Fire.js rev64
+// Fire.js rev65
 
 (function(){
 
@@ -603,10 +603,17 @@ function drawLegend(json){
 	ctx.setLayer('legend');
 	ctx.setRendering('crispEdges');
 
+	var textwidth = 0;
+	for(var i=0;i<info.length;i++){
+		Camp.ME.style.font = '12px sans-serif';
+		Camp.ME.innerHTML = info[i].label;
+		if(textwidth < Camp.ME.offsetWidth){ textwidth = Camp.ME.offsetWidth;}
+	}
+
 	/* ˜gü */
 	ctx.fillStyle    = 'white';
 	ctx.strokeStyle  = 'black';
-	ctx.shapeRect(LEFT, TOP, 120, 15*(info.length+1));
+	ctx.shapeRect(LEFT, TOP, 36+textwidth, 15*(info.length+1));
 
 	/* €–Ú‚Ì•`‰æ */
 	ctx.textAlign    = 'left';
