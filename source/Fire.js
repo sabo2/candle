@@ -1,4 +1,4 @@
-// Fire.js rev60
+// Fire.js rev63
 
 (function(){
 
@@ -118,6 +118,10 @@ _extend( Camp.Fire, {
 			if(!json.data[i].value){ json.data[i].display='none';}
 		}
 
+		/* json.idnameをセット */
+		if(!json.idname){ json.idname = idname;}
+
+		/* this.JSONオブジェクトに内容を登録 */
 		this.JSON[idname] = json;
 	},
 	/* グラフを描画する */
@@ -126,16 +130,16 @@ _extend( Camp.Fire, {
 
 		if(!json || !json.data){ return;}
 		switch(json.main.type.toLowerCase()){
-			case 'point':         drawPointGraph(idname,json, false); break;
-			case 'pointratio':    drawPointGraph(idname,json, true ); break;
-			case 'line':          drawLineGraph(idname, json, false); break;
-			case 'lineratio':     drawLineGraph(idname, json, true ); break;
-			case 'bar':           drawBarGraph (idname, json, false); break;
-			case 'barstack':      drawBarGraph (idname, json, false); break;
-			case 'barstackratio': drawBarGraph (idname, json, true ); break;
-			case 'area':          drawAreaGraph(idname, json, false); break;
-			case 'arearatio':     drawAreaGraph(idname, json, true ); break;
-			case 'dot': case 'dotchart': drawDotChart (idname, json); break;
+			case 'point':         drawPointGraph(json, false); break;
+			case 'pointratio':    drawPointGraph(json, true ); break;
+			case 'line':          drawLineGraph (json, false); break;
+			case 'lineratio':     drawLineGraph (json, true ); break;
+			case 'bar':           drawBarGraph  (json, false); break;
+			case 'barstack':      drawBarGraph  (json, false); break;
+			case 'barstackratio': drawBarGraph  (json, true ); break;
+			case 'area':          drawAreaGraph (json, false); break;
+			case 'arearatio':     drawAreaGraph (json, true ); break;
+			case 'dot': case 'dotchart': drawDotChart (json); break;
 		}
 	}
 });
@@ -205,10 +209,10 @@ function normalizeData(json, stack, ratio){
 /* ------------------ */
 /*   描画領域の設定   */
 /* ------------------ */
-function settingCanvas(idname, json){
+function settingCanvas(json){
 	// canvas描画部
-	Camp(idname);
-	var ctx = document.getElementById(idname).getContext("2d");
+	Camp(json.idname);
+	var ctx = document.getElementById(json.idname).getContext("2d");
 	ctx.changeSize(json.main.size[0], json.main.size[1]);
 	ctx.clear();
 	ctx.changeOrigin(0, 0);
@@ -231,21 +235,21 @@ function settingCanvas(idname, json){
 /* ------------------ */
 /*   ポイントグラフ   */
 /* ------------------ */
-function drawPointGraph(idname, json, ratio){
+function drawPointGraph(json, ratio){
 	json.graph.line = 'none';
-	drawLineGraph(idname, json, ratio);
+	drawLineGraph(json, ratio);
 }
 
 /* ---------------- */
 /*   折れ線グラフ   */
 /* ---------------- */
-function drawLineGraph(idname, json, ratio){
+function drawLineGraph(json, ratio){
 	var WIDTH  = json.graph.size[0],
 		HEIGHT = json.graph.size[1],
 		LEFT   = json.graph.origin[0],
 		TOP    = json.graph.origin[1],
 		xlabel = json.xlabel,
-		ctx    = settingCanvas(idname, json),
+		ctx    = settingCanvas(json),
 		normalize = normalizeData(json,false,ratio);
 
 	var mkpos = [], mwidth = WIDTH/xlabel.length, moffset = mwidth/2;
@@ -287,13 +291,13 @@ function drawLineGraph(idname, json, ratio){
 /* ------------ */
 /*   棒グラフ   */
 /* ------------ */
-function drawBarGraph(idname, json, ratio){
+function drawBarGraph(json, ratio){
 	var WIDTH  = json.graph.size[0],
 		HEIGHT = json.graph.size[1],
 		LEFT   = json.graph.origin[0],
 		TOP    = json.graph.origin[1],
 		xlabel = json.xlabel,
-		ctx    = settingCanvas(idname, json),
+		ctx    = settingCanvas(json),
 		normalize = normalizeData(json,(json.main.type.toLowerCase()!=='bar'),ratio);
 
 	var currentBase = [], xpos = [], mwidth = WIDTH/xlabel.length, moffset = mwidth/2;
@@ -351,13 +355,13 @@ function drawBarGraph(idname, json, ratio){
 /* ---------------------------------- */
 /*   領域積み重ねグラフ描画ルーチン   */
 /* ---------------------------------- */
-function drawAreaGraph(idname, json, ratio){
+function drawAreaGraph(json, ratio){
 	var WIDTH  = json.graph.size[0],
 		HEIGHT = json.graph.size[1],
 		LEFT   = json.graph.origin[0],
 		TOP    = json.graph.origin[1],
 		xlabel = json.xlabel,
-		ctx    = settingCanvas(idname, json),
+		ctx    = settingCanvas(json),
 		normalize = normalizeData(json,true,ratio);
 
 	var currentBase = [], xpos = [], mwidth = WIDTH/(xlabel.length-1);
@@ -404,13 +408,13 @@ function drawAreaGraph(idname, json, ratio){
 /* ------------------------------ */
 /*   ドットチャート描画ルーチン   */
 /* ------------------------------ */
-function drawDotChart(idname, json){
+function drawDotChart(json){
 	var WIDTH  = json.graph.size[0],
 		HEIGHT = json.graph.size[1],
 		LEFT   = json.graph.origin[0],
 		TOP    = json.graph.origin[1],
 		xlabel = json.xlabel,
-		ctx    = settingCanvas(idname, json);
+		ctx    = settingCanvas(json);
 
 	var xpos = [], mwidth = WIDTH/xlabel.length, moffset = mwidth/2;
 	for(var t=0;t<xlabel.length;t++){ xpos[t] = _mf(LEFT+t*mwidth+moffset);}
