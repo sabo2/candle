@@ -1,4 +1,4 @@
-// Fire.js rev63
+// Fire.js rev64
 
 (function(){
 
@@ -141,6 +141,8 @@ _extend( Camp.Fire, {
 			case 'arearatio':     drawAreaGraph (json, true ); break;
 			case 'dot': case 'dotchart': drawDotChart (json); break;
 		}
+
+		drawLegend(json);
 	}
 });
 
@@ -206,6 +208,41 @@ function normalizeData(json, stack, ratio){
 	return normalize;
 }
 
+/* ---------------------- */
+/*   有効な項目のみ取得   */
+/* ---------------------- */
+function parseInfo(json){
+	var info = [], cnt = 0;
+	var setValue = function(info1,key){
+		if(info1[key]!==void 0){ return;}
+		/* jsonはparseInfo関数のプロパティ(参照できる) */
+		if(json.graph[key]!==void 0){
+			info1[key] = json.graph[key];
+		}
+		else{
+			info1[key] = '';
+		}
+	};
+
+	for(var i=0;i<json.data.length;i++){
+		var vals = json.data[i].value;
+		if(!vals || vals.length===0 || json.data[i].display==='none'){ continue;}
+
+		info[cnt] = json.data[i];
+		setValue(info[cnt],'color');
+
+		/* 折れ線グラフ用プロパティ */
+		setValue(info[cnt],'line');
+		/* マーカー表示用プロパティ */
+		setValue(info[cnt],'marker');
+		setValue(info[cnt],'edge-color');
+
+		cnt++;
+	}
+
+	return info;
+}
+
 /* ------------------ */
 /*   描画領域の設定   */
 /* ------------------ */
@@ -250,15 +287,15 @@ function drawLineGraph(json, ratio){
 		TOP    = json.graph.origin[1],
 		xlabel = json.xlabel,
 		ctx    = settingCanvas(json),
+		info   = parseInfo(json),
 		normalize = normalizeData(json,false,ratio);
 
 	var mkpos = [], mwidth = WIDTH/xlabel.length, moffset = mwidth/2;
 	for(var t=0;t<xlabel.length;t++){ mkpos[t] = [(LEFT+t*mwidth+moffset)|0];}
 
 	// データ描画部
-	for(var i=0;i<json.data.length;i++){
-		var info = json.data[i], vals = info.value;
-		if(!vals || vals.length===0 || info.display==='none'){ continue;}
+	for(var i=0;i<info.length;i++){
+		var vals = info[i].value;
 
 		// 描画する座標の所得
 		for(var t=0;t<xlabel.length;t++){
@@ -268,12 +305,12 @@ function drawLineGraph(json, ratio){
 		}
 
 		// 系列の色の設定
-		var color = (!!info.color ? info.color : '');
+		var color = info[i].color;
 		ctx.fillStyle   = (!!color ? color : 'black');
 		ctx.strokeStyle = (!!color ? color : 'none');
 
 		// 系列の描画
-		if((!info.line || info.line!=='none') && (!json.graph.line || !json.graph.line==='none')){
+		if(info[i].line!=='none'){
 			ctx.lineWidth = '2';
 			ctx.beginPath();
 			ctx.moveTo(mkpos[0][0], mkpos[0][1]);
@@ -282,8 +319,8 @@ function drawLineGraph(json, ratio){
 		}
 
 		// マーカーの描画
-		var mk = ((info.marker!==void 0) ? info.marker : json.graph.marker);
-		if(mk.indexOf("-shape")>=0){ ctx.strokeStyle = (!!info['edge-color'] ? info['edge-color'] : 'black');}
+		var mk = info[i].marker;
+		if(mk.indexOf("-shape")>=0){ ctx.strokeStyle = (!!info[i]['edge-color'] ? info[i]['edge-color'] : 'black');}
 		drawMarker(mk, ctx, mkpos);
 	}
 }
@@ -298,6 +335,7 @@ function drawBarGraph(json, ratio){
 		TOP    = json.graph.origin[1],
 		xlabel = json.xlabel,
 		ctx    = settingCanvas(json),
+		info   = parseInfo(json),
 		normalize = normalizeData(json,(json.main.type.toLowerCase()!=='bar'),ratio);
 
 	var currentBase = [], xpos = [], mwidth = WIDTH/xlabel.length, moffset = mwidth/2;
@@ -309,9 +347,8 @@ function drawBarGraph(json, ratio){
 	var type = json.main.type.toLowerCase();
 
 	// データ描画部
-	for(var i=0;i<json.data.length;i++){
-		var info = json.data[i], vals = info.value, ypos=[], ypos_b=[];
-		if(!vals || vals.length===0 || info.display==='none'){ continue;}
+	for(var i=0;i<info.length;i++){
+		var vals = info[i].value, ypos=[], ypos_b=[];
 
 		// 描画する座標の所得
 		if(type==='bar'){
@@ -338,7 +375,7 @@ function drawBarGraph(json, ratio){
 		}
 
 		// 系列の色の設定
-		var color = (!!info.color ? info.color : '');
+		var color = info[i].color;
 		ctx.fillStyle = (!!color ? color : 'none');
 		ctx.lineWidth = '1';
 		ctx.strokeStyle   = 'black';
@@ -362,6 +399,7 @@ function drawAreaGraph(json, ratio){
 		TOP    = json.graph.origin[1],
 		xlabel = json.xlabel,
 		ctx    = settingCanvas(json),
+		info   = parseInfo(json),
 		normalize = normalizeData(json,true,ratio);
 
 	var currentBase = [], xpos = [], mwidth = WIDTH/(xlabel.length-1);
@@ -371,9 +409,8 @@ function drawAreaGraph(json, ratio){
 	}
 
 	// データ描画部
-	for(var i=0;i<json.data.length;i++){
-		var info = json.data[i], vals = info.value, ypos_b=[], ypos=[];
-		if(!vals || vals.length===0 || info.display==='none'){ continue;}
+	for(var i=0;i<info.length;i++){
+		var vals = info[i].value, ypos_b=[], ypos=[];
 
 		// 描画する座標の所得
 		for(var t=0;t<xlabel.length;t++){
@@ -390,7 +427,7 @@ function drawAreaGraph(json, ratio){
 		}
 
 		// 系列の色の設定
-		var color = (!!info.color ? info.color : '');
+		var color = info[i].color;
 		ctx.strokeStyle = "black";
 		ctx.fillStyle = (!!color ? color : 'none');
 
@@ -414,26 +451,25 @@ function drawDotChart(json){
 		LEFT   = json.graph.origin[0],
 		TOP    = json.graph.origin[1],
 		xlabel = json.xlabel,
-		ctx    = settingCanvas(json);
+		ctx    = settingCanvas(json),
+		info   = parseInfo(json);
 
 	var xpos = [], mwidth = WIDTH/xlabel.length, moffset = mwidth/2;
 	for(var t=0;t<xlabel.length;t++){ xpos[t] = _mf(LEFT+t*mwidth+moffset);}
 
-	var max_rsize = Math.min(mwidth, HEIGHT/json.data.length)*0.66;
+	var max_rsize = Math.min(mwidth, HEIGHT/info.length)*0.66;
 	var max_val = 0;
-	for(var i=0;i<json.data.length;i++){
+	for(var i=0;i<info.length;i++){
 		for(var t=0;t<xlabel.length;t++){
-			var val = Math.pow(json.data[i].value[t],0.5);
+			var val = Math.pow(info[i].value[t],0.5);
 			if(val>max_val){ max_val = val;}
 		}
 	}
 
 	// データ描画部
-	for(var i=0;i<json.data.length;i++){
-		var info = json.data[i], vals = info.value, rsize=[];
-		if(!vals || vals.length===0 || info.display==='none'){ continue;}
-
-		var ypos = _mf(TOP+HEIGHT*((i+0.5)/json.data.length));
+	for(var i=0;i<info.length;i++){
+		var vals = info[i].value, rsize=[];
+		var ypos = _mf(TOP+HEIGHT*((i+0.5)/info.length));
 
 		// 描画する座標の所得
 		for(var t=0;t<xlabel.length;t++){
@@ -442,7 +478,7 @@ function drawDotChart(json){
 		}
 
 		// 系列の色の設定
-		var color = (!!info.color ? info.color : '');
+		var color = info[i].color;
 		ctx.fillStyle = (!!color ? color : 'none');
 		ctx.strokeStyle = "black";
 		ctx.lineWidth =1;
@@ -555,6 +591,37 @@ function drawMarker(markerInfo, ctx, mkpos){
 	}
 }
 
+/* ------------ */
+/*   凡例描画   */
+/* ------------ */
+function drawLegend(json){
+	var LEFT   = json.graph.origin[0] + json.graph.size[0] + 10,
+		TOP    = json.graph.origin[1],
+		ctx = document.getElementById(json.idname).getContext("2d"),
+		info = parseInfo(json);
+
+	ctx.setLayer('legend');
+	ctx.setRendering('crispEdges');
+
+	/* 枠線 */
+	ctx.fillStyle    = 'white';
+	ctx.strokeStyle  = 'black';
+	ctx.shapeRect(LEFT, TOP, 120, 15*(info.length+1));
+
+	/* 項目の描画 */
+	ctx.textAlign    = 'left';
+	ctx.textBaseline = 'middle';
+	ctx.font         = '12px sans-serif';
+	for(var i=0;i<info.length;i++){
+		var color = info[i].color;
+		ctx.fillStyle = (!!color ? color : 'none');
+		// ctx.strokeStyle = 'black';
+		ctx.shapeRect(LEFT+10,TOP+15*i+10,12,12);
+
+		ctx.fillStyle = 'black';
+		ctx.fillText(info[i].label, LEFT+26, TOP+15*(i+1));
+	}
+}
 
 /* ---------------------------------- */
 /* CampFire関連オブジェクトデータ設定 */

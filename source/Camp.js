@@ -1,4 +1,4 @@
-// Camp.js rev62
+// Camp.js rev64
  
 (function(){
 
@@ -339,7 +339,7 @@ VectorContext.prototype = {
 	},
 	setRendering : function(render){
 		if(this.type===SVG){
-			this.child.setAttribute(S_ATT_RENDERING, render);
+			this.target.setAttribute(S_ATT_RENDERING, render);
 		}
 	},
 	setUnselectable : function(unsel){
