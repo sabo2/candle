@@ -1,4 +1,4 @@
-// Camp.js rev56
+// Camp.js rev57
  
 (function(){
 
@@ -145,12 +145,17 @@ var SVGNS = "http://www.w3.org/2000/svg",
 		right  : 'end'
 	},
 
-	S_NONE = 'none';
+	S_NONE = 'none',
+
+/* ------------------------------------------ */
+/*   VectorContext(SL)クラス用const文字列集   */
+/* ------------------------------------------ */
+	SL_WIDTH = { left:0, center:0.5, right:1 },
 
 /* --------------------------------- */
 /*   VectorContextクラス用変数など   */
 /* --------------------------------- */
-var EL_ID_HEADER = "canvas_o_",
+	EL_ID_HEADER = "canvas_o_",
 	EMPTY = '';
 
 /* ----------------------- */
@@ -454,11 +459,11 @@ VectorContext.prototype = {
 			break;
 
 		case SL:
-			var ar = ['<TextBlock Canvas.Left="',(x+this.OFFSETX-60),'" Canvas.Top="',(y+this.OFFSETY-15*0.7),
-					  'Width="', (60*2), '" TextAlignment="', this.textAlign,'"',
-					  'FontFamily="', 'Sans-Serif', '" FontSize="', 16,'"',
-					  '" text="',text,'" />'];
-
+			var wid = parseInt(this.canvas.offsetWidth);
+			var left = x + this.OFFSETX - wid * SL_WIDTH[this.textAlign.toLowerCase()];
+			var ar = ['<TextBlock Canvas.Left="', left, '" Canvas.Top="',(y+this.OFFSETY-15*0.7),
+					  '" Width="', wid, '" TextAlignment="', this.textAlign,
+					  '" FontFamily="', 'Sans-Serif', '" FontSize="', 16, '" Text="',text, '" />'];
 			var xaml = this.content.createFromXaml(ar.join(''));
 			if(!!this.vid){ this.elements[this.vid] = xaml;}
 			this.target.children.add(xaml);
