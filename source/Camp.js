@@ -1,4 +1,4 @@
-// Camp.js rev54
+// Camp.js rev56
  
 (function(){
 
@@ -164,6 +164,7 @@ var VectorContext = function(type, idname){
 	this.font         = '14px system';
 	this.textAlign    = 'center';
 	this.textBaseline = 'middle';
+	this.canvas = null;	// 親エレメントとなるdivエレメント
 
 	// changeOrigin用(Sinverlight用)
 	this.OFFSETX = 0;
@@ -176,8 +177,7 @@ var VectorContext = function(type, idname){
 	// variables for internal
 	this.type   = type;
 	this.target = null;	// エレメントの追加対象となるオブジェクト
-	this.parent = null;	// 親エレメントとなるdivエレメント
-	this.canvas = null;	// this.parentの直下にあるエレメント
+	this.child  = null;	// this.canvasの直下にあるエレメント
 	this.idname = idname;
 	this.canvasid = EL_ID_HEADER+idname;
 	this.currentpath = [];
@@ -219,7 +219,7 @@ VectorContext.prototype = {
 			if     (this.type===SVG){ this.appendSVG(parent,rect.width,rect.height);}
 			else if(this.type===SL) { this.appendSL (parent,rect.width,rect.height);}
 			else if(this.type===VML){ this.appendVML(parent,rect.width,rect.height);}
-			child = this.canvas;
+			child = this.child;
 
 			var self = this;
 			//parent.className = "canvas";
@@ -231,13 +231,13 @@ VectorContext.prototype = {
 				parent.style.border = "solid 1px silver";
 			}
 			parent.getContext = function(type){
-				if(!self.canvas){ self.initElement(self.idname);}
+				if(!self.child){ self.initElement(self.idname);}
 				return self;
 			};
 			parent.toDataURL = function(type){ return null; /* 未サポート */ };
-			this.parent = parent;
+			this.canvas = parent;
 
-			this.target = this.canvas;
+			this.target = this.child;
 			if(!!this.target){ this.addVectorElement(true,false,false,[0,0,rect.width,rect.height]);}
 		}
 		this.target = child;
@@ -252,7 +252,7 @@ VectorContext.prototype = {
 		svgtop.setAttribute('viewBox', [0,0,width,height].join(' '));
 
 		parent.appendChild(svgtop);
-		this.canvas = svgtop;
+		this.child = svgtop;
 	},
 	appendVML : function(parent, width, height){
 		var vmltop = _doc.createElement('div');
@@ -265,7 +265,7 @@ VectorContext.prototype = {
 		vmltop.style.height = height + 'px';
 
 		parent.appendChild(vmltop);
-		this.canvas = vmltop;
+		this.child = vmltop;
 	},
 	appendSL : function(parent, width, height){
 		parent.innerHTML = [
@@ -283,7 +283,7 @@ VectorContext.prototype = {
 		// ここでLoadされてない状態になることがあるみたい..
 		if(document.getElementById([this.canvasid,'object'].join('_')).IsLoaded){
 			this.content = document.getElementById([this.canvasid,'object'].join('_')).content;
-			this.canvas = this.content.findName(this.canvasid);
+			this.child = this.content.findName(this.canvasid);
 		}
 	},
 	setLayer : function(layerid){
@@ -316,36 +316,36 @@ VectorContext.prototype = {
 	},
 	setRendering : function(render){
 		if(this.type===SVG){
-			this.canvas.setAttribute(S_ATT_RENDERING, render);
+			this.child.setAttribute(S_ATT_RENDERING, render);
 		}
 	},
 	setUnselectable : function(unsel){
 		if(unsel===(void 0)){ unsel = true;}else{ unsel = !!unsel;}
 		if(this.type===VML){
 			V_EL_UNSELECTABLE = (unsel ? ' unselectable="on"' : '');
-			this.parent.unselectable = (unsel ? 'on' : '');
 			this.canvas.unselectable = (unsel ? 'on' : '');
+			this.child.unselectable  = (unsel ? 'on' : '');
 		}
 		else if(this.type===SL){
-			this.parent.unselectable = (unsel ? 'on' : '');
+			this.canvas.unselectable = (unsel ? 'on' : '');
 		}
 		else if(this.type===SVG){
-			this.parent.style.MozUserSelect    = (unsel ? 'none' : 'text');
-			this.parent.style.WebkitUserSelect = (unsel ? 'none' : 'text');
-			this.parent.style.userSelect       = (unsel ? 'none' : 'text');
+			this.canvas.style.MozUserSelect    = (unsel ? 'none' : 'text');
+			this.canvas.style.WebkitUserSelect = (unsel ? 'none' : 'text');
+			this.canvas.style.userSelect       = (unsel ? 'none' : 'text');
 		}
 	},
 	getContextElement : function(){
-		if(this.type===SL && !this.canvas){ this.initElement(this.idname);}
-		return this.canvas;
+		if(this.type===SL && !this.child){ this.initElement(this.idname);}
+		return this.child;
 	},
 	getLayerElement   : function(){ return this.target;},
 
 	changeSize : function(width,height){
-		this.parent.style.width  = width + 'px';
-		this.parent.style.height = height + 'px';
+		this.canvas.style.width  = width + 'px';
+		this.canvas.style.height = height + 'px';
 
-		var child = this.parent.firstChild;
+		var child = this.canvas.firstChild;
 		if(this.type===SVG){
 			child.setAttribute('width', width);
 			child.setAttribute('height', height);
@@ -364,7 +364,7 @@ VectorContext.prototype = {
 		}
 	},
 	changeOrigin : function(left,top){
-		var child = this.parent.firstChild;
+		var child = this.canvas.firstChild;
 		if(this.type===SVG){
 			var m = child.getAttribute('viewBox').split(/ /);
 			m[0]=left, m[1]=top;
@@ -633,6 +633,7 @@ CanvasRenderingContext2D_wrapper = function(type, idname){
 	this.font         = '14px system';
 	this.textAlign    = 'center';
 	this.textBaseline = 'middle';
+	this.canvas = null;		// 親エレメントとなるdivエレメント
 
 	// changeOrigin用
 	this.OFFSETX = 0;
@@ -640,8 +641,7 @@ CanvasRenderingContext2D_wrapper = function(type, idname){
 
 	// variables for internal
 	this.canvasid = '';
-	this.parent = null;		// 親エレメントとなるdivエレメント
-	this.canvas = null;		// this.parentの直下にあるエレメント
+	this.child  = null;		// this.canvasの直下にあるエレメント
 	this.context  = null;	// 本来のCanvasRenderingContext2Dオブジェクト
 
 	this.use = new TypeList();
@@ -676,7 +676,7 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		canvas.style.width  = rect.width + 'px';
 		canvas.style.height = rect.height + 'px';
 
-		this.canvas = canvas;
+		this.child = canvas;
 
 		var self = this;
 		//parent.className = "canvas";
@@ -696,24 +696,24 @@ CanvasRenderingContext2D_wrapper.prototype = {
 			return (!!type ? canvas.toDataURL(type) : canvas.toDataURL());
 		};
 
-		this.parent = parent;
+		this.canvas = parent;
 	},
 	setLayer          : function(layerid){ },
 	setRendering      : function(render) { },
 	setUnselectable : function(unsel){
 		if(unsel===(void 0)){ unsel = true;}else{ unsel = !!unsel;}
-		this.parent.style.MozUserSelect    = (unsel ? 'none' : 'text');
-		this.parent.style.WebkitUserSelect = (unsel ? 'none' : 'text');
-		this.parent.style.userSelect       = (unsel ? 'none' : 'text');
+		this.canvas.style.MozUserSelect    = (unsel ? 'none' : 'text');
+		this.canvas.style.WebkitUserSelect = (unsel ? 'none' : 'text');
+		this.canvas.style.userSelect       = (unsel ? 'none' : 'text');
 	},
-	getContextElement : function(){ return this.canvas;},
-	getLayerElement   : function(){ return this.canvas;},
+	getContextElement : function(){ return this.child;},
+	getLayerElement   : function(){ return this.child;},
 
 	changeSize : function(width,height){
-		this.parent.style.width  = width + 'px';
-		this.parent.style.height = height + 'px';
+		this.canvas.style.width  = width + 'px';
+		this.canvas.style.height = height + 'px';
 
-		var canvas = this.parent.firstChild;
+		var canvas = this.canvas.firstChild;
 		var left = parseInt(canvas.style.left), top = parseInt(canvas.style.top);
 		width += (left<0?-left:0); height += (top<0?-top:0);
 		canvas.style.width  = width + 'px';
@@ -722,7 +722,7 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		canvas.height = height;
 	},
 	changeOrigin : function(left,top){
-//		var canvas = this.parent.firstChild;
+//		var canvas = this.canvas.firstChild;
 //		canvas.style.position = 'relative';
 //		canvas.style.left = (parseInt(canvas.style.left) - left) + 'px';
 //		canvas.style.top  = (parseInt(canvas.style.top ) - top)  + 'px';
@@ -731,10 +731,10 @@ CanvasRenderingContext2D_wrapper.prototype = {
 		this.OFFSETY = -top;//(top<0?-top:0);
 	},
 	clear : function(){
-		if(!!this.parent.style.backgroundColor){
+		if(!!this.canvas.style.backgroundColor){
 			this.setProperties();
-			this.context.fillStyle = parsecolorrev(this.parent.style.backgroundColor);
-			var rect = getRectSize(this.parent);
+			this.context.fillStyle = parsecolorrev(this.canvas.style.backgroundColor);
+			var rect = getRectSize(this.canvas);
 			this.context.fillRect(this.OFFSETX,this.OFFSETY,rect.width,rect.height);
 		}
 	},
@@ -914,17 +914,17 @@ _extend( Camp, {
 		var text = [];
 		text.push("v\\:shape, v\\:group, v\\:polyline { behavior: url(#default#VML); position:absolute; width:10px; height:10px; }");
 		text.push("v\\:path, v\\:textpath, v\\:stroke { behavior: url(#default#VML); }");
-		document.write('<style type="text/css" rel="stylesheet">');
-		document.write(text.join(''));
-		document.write('</style>');
+		_doc.write('<style type="text/css" rel="stylesheet">');
+		_doc.write(text.join(''));
+		_doc.write('</style>');
 	}
 
 	/* 初期設定 for Campタグ */
 	var text = [];
 	text.push("camp { display: block; }\n");
-	document.write('<style type="text/css" rel="stylesheet">');
-	document.write(text.join(''));
-	document.write('</style>');
+	_doc.write('<style type="text/css" rel="stylesheet">');
+	_doc.write(text.join(''));
+	_doc.write('</style>');
 
 		// IE用ハック
 	if(_IE){ _doc.createElement('camp');}
