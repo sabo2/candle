@@ -1,4 +1,4 @@
-// Fire.js rev55
+// Fire.js rev60
 
 (function(){
 
@@ -221,9 +221,8 @@ function settingCanvas(idname, json){
 		ctx.strokeRect.apply(ctx,size);
 	}
 	else{
-		// ’¼ÚaddVectorElementŠÖ”g‚¤‚Ì‚Í”÷–­...
 		ctx.fillStyle = json.graph.bgcolor;
-		ctx.addVectorElement(true,true,true,size);
+		ctx.shapeRect.apply(ctx,size);
 	}
 
 	return ctx;

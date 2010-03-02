@@ -1,4 +1,4 @@
-// Camp.js rev59
+// Camp.js rev60
  
 (function(){
 
@@ -258,7 +258,10 @@ VectorContext.prototype = {
 			this.canvas = parent;
 
 			this.target = this.child;
-			if(!!this.target){ this.addVectorElement(true,false,false,[0,0,rect.width,rect.height]);}
+			if(!!this.target){
+				this.rect(0,0,rect.width,rect.height);
+				this.addVectorElement(false,false);
+			}
 		}
 		this.target = child;
 	},
@@ -431,6 +434,11 @@ VectorContext.prototype = {
 		else if(this.type===SL) { this.currentpath.push(x+this.OFFSETX,y+this.OFFSETY);}
 		this.lastpath = this.PATH_LINE;
 	},
+	rect : function(x,y,w,h){
+		if     (this.type===VML){ x=(x*Z-Z2)|0,y=(y*Z-Z2)|0, w=(w*Z)|0, h=(h*Z)|0;}
+		else if(this.type===SL) { x+=this.OFFSETX,y+=this.OFFSETY;}
+		this.currentpath.push(this.PATH_MOVE,x,y,this.PATH_LINE,(x+w),y,(x+w),(y+h),x,(y+h),this.PATH_CLOSE);
+	},
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
 		if     (this.type===VML){ cx=(cx*Z-Z2)|0, cy=(cy*Z-Z2)|0, r=(r*Z)|0;}
 		else if(this.type===SL) { cx+=this.OFFSETX, cy+=this.OFFSETY;}
@@ -453,11 +461,29 @@ VectorContext.prototype = {
 	},
 
 	/* Canvas API functions (for drawing) */
-	fill       : function(){ this.addVectorElement(false,true,false,[]);},
-	stroke     : function(){ this.addVectorElement(false,false,true,[]);},
-	fillRect   : function(x,y,w,h){ this.addVectorElement(true,true,false,[x,y,w,h]);},
-	strokeRect : function(x,y,w,h){ this.addVectorElement(true,false,true,[x,y,w,h]);},
-	shapeRect  : function(x,y,w,h){ this.addVectorElement(true,true,true, [x,y,w,h]);},
+	fill       : function(){ this.addVectorElement(true,false);},
+	stroke     : function(){ this.addVectorElement(false,true);},
+	fillRect   : function(x,y,w,h){
+		var stack = this.currentpath;
+		this.currentpath = [];
+		this.rect(x,y,w,h);
+		this.addVectorElement(true,false);
+		this.currentpath = stack;
+	},
+	strokeRect : function(x,y,w,h){
+		var stack = this.currentpath;
+		this.currentpath = [];
+		this.rect(x,y,w,h);
+		this.addVectorElement(false,true);
+		this.currentpath = stack;
+	},
+	shapeRect  : function(x,y,w,h){
+		var stack = this.currentpath;
+		this.currentpath = [];
+		this.rect(x,y,w,h);
+		this.addVectorElement(true,true);
+		this.currentpath = stack;
+	},
 
 	fillText : function(text,x,y){
 		switch(this.type){
@@ -513,14 +539,7 @@ VectorContext.prototype = {
 	},
 
 	/* extended functions */
-	shape : function(){ this.addVectorElement(false,true,true,[]);},
-
-	pathRect : function(size){
-		var x=size[0], y=size[1], w=size[2], h=size[3];
-		if     (this.type===VML){ x=(x*Z-Z2)|0,y=(y*Z-Z2)|0, w=(w*Z)|0, h=(h*Z)|0;}
-		else if(this.type===SL) { x+=this.OFFSETX,y+=this.OFFSETY;}
-		return [this.PATH_MOVE,x,y,this.PATH_LINE,(x+w),y,(x+w),(y+h),x,(y+h),this.PATH_CLOSE].join(' ');
-	},
+	shape : function(){ this.addVectorElement(true,true);},
 
 	setLinePath : function(){
 		var _args = arguments, _len = _args.length, svg=(this.type!==VML);
@@ -573,17 +592,16 @@ VectorContext.prototype = {
 		else if(this.type===SL) { x1+=this.OFFSETX, y1+=this.OFFSETY, x2+=this.OFFSETX, y2+=this.OFFSETY;}
 		var stack = this.currentpath;
 		this.currentpath = [this.PATH_MOVE,x1,y1,this.PATH_LINE,x2,y2];
-		this.addVectorElement(false,false,true,[]);
+		this.addVectorElement(false,true);
 		this.currentpath = stack;
 	},
 	strokeCross : function(cx,cy,l){
 		if     (this.type===VML){ cx=(cx*Z-Z2)|0, cy=(cy*Z-Z2)|0, l=(l*Z)|0;}
 		else if(this.type===SL) { cx+=this.OFFSETX, cy+=this.OFFSETY;}
 		var stack = this.currentpath;
-		this.currentpath = [];
-		this.currentpath.push(this.PATH_MOVE,(cx-l),(cy-l),this.PATH_LINE,(cx+l),(cy+l));
-		this.currentpath.push(this.PATH_MOVE,(cx-l),(cy+l),this.PATH_LINE,(cx+l),(cy-l));
-		this.addVectorElement(false,false,true,[]);
+		this.currentpath = [this.PATH_MOVE,(cx-l),(cy-l),this.PATH_LINE,(cx+l),(cy+l),
+							this.PATH_MOVE,(cx-l),(cy+l),this.PATH_LINE,(cx+l),(cy-l)];
+		this.addVectorElement(false,true);
 		this.currentpath = stack;
 	},
 	fillCircle : function(cx,cy,r){
@@ -591,7 +609,7 @@ VectorContext.prototype = {
 		this.currentpath = [];
 		this.arc(cx,cy,r,0,_2PI,false);
 		this.currentpath.push(this.PATH_CLOSE);
-		this.addVectorElement(false,true,false,[]);
+		this.addVectorElement(true,false);
 		this.currentpath = stack;
 	},
 	strokeCircle : function(cx,cy,r){
@@ -599,7 +617,7 @@ VectorContext.prototype = {
 		this.currentpath = [];
 		this.arc(cx,cy,r,0,_2PI,false);
 		this.currentpath.push(this.PATH_CLOSE);
-		this.addVectorElement(false,false,true,[]);
+		this.addVectorElement(false,true);
 		this.currentpath = stack;
 	},
 	shapeCircle : function(cx,cy,r){
@@ -607,12 +625,12 @@ VectorContext.prototype = {
 		this.currentpath = [];
 		this.arc(cx,cy,r,0,_2PI,false);
 		this.currentpath.push(this.PATH_CLOSE);
-		this.addVectorElement(false,true,true,[]);
+		this.addVectorElement(true,true);
 		this.currentpath = stack;
 	},
 
-	addVectorElement : function(isrect,isfill,isstroke,size){
-	var path = (isrect ? this.pathRect(size) : this.currentpath.join(' '));
+	addVectorElement : function(isfill,isstroke){
+	var path = this.currentpath.join(' ');
 	switch(this.type){
 	case SVG:
 		var el = _doc.createElementNS(SVGNS,'path');
@@ -784,7 +802,8 @@ CanvasRenderingContext2D_wrapper.prototype = {
 	closePath : function(){ this.context.closePath();},
 	moveTo : function(x,y){ this.context.moveTo(x+this.OFFSETX,y+this.OFFSETY);},
 	lineTo : function(x,y){ this.context.lineTo(x+this.OFFSETX,y+this.OFFSETY);},
-	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
+	rect : function(x,y,w,h){ this.context.rect(x,y,w,h);},
+	arc  : function(cx,cy,r,startRad,endRad,antiClockWise){
 		this.context.arc(cx+this.OFFSETX,cy+this.OFFSETY,r,startRad,endRad,antiClockWise);
 	},
 
