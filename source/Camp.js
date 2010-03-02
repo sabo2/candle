@@ -1,4 +1,4 @@
-// Camp.js rev60
+// Camp.js rev61
  
 (function(){
 
@@ -520,10 +520,13 @@ VectorContext.prototype = {
 		case VML:
 			x=(x*Z-Z2)|0, y=(y*Z-Z2)|0;
 			ME.style.font = this.font; ME.innerHTML = text;
-			var top = y - ((ME.offsetHeight * V_HEIGHT[this.textBaseline.toLowerCase()])*Z-Z2)|0;
+			var top  = y - ((ME.offsetHeight * V_HEIGHT[this.textBaseline.toLowerCase()])*Z-Z2)|0;
+
+			var wid = (ME.offsetWidth*Z-Z2)|0;
+			var left = x - (wid * SL_WIDTH[this.textAlign.toLowerCase()])|0;
 
 			var ar = [V_TAG_GROUP, V_ATT_COORDSIZE, V_TAGEND];
-			ar.push(V_TAG_POLYLINE, V_ATT_POINTS, [x-100,top,x+100,top].join(','), V_ATT_END,
+			ar.push(V_TAG_POLYLINE, V_ATT_POINTS, [left,top,left+wid,top].join(','), V_ATT_END,
 					V_DEF_ATT_POLYLINE, V_ATT_FILLCOLOR, parsecolor(this.fillStyle), V_ATT_END, V_TAGEND);
 			ar.push(V_TAG_PATH_FOR_TEXTPATH, V_TAG_TEXTPATH);
 			if(!!this.vid){ ar.push(V_ATT_ID, this.vid, V_ATT_END); }
