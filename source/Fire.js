@@ -1,4 +1,4 @@
-// Fire.js rev65
+// Fire.js rev66
 
 (function(){
 
@@ -129,22 +129,34 @@ _extend( Camp.Fire, {
 		var json = this.JSON[idname];
 
 		if(!json || !json.data){ return;}
-		switch(json.main.type.toLowerCase()){
-			case 'point':         drawPointGraph(json, false); break;
-			case 'pointratio':    drawPointGraph(json, true ); break;
-			case 'line':          drawLineGraph (json, false); break;
-			case 'lineratio':     drawLineGraph (json, true ); break;
-			case 'bar':           drawBarGraph  (json, false); break;
-			case 'barstack':      drawBarGraph  (json, false); break;
-			case 'barstackratio': drawBarGraph  (json, true ); break;
-			case 'area':          drawAreaGraph (json, false); break;
-			case 'arearatio':     drawAreaGraph (json, true ); break;
-			case 'dot': case 'dotchart': drawDotChart (json); break;
+		json.main.type = json.main.type.toLowerCase();
+		var fts = feature[json.main.type];
+		if(fts!==void 0){
+			switch(fts[0]){
+				case 'POINT': drawPointGraph(json); break;
+				case 'LINE':  drawLineGraph(json);  break;
+				case 'BAR':   drawBarGraph(json);   break;
+				case 'AREA':  drawAreaGraph(json);  break;
+				case 'DOT':   drawDotChart(json);   break;
+			}
+			drawLegend(json,fts);
 		}
-
-		drawLegend(json);
 	}
 });
+// ratio, stack
+var feature = {
+	point         : ['POINT', false, false],
+	pointratio    : ['POINT', true,  false],
+	line          : ['LINE',  false, false],
+	lineratio     : ['LINE',  true,  false],
+	bar           : ['BAR',   false, false],
+	barstack      : ['BAR',   false, true ],
+	barstackratio : ['BAR',   true,  true ],
+	area          : ['AREA',  false, true ],
+	arearatio     : ['AREA',  true,  true ],
+	dot           : ['DOT',   false, false],
+	dotchart      : ['DOT',   false, false]
+};
 
 /* --------------------------------- */
 /*   以下は描画関係関数。            */
@@ -155,9 +167,11 @@ _extend( Camp.Fire, {
 /*   項目ごとの正規化の値を取得   */
 /* ------------------------------ */
 /* stack:積み重ねグラフかどうか ratio:割合グラフかどうか     */
-function normalizeData(json, stack, ratio){
+function normalizeData(json){
+	var ratio = feature[json.main.type][1];
+	var stack = feature[json.main.type][2];
 	var space = json.graph['top-space'];
-	if(json.main.type.toLowerCase()==='arearatio'){ space=0;}
+	if(json.main.type==='arearatio'){ space=0;}
 	else if(json.graph['top-space'] === void 0){ space=0.06;}
 
 	var total = [], max = 0;	// 各日付別の合計
@@ -272,15 +286,15 @@ function settingCanvas(json){
 /* ------------------ */
 /*   ポイントグラフ   */
 /* ------------------ */
-function drawPointGraph(json, ratio){
+function drawPointGraph(json){
 	json.graph.line = 'none';
-	drawLineGraph(json, ratio);
+	drawLineGraph(json);
 }
 
 /* ---------------- */
 /*   折れ線グラフ   */
 /* ---------------- */
-function drawLineGraph(json, ratio){
+function drawLineGraph(json){
 	var WIDTH  = json.graph.size[0],
 		HEIGHT = json.graph.size[1],
 		LEFT   = json.graph.origin[0],
@@ -288,7 +302,7 @@ function drawLineGraph(json, ratio){
 		xlabel = json.xlabel,
 		ctx    = settingCanvas(json),
 		info   = parseInfo(json),
-		normalize = normalizeData(json,false,ratio);
+		normalize = normalizeData(json);
 
 	var mkpos = [], mwidth = WIDTH/xlabel.length, moffset = mwidth/2;
 	for(var t=0;t<xlabel.length;t++){ mkpos[t] = [(LEFT+t*mwidth+moffset)|0];}
@@ -328,7 +342,7 @@ function drawLineGraph(json, ratio){
 /* ------------ */
 /*   棒グラフ   */
 /* ------------ */
-function drawBarGraph(json, ratio){
+function drawBarGraph(json){
 	var WIDTH  = json.graph.size[0],
 		HEIGHT = json.graph.size[1],
 		LEFT   = json.graph.origin[0],
@@ -336,7 +350,7 @@ function drawBarGraph(json, ratio){
 		xlabel = json.xlabel,
 		ctx    = settingCanvas(json),
 		info   = parseInfo(json),
-		normalize = normalizeData(json,(json.main.type.toLowerCase()!=='bar'),ratio);
+		normalize = normalizeData(json);
 
 	var currentBase = [], xpos = [], mwidth = WIDTH/xlabel.length, moffset = mwidth/2;
 	for(var t=0;t<xlabel.length;t++){
@@ -344,14 +358,13 @@ function drawBarGraph(json, ratio){
 		xpos[t] = _mf(LEFT+t*mwidth+moffset);
 	}
 	var bwidth = mwidth*0.7/2;
-	var type = json.main.type.toLowerCase();
 
 	// データ描画部
 	for(var i=0;i<info.length;i++){
 		var vals = info[i].value, ypos=[], ypos_b=[];
 
 		// 描画する座標の所得
-		if(type==='bar'){
+		if(json.main.type==='bar'){
 			for(var t=0;t<xlabel.length;t++){
 				if(!vals[t]){ vals[t]=0;}
 				ypos_b[t] = TOP+HEIGHT;
@@ -392,7 +405,7 @@ function drawBarGraph(json, ratio){
 /* ---------------------------------- */
 /*   領域積み重ねグラフ描画ルーチン   */
 /* ---------------------------------- */
-function drawAreaGraph(json, ratio){
+function drawAreaGraph(json){
 	var WIDTH  = json.graph.size[0],
 		HEIGHT = json.graph.size[1],
 		LEFT   = json.graph.origin[0],
@@ -400,7 +413,7 @@ function drawAreaGraph(json, ratio){
 		xlabel = json.xlabel,
 		ctx    = settingCanvas(json),
 		info   = parseInfo(json),
-		normalize = normalizeData(json,true,ratio);
+		normalize = normalizeData(json);
 
 	var currentBase = [], xpos = [], mwidth = WIDTH/(xlabel.length-1);
 	for(var t=0;t<xlabel.length;t++){
@@ -599,6 +612,8 @@ function drawLegend(json){
 		TOP    = json.graph.origin[1],
 		ctx = document.getElementById(json.idname).getContext("2d"),
 		info = parseInfo(json);
+
+	if(feature[json.main.type][2]){ info = info.reverse();}
 
 	ctx.setLayer('legend');
 	ctx.setRendering('crispEdges');
