@@ -1,4 +1,4 @@
-// Camp.js rev61
+// Camp.js rev62
  
 (function(){
 
@@ -503,11 +503,14 @@ VectorContext.prototype = {
 			break;
 
 		case SL:
+			ME.style.font = this.font;
+			var fontFamily = ME.style.fontFamily.replace(/\"/g,'\'');
+			var fontSize   = parseInt(ME.style.fontSize);
 			var wid = parseInt(this.canvas.offsetWidth);
 			var left = x + this.OFFSETX - wid * SL_WIDTH[this.textAlign.toLowerCase()];
 			var ar = ['<TextBlock Canvas.Left="', left, '" Canvas.Top="',(y+this.OFFSETY),
 					  '" Width="', wid, '" TextAlignment="', this.textAlign,
-					  '" FontFamily="', 'Sans-Serif', '" FontSize="', 16,
+					  '" FontFamily="', fontFamily, '" FontSize="', fontSize,
 					  '" Foreground="', parsecolor(this.fillStyle), '" Text="',text, '" />'];
 			var xaml = this.content.createFromXaml(ar.join(''));
 			if(!!this.vid){ this.elements[this.vid] = xaml;}
