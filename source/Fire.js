@@ -1,4 +1,4 @@
-// Fire.js rev66
+// Fire.js rev67
 
 (function(){
 
@@ -511,7 +511,7 @@ function drawDotChart(json){
 /* ---------------- */
 function drawMarker(markerInfo, ctx, mkpos){
 	if(!markerInfo){ return;}
-	var marker = markerInfo.split(/[ ]+/g).join('').split(/,/);
+	var marker = markerInfo.split(/\s+/g).join('').split(/,/);
 	var markerType = marker[0];
 	var markerDraw = 'fill';
 	var markerSize = (!!marker[1] ? parseInt(marker[1]) : 4);
