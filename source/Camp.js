@@ -1,4 +1,4 @@
-// Camp.js rev57
+// Camp.js rev58
  
 (function(){
 
@@ -151,6 +151,7 @@ var SVGNS = "http://www.w3.org/2000/svg",
 /*   VectorContext(SL)クラス用const文字列集   */
 /* ------------------------------------------ */
 	SL_WIDTH = { left:0, center:0.5, right:1 },
+	SL_HEIGHT = { top:0.2, hanging:0.2, middle:0.5, alphabetic:0.7, bottom:0.8 },
 
 /* --------------------------------- */
 /*   VectorContextクラス用変数など   */
@@ -461,11 +462,15 @@ VectorContext.prototype = {
 		case SL:
 			var wid = parseInt(this.canvas.offsetWidth);
 			var left = x + this.OFFSETX - wid * SL_WIDTH[this.textAlign.toLowerCase()];
-			var ar = ['<TextBlock Canvas.Left="', left, '" Canvas.Top="',(y+this.OFFSETY-15*0.7),
+			var ar = ['<TextBlock Canvas.Left="', left, '" Canvas.Top="',(y+this.OFFSETY),
 					  '" Width="', wid, '" TextAlignment="', this.textAlign,
-					  '" FontFamily="', 'Sans-Serif', '" FontSize="', 16, '" Text="',text, '" />'];
+					  '" FontFamily="', 'Sans-Serif', '" FontSize="', 16,
+					  '" Foreground="', parsecolor(this.fillStyle), '" Text="',text, '" />'];
 			var xaml = this.content.createFromXaml(ar.join(''));
 			if(!!this.vid){ this.elements[this.vid] = xaml;}
+
+			var offset = xaml.ActualHeight*SL_HEIGHT[this.textBaseline.toLowerCase()];
+			xaml["Canvas.Top"] = y+this.OFFSETY - (!isNaN(offset)?offset:0);
 			this.target.children.add(xaml);
 			break;
 
