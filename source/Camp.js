@@ -1,4 +1,4 @@
-// Camp.js rev65
+// Camp.js rev69
  
 (function(){
 
@@ -195,6 +195,7 @@ var VectorContext = function(type, idname){
 	// 外部から変更される追加プロパティ
 	this.vid      = '';
 	this.elements = [];
+	this.lastElement = null;
 
 	// variables for internal
 	this.type   = type;
@@ -409,6 +410,7 @@ VectorContext.prototype = {
 		if(this.type!==SL){ _doc.getElementById(this.idname).innerHTML = '';}
 
 		this.elements = [];
+		this.lastElement = null;
 		this.initElement(this.idname);
 
 		if(this.type===SL){ this.target.children.clear();}
@@ -494,7 +496,6 @@ VectorContext.prototype = {
 			var top = y - (ME.offsetHeight * S_HEIGHT[this.textBaseline.toLowerCase()]);
 
 			var el = _doc.createElementNS(SVGNS,'text');
-			if(!!this.vid){ this.elements[this.vid] = el;}
 			el.setAttribute('x', x);
 			el.setAttribute('y', top);
 			el.setAttribute(S_ATT_FILL, parsecolor(this.fillStyle));
@@ -502,6 +503,7 @@ VectorContext.prototype = {
 			el.style.font = this.font;
 			el.appendChild(_doc.createTextNode(text));
 			this.target.appendChild(el);
+			this.lastElement = el;
 			break;
 
 		case SL:
@@ -510,12 +512,14 @@ VectorContext.prototype = {
 			var fontSize   = parseInt(ME.style.fontSize);
 			var wid = parseInt(this.canvas.offsetWidth);
 			var left = x + this.OFFSETX - wid * SL_WIDTH[this.textAlign.toLowerCase()];
-			var ar = ['<TextBlock Canvas.Left="', left, '" Canvas.Top="',(y+this.OFFSETY),
-					  '" Width="', wid, '" TextAlignment="', this.textAlign,
-					  '" FontFamily="', fontFamily, '" FontSize="', fontSize,
-					  '" Foreground="', parsecolor(this.fillStyle), '" Text="',text, '" />'];
+			var ar = [
+				'<TextBlock Canvas.Left="', left, '" Canvas.Top="',(y+this.OFFSETY),
+				'" Width="', wid, '" TextAlignment="', this.textAlign,
+				'" FontFamily="', fontFamily, '" FontSize="', fontSize,
+				'" Foreground="', parsecolor(this.fillStyle), '" Text="',text, '" />'
+			];
 			var xaml = this.content.createFromXaml(ar.join(''));
-			if(!!this.vid){ this.elements[this.vid] = xaml;}
+			this.lastElement = this.elements[this.vid] = xaml;
 
 			var offset = xaml.ActualHeight * SL_HEIGHT[this.textBaseline.toLowerCase()];
 			xaml["Canvas.Top"] = y+this.OFFSETY - (!isNaN(offset)?offset:0);
@@ -530,20 +534,24 @@ VectorContext.prototype = {
 			var wid = (ME.offsetWidth*Z-Z2)|0;
 			var left = x - (wid * SL_WIDTH[this.textAlign.toLowerCase()])|0;
 
-			var ar = [V_TAG_GROUP, V_ATT_COORDSIZE, V_TAGEND];
-			ar.push(V_TAG_POLYLINE, V_ATT_POINTS, [left,top,left+wid,top].join(','), V_ATT_END,
-					V_DEF_ATT_POLYLINE, V_ATT_FILLCOLOR, parsecolor(this.fillStyle), V_ATT_END, V_TAGEND);
-			ar.push(V_TAG_PATH_FOR_TEXTPATH, V_TAG_TEXTPATH);
-			if(!!this.vid){ ar.push(V_ATT_ID, this.vid, V_ATT_END); }
-			ar.push(V_DEF_ATT_TEXTPATH, V_ATT_STRING, text, V_ATT_END,
-					V_ATT_STYLE, V_STYLE_FONT, this.font, V_STYLE_END,
-					V_STYLE_ALIGN, this.textAlign, V_STYLE_END, V_ATT_END, V_TAGEND_NULL,
-					V_CLOSETAG_POLYLINE, V_CLOSETAG_GROUP);
+			var ar = [
+				V_TAG_GROUP, V_ATT_COORDSIZE, V_TAGEND,
+					V_TAG_POLYLINE, V_ATT_POINTS, [left,top,left+wid,top].join(','), V_ATT_END,
+					V_DEF_ATT_POLYLINE, V_ATT_FILLCOLOR, parsecolor(this.fillStyle), V_ATT_END, V_TAGEND,
+						V_TAG_PATH_FOR_TEXTPATH,
+						
+						V_TAG_TEXTPATH, V_DEF_ATT_TEXTPATH, V_ATT_STRING, text, V_ATT_END,
+						V_ATT_STYLE, V_STYLE_FONT, this.font, V_STYLE_END,
+						V_STYLE_ALIGN, this.textAlign, V_STYLE_END, V_ATT_END, V_TAGEND_NULL,
+					V_CLOSETAG_POLYLINE,
+				V_CLOSETAG_GROUP
+			];
 
 			this.target.insertAdjacentHTML(BEFOREEND, ar.join(''));
-			if(!!this.vid){ this.elements[this.vid] = _doc.getElementById(this.vid);}
+			this.lastElement = this.target.lastChild.lastChild;
 			break;
 		}
+		if(!!this.vid){ this.elements[this.vid] = this.lastElement;}
 	},
 
 	/* extended functions */
@@ -580,18 +588,19 @@ VectorContext.prototype = {
 		if(_args[_len-1]){ this.currentpath.push(this.PATH_CLOSE);}
 	},
 	setDashSize : function(size){
+		if(!this.lastElement){ return;}
 		if(this.type===SVG){
-			this.elements[this.vid].setAttribute('stroke-dasharray', size);
+			this.lastElement.setAttribute('stroke-dasharray', size);
 		}
 		else if(this.type===SL){
-			this.elements[this.vid].StrokeDashArray = size;
+			this.lastElement.StrokeDashArray = ''+size;
 		}
 		else if(this.type===VML){
 			var el = _doc.createElement('v:stroke');
 			if     (size<=2){ el.dashstyle = 'ShortDash';}
 			else if(size<=5){ el.dashstyle = 'Dash';}
 			else            { el.dashstyle = 'LongDash';}
-			this.elements[this.vid].appendChild(el);
+			this.lastElement.appendChild(el);
 		}
 	},
 
@@ -642,7 +651,6 @@ VectorContext.prototype = {
 	switch(this.type){
 	case SVG:
 		var el = _doc.createElementNS(SVGNS,'path');
-		if(!!this.vid){ this.elements[this.vid] = el;}
 		el.setAttribute('d', path);
 		el.setAttribute(S_ATT_FILL,   (isfill ? parsecolor(this.fillStyle) : S_NONE));
 		el.setAttribute(S_ATT_STROKE, (isstroke ? parsecolor(this.strokeStyle) : S_NONE));
@@ -650,6 +658,7 @@ VectorContext.prototype = {
 		if(this.isAA){ el.setAttribute(S_ATT_RENDERING, 'auto'); this.isAA = false;}
 
 		this.target.appendChild(el);
+		this.lastElement = el;
 		break;
 
 	case SL:
@@ -659,23 +668,23 @@ VectorContext.prototype = {
 		ar.push(' />');
 
 		var xaml = this.content.createFromXaml(ar.join(''));
-		if(!!this.vid){ this.elements[this.vid] = xaml;}
+		this.lastElement = xaml;
 		this.target.children.add(xaml);
 		break;
 
 	case VML:
 		path = [path, (!isfill ? V_PATH_NOFILL : EMPTY), (!isstroke ? V_PATH_NOSTROKE : EMPTY)].join('');
-		var ar = [V_TAG_SHAPE, V_EL_UNSELECTABLE];
-		if(!!this.vid){ ar = [V_TAG_SHAPE, V_EL_UNSELECTABLE, V_ATT_ID, this.vid, V_ATT_END]; }
-		ar.push(V_ATT_COORDSIZE, V_ATT_PATH, path, V_ATT_END);
+		var ar = [V_TAG_SHAPE, V_EL_UNSELECTABLE, V_ATT_COORDSIZE, V_ATT_PATH, path, V_ATT_END];
 		if(isfill)  { ar.push(V_ATT_FILLCOLOR, parsecolor(this.fillStyle), V_ATT_END);}
 		if(isstroke){ ar.push(V_ATT_STROKECOLOR, parsecolor(this.strokeStyle), V_ATT_END, V_ATT_STROKEWEIGHT, this.lineWidth, 'px', V_ATT_END);}
 		ar.push(V_TAGEND_NULL);
 
 		this.target.insertAdjacentHTML(BEFOREEND, ar.join(''));
-		if(!!this.vid){ this.elements[this.vid] = _doc.getElementById(this.vid);}
+		this.lastElement = this.target.lastChild;
 		break;
-	}}
+	}
+	if(!!this.vid){ this.elements[this.vid] = this.lastElement;}
+	}
 };
 
 /* -------------------- */
