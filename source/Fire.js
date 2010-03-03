@@ -1,4 +1,4 @@
-// Fire.js rev70
+// Fire.js rev71
 
 (function(){
 
@@ -22,6 +22,37 @@ var _win = this,
 /* ------------ */
 function _extend(obj, ads){
 	for(var name in ads){ obj[name] = ads[name];}
+}
+function _extend_rc(obj, ads){
+	/* xx.['aa-bb']をxx.[aa][bb]に切り分ける */
+	for(var key in ads){
+		var keys = key.split(/\-/), key0 = keys.shift(), key1 = keys.join('');
+		if(key1 === ''){ continue;}
+
+		if(key0!=='data'){
+			if(ads[key]!=null){
+				if(ads[key0]===void 0){ ads[key0] = {};}
+				ads[key0][key1] = ads[key];
+			}
+		}
+		else{
+			for(var i=0;i<ads[key].length;i++){
+				if(ads[key][i]!=null){
+					if(ads[key0]   ===void 0){ ads[key0]    = [];}
+					if(ads[key0][i]===void 0){ ads[key0][i] = {};}
+					ads[key0][i][key1] = ads[key][i];
+				}
+			}
+		}
+	}
+
+	for(var key in ads){
+		if(typeof ads[key] === 'object'){
+			if(!obj[key]){ obj[key] = (!(ads[key] instanceof Array) ? {} : []);}
+			_extend_rc(obj[key], ads[key]);
+		}
+		else{ obj[key] = ads[key];}
+	}
 }
 
 /* ------------------------ */
@@ -55,6 +86,11 @@ _extend( Camp.Fire, {
 			}
 		}
 	},
+	/* alias */
+	all             : function(){ this.danceAll();},
+	initAllElements : function(){ this.danceAll();},
+	init        : function(idname){ this.dance(idname);},
+	initElement : function(idname){ this.dance(idname);},
 
 	/* -------------------- */
 	/*   グラフを描画する   */
@@ -72,7 +108,7 @@ _extend( Camp.Fire, {
 
 	/* 入力されたデータを解析する */
 	parseData : function(idname){
-		var el = document.getElementById(idname);
+		var el = _doc.getElementById(idname);
 		if(!el){ return;}
 
 		/* テキストの中身を取得し、文字列を消去する */
@@ -83,38 +119,35 @@ _extend( Camp.Fire, {
 		}
 		el.innerHTML = '';
 
+		/* JSONオブジェクトを取得 */
+		this.parseJSON(idname);
+	},
+
+	/* テキストからJSONオブジェクトを取得する */
+	parseJSON : function(idname){
+		var text = textContent[idname];
+
 		/* JSONオブジェクトの生成 */
-		var json = {};
-		try     { json = JSON.parse(text);}
-		catch(e){ json = eval("("+text+")");}
+		var json = {}, jsonp = {};
+		try     { jsonp = JSON.parse(text);}
+		catch(e){ jsonp = eval("("+text+")");}
 
-		if(!json.data){ json.data = {};}
-		/* data-templeteからデータをコピーする */
-		if(!!json['data-templete']){
-			var el2 = document.getElementById(json['data-templete']);
-			if(!!el2){
-				var text2 = (!!el2.textContent ? el2.textContent : el2.innerText);
+		/* includeファイルからデータをコピーする */
+		if(!!jsonp.include){
+			var incs = jsonp.include.split(/\s\,\s/);
+			for(var i=0;i<incs.length;i++){
+				var eli = _doc.getElementById(incs[i]);
+				if(!eli){ continue;}
 
-				var json2 = {};
-				try     { json2 = JSON.parse(text2);}
-				catch(e){ json2 = eval("("+text2+")");}
-				json.data = json2;
-			}
-		}
-		/* data-xxxのデータをjson.dataに移し替える */
-		for(var origkey in json){
-			if(origkey.match(/data\-(\w+)/) && RegExp.$1!=='templete'){
-				var key = RegExp.$1;
-				for(var i=0;i<json.data.length;i++){
-					if(json[origkey][i]!=null){ json.data[i][key] = json[origkey][i];}
-				}
+				var texti = (!!eli.textContent ? eli.textContent : eli.innerText);
+				var jsoni = {};
+				try     { jsoni = JSON.parse(texti);}
+				catch(e){ jsoni = eval("("+texti+")");}
+				_extend_rc(json, jsoni);
 			}
 		}
 
-		/* 空の系列にdisplay:noneを設定 */
-		for(var i=0;i<json.data.length;i++){
-			if(!json.data[i].value){ json.data[i].display='none';}
-		}
+		_extend_rc(json, jsonp);
 
 		/* json.idnameをセット */
 		if(!json.idname){ json.idname = idname;}
@@ -122,6 +155,7 @@ _extend( Camp.Fire, {
 		/* this.JSONオブジェクトに内容を登録 */
 		this.JSON[idname] = json;
 	},
+
 	/* グラフを描画する */
 	drawGraph : function(idname){
 		var json = this.JSON[idname];
@@ -168,9 +202,9 @@ var feature = {
 function normalizeData(json){
 	var ratio = feature[json.main.type][1];
 	var stack = feature[json.main.type][2];
-	var space = json.graph['top-space'];
+	var space = json.graph.topspace;
 	if(json.main.type==='arearatio'){ space=0;}
-	else if(json.graph['top-space'] === void 0){ space=0.06;}
+	else if(json.graph.topspace === void 0){ space=0.06;}
 
 	var total = [], max = 0;	// 各日付別の合計
 	if(!stack && !ratio){
@@ -210,8 +244,7 @@ function normalizeData(json){
 		for(var t=0;t<json.xlabel.length;t++){ normalize[t]=total[t]*max_ratio*(1+space);}
 	}
 	else if(!ratio){
-		max *= (1+space);
-		for(var t=0;t<json.xlabel.length;t++){ normalize[t]=max;}
+		for(var t=0;t<json.xlabel.length;t++){ normalize[t]=max*(1+space);}
 	}
 	else{
 		for(var t=0;t<json.xlabel.length;t++){ normalize[t]=total[t];}
@@ -228,16 +261,13 @@ function parseInfo(json){
 	var setValue = function(info1,key){
 		if(info1[key]!==void 0){ return;}
 		/* jsonはparseInfo関数のプロパティ(参照できる) */
-		if(json.graph[key]!==void 0){
-			info1[key] = json.graph[key];
-		}
-		else{
-			info1[key] = '';
-		}
+		info1[key] = ((json.graph[key]!==void 0) ? json.graph[key] : '');
 	};
 
 	for(var i=0;i<json.data.length;i++){
 		var vals = json.data[i].value;
+
+		/* 空の系列は取得しない */
 		if(!vals || vals.length===0 || json.data[i].display==='none'){ continue;}
 
 		info[cnt] = json.data[i];
@@ -247,7 +277,7 @@ function parseInfo(json){
 		setValue(info[cnt],'line');
 		/* マーカー表示用プロパティ */
 		setValue(info[cnt],'marker');
-		setValue(info[cnt],'edge-color');
+		setValue(info[cnt],'edgecolor');
 
 		cnt++;
 	}
@@ -332,7 +362,7 @@ function drawLineGraph(json){
 
 		// マーカーの描画
 		var mk = info[i].marker;
-		if(mk.indexOf("-shape")>=0){ ctx.strokeStyle = (!!info[i]['edge-color'] ? info[i]['edge-color'] : 'black');}
+		if(mk.indexOf("-shape")>=0){ ctx.strokeStyle = (!!info[i].edgecolor ? info[i].edgecolor : 'black');}
 		drawMarker(mk, ctx, mkpos);
 	}
 }
@@ -613,6 +643,7 @@ function drawLegend(json){
 
 	if(feature[json.main.type][2]){ info = info.reverse();}
 
+	ctx.lineWidth = '1';
 	ctx.setLayer('legend');
 	ctx.setRendering('crispEdges');
 
