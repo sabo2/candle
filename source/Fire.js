@@ -1,4 +1,4 @@
-// Fire.js rev67
+// Fire.js rev70
 
 (function(){
 
@@ -10,11 +10,9 @@ if(!!window.Camp.Fire){ return;}
 
 var _win = this,
 	_doc = document,
-	_mf = Math.floor,
 	_ms = Math.sin,
 	_mc = Math.cos,
 	_2PI = 2*Math.PI,
-	_IE = !!(window.attachEvent && !window.opera),
 
 	Camp = _win.Camp,
 	textContent = {};
@@ -212,7 +210,7 @@ function normalizeData(json){
 		for(var t=0;t<json.xlabel.length;t++){ normalize[t]=total[t]*max_ratio*(1+space);}
 	}
 	else if(!ratio){
-		max = _mf(max*(1+space));
+		max *= (1+space);
 		for(var t=0;t<json.xlabel.length;t++){ normalize[t]=max;}
 	}
 	else{
@@ -314,7 +312,7 @@ function drawLineGraph(json){
 		// 描画する座標の所得
 		for(var t=0;t<xlabel.length;t++){
 			if(!vals[t]){ vals[t]=0;}
-			if(normalize[t]>0){ mkpos[t][1] = TOP+_mf(HEIGHT*(1-vals[t]/normalize[t]));}
+			if(normalize[t]>0){ mkpos[t][1] = TOP + HEIGHT*(1-vals[t]/normalize[t]);}
 			else              { mkpos[t][1] = (t>0 ? ypos[t-1] : TOP+HEIGHT);}
 		}
 
@@ -355,7 +353,7 @@ function drawBarGraph(json){
 	var currentBase = [], xpos = [], mwidth = WIDTH/xlabel.length, moffset = mwidth/2;
 	for(var t=0;t<xlabel.length;t++){
 		currentBase[t]=0;
-		xpos[t] = _mf(LEFT+t*mwidth+moffset);
+		xpos[t] = LEFT+t*mwidth+moffset;
 	}
 	var bwidth = mwidth*0.7/2;
 
@@ -368,7 +366,7 @@ function drawBarGraph(json){
 			for(var t=0;t<xlabel.length;t++){
 				if(!vals[t]){ vals[t]=0;}
 				ypos_b[t] = TOP+HEIGHT;
-				if(normalize[t]>0){ ypos[t] = TOP+_mf(HEIGHT*(1-(currentBase[t]+vals[t])/normalize[t]));}
+				if(normalize[t]>0){ ypos[t] = TOP + HEIGHT*(1-(currentBase[t]+vals[t])/normalize[t]);}
 				else              { ypos[t] = (t>0 ? ypos[t-1]   : TOP+HEIGHT);}
 			}
 		}
@@ -376,8 +374,8 @@ function drawBarGraph(json){
 			for(var t=0;t<xlabel.length;t++){
 				if(!vals[t]){ vals[t]=0;}
 				if(normalize[t]>0){
-					ypos_b[t] = TOP+_mf(HEIGHT*(1- currentBase[t]         /normalize[t]));
-					ypos[t]   = TOP+_mf(HEIGHT*(1-(currentBase[t]+vals[t])/normalize[t]));
+					ypos_b[t] = TOP + HEIGHT*(1- currentBase[t]         /normalize[t]);
+					ypos[t]   = TOP + HEIGHT*(1-(currentBase[t]+vals[t])/normalize[t]);
 				}
 				else{
 					ypos_b[t] = (t>0 ? ypos_b[t-1] : TOP+HEIGHT);
@@ -395,7 +393,7 @@ function drawBarGraph(json){
 
 		// 系列の描画
 		for(var t=0;t<xlabel.length;t++){
-			var x1=_mf(xpos[t]-bwidth), y1=_mf(ypos[t]), x2=_mf(xpos[t]+bwidth), y2=_mf(ypos_b[t]);
+			var x1=xpos[t]-bwidth, y1=ypos[t], x2=xpos[t]+bwidth, y2=ypos_b[t];
 			ctx.setLinePath(x1,y1, x2,y1, x2,y2, x1,y2, true);
 			ctx.shape();
 		}
@@ -418,7 +416,7 @@ function drawAreaGraph(json){
 	var currentBase = [], xpos = [], mwidth = WIDTH/(xlabel.length-1);
 	for(var t=0;t<xlabel.length;t++){
 		currentBase[t]=0;
-		xpos[t] = _mf(LEFT+t*mwidth);
+		xpos[t] = LEFT + t*mwidth;
 	}
 
 	// データ描画部
@@ -429,8 +427,8 @@ function drawAreaGraph(json){
 		for(var t=0;t<xlabel.length;t++){
 			if(!vals[t]){ vals[t]=0;}
 			if(normalize[t]>0){
-				ypos_b[t] = TOP+_mf(HEIGHT*(1- currentBase[t]         /normalize[t]));
-				ypos[t]   = TOP+_mf(HEIGHT*(1-(currentBase[t]+vals[t])/normalize[t]));
+				ypos_b[t] = TOP + HEIGHT*(1- currentBase[t]         /normalize[t]);
+				ypos[t]   = TOP + HEIGHT*(1-(currentBase[t]+vals[t])/normalize[t]);
 			}
 			else{
 				ypos_b[t] = (t>0 ? ypos_b[t-1] : TOP+HEIGHT);
@@ -468,7 +466,7 @@ function drawDotChart(json){
 		info   = parseInfo(json);
 
 	var xpos = [], mwidth = WIDTH/xlabel.length, moffset = mwidth/2;
-	for(var t=0;t<xlabel.length;t++){ xpos[t] = _mf(LEFT+t*mwidth+moffset);}
+	for(var t=0;t<xlabel.length;t++){ xpos[t] = LEFT + t*mwidth + moffset;}
 
 	var max_rsize = Math.min(mwidth, HEIGHT/info.length)*0.66;
 	var max_val = 0;
@@ -482,7 +480,7 @@ function drawDotChart(json){
 	// データ描画部
 	for(var i=0;i<info.length;i++){
 		var vals = info[i].value, rsize=[];
-		var ypos = _mf(TOP+HEIGHT*((i+0.5)/info.length));
+		var ypos = TOP+HEIGHT*((i+0.5)/info.length);
 
 		// 描画する座標の所得
 		for(var t=0;t<xlabel.length;t++){
@@ -645,9 +643,9 @@ function drawLegend(json){
 	}
 }
 
-/* ---------------------------------- */
-/* CampFire関連オブジェクトデータ設定 */
-/* ---------------------------------- */
+	/* ----------------------------- */
+	/* CampFire関連DOM/CSSデータ設定 */
+	/* ----------------------------- */
 	var text = [];
 	text.push("campfire { display: block; }\n");
 	text.push("cdatalist { display: none; }\n");
@@ -656,6 +654,7 @@ function drawLegend(json){
 	document.write('</style>');
 
 	// IE用ハック
+	var _IE = !!(window.attachEvent && !window.opera);
 	if(_IE){
 		_doc.createElement('campfire');
 		_doc.createElement('cdatalist');
