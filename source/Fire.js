@@ -1,4 +1,4 @@
-// Fire.js rev71
+// Fire.js rev72
 
 (function(){
 
@@ -120,11 +120,11 @@ _extend( Camp.Fire, {
 		el.innerHTML = '';
 
 		/* JSONオブジェクトを取得 */
-		this.parseJSON(idname);
+		this.parseJSON(idname, el.getAttribute('include'));
 	},
 
 	/* テキストからJSONオブジェクトを取得する */
-	parseJSON : function(idname){
+	parseJSON : function(idname, include){
 		var text = textContent[idname];
 
 		/* JSONオブジェクトの生成 */
@@ -133,8 +133,8 @@ _extend( Camp.Fire, {
 		catch(e){ jsonp = eval("("+text+")");}
 
 		/* includeファイルからデータをコピーする */
-		if(!!jsonp.include){
-			var incs = jsonp.include.split(/\s\,\s/);
+		if(!!include){
+			var incs = include.split(/\s\,\s/);
 			for(var i=0;i<incs.length;i++){
 				var eli = _doc.getElementById(incs[i]);
 				if(!eli){ continue;}
