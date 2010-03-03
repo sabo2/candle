@@ -1,4 +1,4 @@
-// Fire.js rev72
+// Fire.js rev73
 
 (function(){
 
@@ -101,7 +101,7 @@ _extend( Camp.Fire, {
 			this.parseData(idname);
 			json = this.JSON[idname];
 		}
-		if(!!type){ json.main.type = type;}
+		if(!!type){ json.graph.type = type;}
 
 		this.drawGraph(idname);
 	},
@@ -161,8 +161,8 @@ _extend( Camp.Fire, {
 		var json = this.JSON[idname];
 
 		if(!json || !json.data){ return;}
-		json.main.type = json.main.type.toLowerCase();
-		var fts = feature[json.main.type];
+		json.graph.type = json.graph.type.toLowerCase();
+		var fts = feature[json.graph.type];
 		if(fts!==void 0){
 			switch(fts[0]){
 				case 'POINT': drawPointGraph(json); break;
@@ -200,10 +200,10 @@ var feature = {
 /* ------------------------------ */
 /* stack:積み重ねグラフかどうか ratio:割合グラフかどうか     */
 function normalizeData(json){
-	var ratio = feature[json.main.type][1];
-	var stack = feature[json.main.type][2];
+	var ratio = feature[json.graph.type][1];
+	var stack = feature[json.graph.type][2];
 	var space = json.graph.topspace;
-	if(json.main.type==='arearatio'){ space=0;}
+	if(json.graph.type==='arearatio'){ space=0;}
 	else if(json.graph.topspace === void 0){ space=0.06;}
 
 	var total = [], max = 0;	// 各日付別の合計
@@ -392,7 +392,7 @@ function drawBarGraph(json){
 		var vals = info[i].value, ypos=[], ypos_b=[];
 
 		// 描画する座標の所得
-		if(json.main.type==='bar'){
+		if(json.graph.type==='bar'){
 			for(var t=0;t<xlabel.length;t++){
 				if(!vals[t]){ vals[t]=0;}
 				ypos_b[t] = TOP+HEIGHT;
@@ -641,7 +641,7 @@ function drawLegend(json){
 		ctx = document.getElementById(json.idname).getContext("2d"),
 		info = parseInfo(json);
 
-	if(feature[json.main.type][2]){ info = info.reverse();}
+	if(feature[json.graph.type][2]){ info = info.reverse();}
 
 	ctx.lineWidth = '1';
 	ctx.setLayer('legend');
