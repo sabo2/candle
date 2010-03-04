@@ -1,4 +1,4 @@
-// Fire.js rev74
+// Fire.js rev75
 
 (function(){
 
@@ -202,60 +202,56 @@ var feature = {
 /*   項目ごとの正規化の値を取得   */
 /* ------------------------------ */
 /* stack:積み重ねグラフかどうか ratio:割合グラフかどうか     */
-function normalizeData(json){
+function normalizeData(json, info){
 	var ratio = feature[json.graph.type][1];
 	var stack = feature[json.graph.type][2];
-	var space = json.graph.topspace;
-	if(json.graph.type==='arearatio'){ space=0;}
-	else if(json.graph.topspace === void 0){ space=0.06;}
-
+	var space = ((json.graph.topspace !== void 0)?json.graph.topspace:0.06);
+	if(ratio && stack){ space=0;}
 	var xcount = json.xaxis.count;
+	var HEIGHT = json.graph.size[1];
+	var TOP    = json.graph.origin[1];
+	var topval = 1;
+	for(var i=0;i<info.length;i++){
+		info[i].ypos  = [];
+		info[i].yposb = [];
+	}
 
-	var total = [], max = 0;	// 各日付別の合計
-	if(!stack && !ratio){
+	/* グラフの上限になる値の設定 */
+	if(ratio && stack){ topval=1;}
+	else if(stack){
+		/* 全データ中最大の合計値を取得 */
+		var max = 0;
 		for(var t=0;t<xcount;t++){
-			for(var i=0;i<json.data.length;i++){
-				if(json.data[i].display==='none'){ continue;}
-				var val = json.data[i].value[t];
-				if(val>max){ max=val;}
-			}
+			var total=0;
+			for(var i=0;i<info.length;i++){ if(!isNaN(info[i].value[t])){ total+=info[i].value[t];} }
+			if(total>max){ max = total;}
 		}
+		topval=max*(1+space);
 	}
 	else{
-		for(var t=0;t<xcount;t++){
-			total[t] = 0;
-			for(var i=0;i<json.data.length;i++){
-				if(json.data[i].display==='none'){ continue;}
-				var val = json.data[i].value[t];
-				total[t] += (!isNaN(val) ? val : 0);
-				if(!stack && val>max){ max=val;}
-			}
-			if(stack && total[t]>max){ max=total[t];}
-		}
+		/* 全データ中最大の値を取得 */
+		var max = 0;
+		for(var t=0;t<xcount;t++){ for(var i=0;i<info.length;i++){
+			if(!isNaN(info[i].value[t]) && info[i].value[t]>max){ max=info[i].value[t];}
+		}}
+		topval=max*(1+space);
 	}
 
-	var normalize = [];
-	if(!stack && ratio){
-		/* グラフ上で最も上に描画されるものを取得する */
-		var max_ratio=0.01, max_total=0;
-		for(var t=0;t<xcount;t++){
-			for(var i=0;i<json.data.length;i++){
-				if(json.data[i].display==='none'){ continue;}
-				var val = json.data[i].value[t];
-				val = (!isNaN(val) ? val : 0);
-				if(val/total[t]>max_ratio){ max_ratio=val/total[t];};
+	for(var t=0;t<xcount;t++){
+		var currentBase = 0;
+		for(var i=0;i<info.length;i++){
+			var val = (!isNaN(info[i].value[t]) ? info[i].value[t] : 0);
+			if(topval>0){
+				info[i].yposb[t] = TOP+HEIGHT*(1- currentBase     /topval);//(i>0 ? info[i-1].yposb[t] : TOP+HEIGHT);
+				info[i].ypos[t]  = TOP+HEIGHT*(1-(currentBase+val)/topval);
 			}
+			else{
+				info[i].yposb[t] = (t>0 ? info[i].yposb[t-1] : TOP+HEIGHT);
+				info[i].ypos[t]  = (t>0 ? info[i].ypos[t-1]  : TOP+HEIGHT);
+			}
+			if(stack){ currentBase += val;}
 		}
-		for(var t=0;t<xcount;t++){ normalize[t]=total[t]*max_ratio*(1+space);}
 	}
-	else if(!ratio){
-		for(var t=0;t<xcount;t++){ normalize[t]=max*(1+space);}
-	}
-	else{
-		for(var t=0;t<xcount;t++){ normalize[t]=total[t];}
-	}
-
-	return normalize;
 }
 
 /* ---------------------- */
@@ -288,7 +284,19 @@ function parseInfo(json){
 		/* 横軸のデータの数をカウントする */
 		if(json.xaxis.count<vals.length){ json.xaxis.count=vals.length;}
 
+		/* 元データのindex位置を記憶しておく */
+		info[cnt].source = i;
+
 		cnt++;
+	}
+
+	/* 割合グラフの場合は割合に変換 */
+	if(feature[json.graph.type][1]){
+		for(var t=0;t<vals.length;t++){
+			var total=0;
+			for(var i=0;i<info.length;i++){ total += (!isNaN(info[i].value[t]) ? info[i].value[t] : 0);}
+			for(var i=0;i<info.length;i++){ info[i].value[t] = (!isNaN(info[i].value[t]) ? info[i].value[t]/total : null); }
+		}
 	}
 
 	return info;
@@ -333,12 +341,10 @@ function drawPointGraph(json){
 /* ---------------- */
 function drawLineGraph(json){
 	var WIDTH  = json.graph.size[0],
-		HEIGHT = json.graph.size[1],
 		LEFT   = json.graph.origin[0],
-		TOP    = json.graph.origin[1],
 		ctx    = settingCanvas(json),
 		info   = parseInfo(json),
-		normalize = normalizeData(json);
+		normalize = normalizeData(json,info);
 
 	var xcount = json.xaxis.count;
 	var mkpos = [], mwidth = WIDTH/xcount, moffset = mwidth/2;
@@ -347,13 +353,10 @@ function drawLineGraph(json){
 	// データ描画部
 	for(var i=0;i<info.length;i++){
 		var vals = info[i].value;
+		var ypos = info[i].ypos;
 
 		// 描画する座標の所得
-		for(var t=0;t<xcount;t++){
-			if(!vals[t]){ vals[t]=0;}
-			if(normalize[t]>0){ mkpos[t][1] = TOP + HEIGHT*(1-vals[t]/normalize[t]);}
-			else              { mkpos[t][1] = (t>0 ? ypos[t-1] : TOP+HEIGHT);}
-		}
+		for(var t=0;t<xcount;t++){ mkpos[t][1] = ypos[t];}
 
 		// 系列の色の設定
 		var color = info[i].color;
@@ -381,48 +384,21 @@ function drawLineGraph(json){
 /* ------------ */
 function drawBarGraph(json){
 	var WIDTH  = json.graph.size[0],
-		HEIGHT = json.graph.size[1],
 		LEFT   = json.graph.origin[0],
-		TOP    = json.graph.origin[1],
 		ctx    = settingCanvas(json),
 		info   = parseInfo(json),
-		normalize = normalizeData(json);
+		normalize = normalizeData(json,info);
 
 	var xcount = json.xaxis.count;
-	var currentBase = [], xpos = [], mwidth = WIDTH/xcount, moffset = mwidth/2;
-	for(var t=0;t<xcount;t++){
-		currentBase[t]=0;
-		xpos[t] = LEFT+t*mwidth+moffset;
-	}
+	var xpos = [], mwidth = WIDTH/xcount, moffset = mwidth/2;
+	for(var t=0;t<xcount;t++){ xpos[t] = LEFT+t*mwidth+moffset;}
 	var bwidth = mwidth*0.7/2;
 
 	// データ描画部
 	for(var i=0;i<info.length;i++){
-		var vals = info[i].value, ypos=[], ypos_b=[];
-
-		// 描画する座標の所得
-		if(json.graph.type==='bar'){
-			for(var t=0;t<xcount;t++){
-				if(!vals[t]){ vals[t]=0;}
-				ypos_b[t] = TOP+HEIGHT;
-				if(normalize[t]>0){ ypos[t] = TOP + HEIGHT*(1-(currentBase[t]+vals[t])/normalize[t]);}
-				else              { ypos[t] = (t>0 ? ypos[t-1]   : TOP+HEIGHT);}
-			}
-		}
-		else{
-			for(var t=0;t<xcount;t++){
-				if(!vals[t]){ vals[t]=0;}
-				if(normalize[t]>0){
-					ypos_b[t] = TOP + HEIGHT*(1- currentBase[t]         /normalize[t]);
-					ypos[t]   = TOP + HEIGHT*(1-(currentBase[t]+vals[t])/normalize[t]);
-				}
-				else{
-					ypos_b[t] = (t>0 ? ypos_b[t-1] : TOP+HEIGHT);
-					ypos[t]   = (t>0 ? ypos[t-1]   : TOP+HEIGHT);
-				}
-				currentBase[t] += vals[t];
-			}
-		}
+		var vals = info[i].value;
+		var ypos = info[i].ypos;
+		var ypos_b = info[i].yposb;
 
 		// 系列の色の設定
 		var color = info[i].color;
@@ -444,37 +420,20 @@ function drawBarGraph(json){
 /* ---------------------------------- */
 function drawAreaGraph(json){
 	var WIDTH  = json.graph.size[0],
-		HEIGHT = json.graph.size[1],
 		LEFT   = json.graph.origin[0],
-		TOP    = json.graph.origin[1],
 		ctx    = settingCanvas(json),
 		info   = parseInfo(json),
-		normalize = normalizeData(json);
+		normalize = normalizeData(json,info);
 
 	var xcount = json.xaxis.count;
-	var currentBase = [], xpos = [], mwidth = WIDTH/(xcount-1);
-	for(var t=0;t<xcount;t++){
-		currentBase[t]=0;
-		xpos[t] = LEFT + t*mwidth;
-	}
+	var xpos = [], mwidth = WIDTH/(xcount-1);
+	for(var t=0;t<xcount;t++){ xpos[t] = LEFT + t*mwidth;}
 
 	// データ描画部
 	for(var i=0;i<info.length;i++){
-		var vals = info[i].value, ypos_b=[], ypos=[];
-
-		// 描画する座標の所得
-		for(var t=0;t<xcount;t++){
-			if(!vals[t]){ vals[t]=0;}
-			if(normalize[t]>0){
-				ypos_b[t] = TOP + HEIGHT*(1- currentBase[t]         /normalize[t]);
-				ypos[t]   = TOP + HEIGHT*(1-(currentBase[t]+vals[t])/normalize[t]);
-			}
-			else{
-				ypos_b[t] = (t>0 ? ypos_b[t-1] : TOP+HEIGHT);
-				ypos[t]   = (t>0 ? ypos[t-1]   : TOP+HEIGHT);
-			}
-			currentBase[t] += vals[t];
-		}
+		var vals = info[i].value;
+		var ypos = info[i].ypos;
+		var ypos_b = info[i].yposb;
 
 		// 系列の色の設定
 		var color = info[i].color;
