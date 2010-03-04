@@ -1,4 +1,4 @@
-// Fire.js rev73
+// Fire.js rev74
 
 (function(){
 
@@ -127,8 +127,11 @@ _extend( Camp.Fire, {
 	parseJSON : function(idname, include){
 		var text = textContent[idname];
 
+		/* JSONオブジェクトの初期化 */
+		var json = { main:{},graph:{},legend:{},xaxis:{},yaxis:{},data:[]};
+
 		/* JSONオブジェクトの生成 */
-		var json = {}, jsonp = {};
+		var jsonp = {};
 		try     { jsonp = JSON.parse(text);}
 		catch(e){ jsonp = eval("("+text+")");}
 
@@ -206,9 +209,11 @@ function normalizeData(json){
 	if(json.graph.type==='arearatio'){ space=0;}
 	else if(json.graph.topspace === void 0){ space=0.06;}
 
+	var xcount = json.xaxis.count;
+
 	var total = [], max = 0;	// 各日付別の合計
 	if(!stack && !ratio){
-		for(var t=0;t<json.xlabel.length;t++){
+		for(var t=0;t<xcount;t++){
 			for(var i=0;i<json.data.length;i++){
 				if(json.data[i].display==='none'){ continue;}
 				var val = json.data[i].value[t];
@@ -217,7 +222,7 @@ function normalizeData(json){
 		}
 	}
 	else{
-		for(var t=0;t<json.xlabel.length;t++){
+		for(var t=0;t<xcount;t++){
 			total[t] = 0;
 			for(var i=0;i<json.data.length;i++){
 				if(json.data[i].display==='none'){ continue;}
@@ -233,7 +238,7 @@ function normalizeData(json){
 	if(!stack && ratio){
 		/* グラフ上で最も上に描画されるものを取得する */
 		var max_ratio=0.01, max_total=0;
-		for(var t=0;t<json.xlabel.length;t++){
+		for(var t=0;t<xcount;t++){
 			for(var i=0;i<json.data.length;i++){
 				if(json.data[i].display==='none'){ continue;}
 				var val = json.data[i].value[t];
@@ -241,13 +246,13 @@ function normalizeData(json){
 				if(val/total[t]>max_ratio){ max_ratio=val/total[t];};
 			}
 		}
-		for(var t=0;t<json.xlabel.length;t++){ normalize[t]=total[t]*max_ratio*(1+space);}
+		for(var t=0;t<xcount;t++){ normalize[t]=total[t]*max_ratio*(1+space);}
 	}
 	else if(!ratio){
-		for(var t=0;t<json.xlabel.length;t++){ normalize[t]=max*(1+space);}
+		for(var t=0;t<xcount;t++){ normalize[t]=max*(1+space);}
 	}
 	else{
-		for(var t=0;t<json.xlabel.length;t++){ normalize[t]=total[t];}
+		for(var t=0;t<xcount;t++){ normalize[t]=total[t];}
 	}
 
 	return normalize;
@@ -264,6 +269,7 @@ function parseInfo(json){
 		info1[key] = ((json.graph[key]!==void 0) ? json.graph[key] : '');
 	};
 
+	json.xaxis.count = 0;
 	for(var i=0;i<json.data.length;i++){
 		var vals = json.data[i].value;
 
@@ -278,6 +284,9 @@ function parseInfo(json){
 		/* マーカー表示用プロパティ */
 		setValue(info[cnt],'marker');
 		setValue(info[cnt],'edgecolor');
+
+		/* 横軸のデータの数をカウントする */
+		if(json.xaxis.count<vals.length){ json.xaxis.count=vals.length;}
 
 		cnt++;
 	}
@@ -327,20 +336,20 @@ function drawLineGraph(json){
 		HEIGHT = json.graph.size[1],
 		LEFT   = json.graph.origin[0],
 		TOP    = json.graph.origin[1],
-		xlabel = json.xlabel,
 		ctx    = settingCanvas(json),
 		info   = parseInfo(json),
 		normalize = normalizeData(json);
 
-	var mkpos = [], mwidth = WIDTH/xlabel.length, moffset = mwidth/2;
-	for(var t=0;t<xlabel.length;t++){ mkpos[t] = [(LEFT+t*mwidth+moffset)|0];}
+	var xcount = json.xaxis.count;
+	var mkpos = [], mwidth = WIDTH/xcount, moffset = mwidth/2;
+	for(var t=0;t<xcount;t++){ mkpos[t] = [(LEFT+t*mwidth+moffset)|0];}
 
 	// データ描画部
 	for(var i=0;i<info.length;i++){
 		var vals = info[i].value;
 
 		// 描画する座標の所得
-		for(var t=0;t<xlabel.length;t++){
+		for(var t=0;t<xcount;t++){
 			if(!vals[t]){ vals[t]=0;}
 			if(normalize[t]>0){ mkpos[t][1] = TOP + HEIGHT*(1-vals[t]/normalize[t]);}
 			else              { mkpos[t][1] = (t>0 ? ypos[t-1] : TOP+HEIGHT);}
@@ -356,7 +365,7 @@ function drawLineGraph(json){
 			ctx.lineWidth = '2';
 			ctx.beginPath();
 			ctx.moveTo(mkpos[0][0], mkpos[0][1]);
-			for(var t=1;t<xlabel.length;t++){ ctx.lineTo(mkpos[t][0], mkpos[t][1]);}
+			for(var t=1;t<xcount;t++){ ctx.lineTo(mkpos[t][0], mkpos[t][1]);}
 			ctx.stroke();
 		}
 
@@ -375,13 +384,13 @@ function drawBarGraph(json){
 		HEIGHT = json.graph.size[1],
 		LEFT   = json.graph.origin[0],
 		TOP    = json.graph.origin[1],
-		xlabel = json.xlabel,
 		ctx    = settingCanvas(json),
 		info   = parseInfo(json),
 		normalize = normalizeData(json);
 
-	var currentBase = [], xpos = [], mwidth = WIDTH/xlabel.length, moffset = mwidth/2;
-	for(var t=0;t<xlabel.length;t++){
+	var xcount = json.xaxis.count;
+	var currentBase = [], xpos = [], mwidth = WIDTH/xcount, moffset = mwidth/2;
+	for(var t=0;t<xcount;t++){
 		currentBase[t]=0;
 		xpos[t] = LEFT+t*mwidth+moffset;
 	}
@@ -393,7 +402,7 @@ function drawBarGraph(json){
 
 		// 描画する座標の所得
 		if(json.graph.type==='bar'){
-			for(var t=0;t<xlabel.length;t++){
+			for(var t=0;t<xcount;t++){
 				if(!vals[t]){ vals[t]=0;}
 				ypos_b[t] = TOP+HEIGHT;
 				if(normalize[t]>0){ ypos[t] = TOP + HEIGHT*(1-(currentBase[t]+vals[t])/normalize[t]);}
@@ -401,7 +410,7 @@ function drawBarGraph(json){
 			}
 		}
 		else{
-			for(var t=0;t<xlabel.length;t++){
+			for(var t=0;t<xcount;t++){
 				if(!vals[t]){ vals[t]=0;}
 				if(normalize[t]>0){
 					ypos_b[t] = TOP + HEIGHT*(1- currentBase[t]         /normalize[t]);
@@ -422,7 +431,7 @@ function drawBarGraph(json){
 		ctx.strokeStyle   = 'black';
 
 		// 系列の描画
-		for(var t=0;t<xlabel.length;t++){
+		for(var t=0;t<xcount;t++){
 			var x1=xpos[t]-bwidth, y1=ypos[t], x2=xpos[t]+bwidth, y2=ypos_b[t];
 			ctx.setLinePath(x1,y1, x2,y1, x2,y2, x1,y2, true);
 			ctx.shape();
@@ -438,13 +447,13 @@ function drawAreaGraph(json){
 		HEIGHT = json.graph.size[1],
 		LEFT   = json.graph.origin[0],
 		TOP    = json.graph.origin[1],
-		xlabel = json.xlabel,
 		ctx    = settingCanvas(json),
 		info   = parseInfo(json),
 		normalize = normalizeData(json);
 
-	var currentBase = [], xpos = [], mwidth = WIDTH/(xlabel.length-1);
-	for(var t=0;t<xlabel.length;t++){
+	var xcount = json.xaxis.count;
+	var currentBase = [], xpos = [], mwidth = WIDTH/(xcount-1);
+	for(var t=0;t<xcount;t++){
 		currentBase[t]=0;
 		xpos[t] = LEFT + t*mwidth;
 	}
@@ -454,7 +463,7 @@ function drawAreaGraph(json){
 		var vals = info[i].value, ypos_b=[], ypos=[];
 
 		// 描画する座標の所得
-		for(var t=0;t<xlabel.length;t++){
+		for(var t=0;t<xcount;t++){
 			if(!vals[t]){ vals[t]=0;}
 			if(normalize[t]>0){
 				ypos_b[t] = TOP + HEIGHT*(1- currentBase[t]         /normalize[t]);
@@ -475,8 +484,8 @@ function drawAreaGraph(json){
 		// 系列の描画
 		ctx.beginPath();
 		ctx.moveTo(xpos[0], ypos_b[0]);
-		for(var t=1;t<xlabel.length   ;t++){ ctx.lineTo(xpos[t], ypos_b[t]);}
-		for(var t=xlabel.length-1;t>=1;t--){ ctx.lineTo(xpos[t], ypos[t]);}
+		for(var t=1;t<xcount   ;t++){ ctx.lineTo(xpos[t], ypos_b[t]);}
+		for(var t=xcount-1;t>=1;t--){ ctx.lineTo(xpos[t], ypos[t]);}
 		ctx.lineTo(xpos[0], ypos[0]);
 		ctx.closePath();
 		ctx.shape();
@@ -491,17 +500,17 @@ function drawDotChart(json){
 		HEIGHT = json.graph.size[1],
 		LEFT   = json.graph.origin[0],
 		TOP    = json.graph.origin[1],
-		xlabel = json.xlabel,
 		ctx    = settingCanvas(json),
 		info   = parseInfo(json);
 
-	var xpos = [], mwidth = WIDTH/xlabel.length, moffset = mwidth/2;
-	for(var t=0;t<xlabel.length;t++){ xpos[t] = LEFT + t*mwidth + moffset;}
+	var xcount = json.xaxis.count;
+	var xpos = [], mwidth = WIDTH/xcount, moffset = mwidth/2;
+	for(var t=0;t<xcount;t++){ xpos[t] = LEFT + t*mwidth + moffset;}
 
 	var max_rsize = Math.min(mwidth, HEIGHT/info.length)*0.66;
 	var max_val = 0;
 	for(var i=0;i<info.length;i++){
-		for(var t=0;t<xlabel.length;t++){
+		for(var t=0;t<xcount;t++){
 			var val = Math.pow(info[i].value[t],0.5);
 			if(val>max_val){ max_val = val;}
 		}
@@ -513,7 +522,7 @@ function drawDotChart(json){
 		var ypos = TOP+HEIGHT*((i+0.5)/info.length);
 
 		// 描画する座標の所得
-		for(var t=0;t<xlabel.length;t++){
+		for(var t=0;t<xcount;t++){
 			if(!vals[t]){ vals[t]=0;}
 			rsize[t] = max_rsize*(Math.pow(vals[t],0.5)/max_val);
 		}
@@ -526,10 +535,10 @@ function drawDotChart(json){
 
 		// 系列の描画
 		if(ctx.fillStyle!=='none'&&ctx.fillStyle!=='white'&&Camp.parse(ctx.fillStyle)!=='#ffffff'){
-			for(var t=0;t<xlabel.length;t++){ ctx.fillCircle(xpos[t], ypos, rsize[t]);}
+			for(var t=0;t<xcount;t++){ ctx.fillCircle(xpos[t], ypos, rsize[t]);}
 		}
 		else{
-			for(var t=0;t<xlabel.length;t++){ ctx.strokeCircle(xpos[t], ypos, rsize[t]);}
+			for(var t=0;t<xcount;t++){ ctx.strokeCircle(xpos[t], ypos, rsize[t]);}
 		}
 	}
 }
