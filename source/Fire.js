@@ -1,4 +1,4 @@
-// Fire.js rev77
+// Fire.js rev78
 
 (function(){
 
@@ -166,7 +166,6 @@ _extend( Camp.Fire, {
 		if(!json || !json.data){ return;}
 		json.graph.type = json.graph.type.toLowerCase();
 		switch(json.graph.type){
-			case 'point': drawPointGraph(json); break;
 			case 'line':  drawLineGraph(json);  break;
 			case 'bar':   drawBarGraph(json);   break;
 			case 'area':  drawAreaGraph(json);  break;
@@ -201,7 +200,10 @@ function normalizeData(json, info){
 	}
 
 	/* グラフの上限になる値の設定 */
-	if(stack && (json.yaxis.scale === 'ratio')){
+	if(!!json.yaxis && !!json.yaxis.range){
+		topval = json.yaxis.range[1];
+	}
+	else if(stack && (json.yaxis.scale === 'ratio')){
 		topval=1; space=0;
 	}
 	else if(stack){
@@ -238,6 +240,8 @@ function normalizeData(json, info){
 			if(stack){ currentBase += val;}
 		}
 	}
+
+	json.yaxis.range = [0, topval];
 }
 
 /* ---------------------- */
@@ -306,17 +310,24 @@ function parseInfo(json){
 /* ------------------ */
 /*   描画領域の設定   */
 /* ------------------ */
-function settingCanvas(json){
-	// canvas描画部
+function settingCanvas(json,info){
+	/* canvas描画部 */
 	Camp(json.idname);
 	var ctx = document.getElementById(json.idname).getContext("2d");
 	ctx.changeSize(json.main.size[0], json.main.size[1]);
 	ctx.clear();
 	ctx.changeOrigin(0, 0);
-
-	// レイヤー設定
 	ctx.lineWidth = '1';
+	
+	/* レイヤーの順番を設定 */
+	ctx.setLayer('graphbase');
+	ctx.setLayer('xaxis');
+	ctx.setLayer('yaxis');
 	ctx.setLayer('graph');
+
+	/* graphbaseレイヤー設定 */
+	ctx.setLayer('graphbase');
+	ctx.setRendering('crispEdges');
 	var size = [json.graph.origin[0], json.graph.origin[1], json.graph.size[0], json.graph.size[1]];
 	if(!json.graph.bgcolor){
 		ctx.strokeRect.apply(ctx,size);
@@ -329,29 +340,30 @@ function settingCanvas(json){
 	return ctx;
 }
 
-/* ------------------ */
-/*   ポイントグラフ   */
-/* ------------------ */
-function drawPointGraph(json){
-	json.graph.line = 'none';
-	drawLineGraph(json);
-}
-
 /* ---------------- */
 /*   折れ線グラフ   */
 /* ---------------- */
 function drawLineGraph(json){
 	var WIDTH  = json.graph.size[0],
 		LEFT   = json.graph.origin[0],
-		ctx    = settingCanvas(json),
 		info   = parseInfo(json),
-		normalize = normalizeData(json,info);
+		ctx    = settingCanvas(json,info);
+
+	normalizeData(json,info);
 
 	var xcount = json.xaxis.count;
-	var mkpos = [], mwidth = WIDTH/xcount, moffset = mwidth/2;
-	for(var t=0;t<xcount;t++){ mkpos[t] = [(LEFT+t*mwidth+moffset)|0];}
+	var xpos = [], mkpos = [], mwidth = WIDTH/xcount, moffset = mwidth/2;
+	for(var t=0;t<xcount;t++){
+		xpos[t]  = (LEFT+t*mwidth+moffset)|0;
+		mkpos[t] = [xpos[t]];
+	}
+
+	// 軸の描画
+	drawXaxis(json,info,ctx,xpos);
+	drawYaxis(json,info,ctx);
 
 	// データ描画部
+	ctx.setLayer('graph');
 	for(var i=0;i<info.length;i++){
 		var vals = info[i].value;
 		var ypos = info[i].ypos;
@@ -386,16 +398,22 @@ function drawLineGraph(json){
 function drawBarGraph(json){
 	var WIDTH  = json.graph.size[0],
 		LEFT   = json.graph.origin[0],
-		ctx    = settingCanvas(json),
 		info   = parseInfo(json),
-		normalize = normalizeData(json,info);
+		ctx    = settingCanvas(json,info);
+
+	normalizeData(json,info);
 
 	var xcount = json.xaxis.count;
 	var xpos = [], mwidth = WIDTH/xcount, moffset = mwidth/2;
 	for(var t=0;t<xcount;t++){ xpos[t] = LEFT+t*mwidth+moffset;}
 	var bwidth = mwidth*0.7/2;
 
+	// 軸の描画
+	drawXaxis(json,info,ctx,xpos);
+	drawYaxis(json,info,ctx);
+
 	// データ描画部
+	ctx.setLayer('graph');
 	for(var i=0;i<info.length;i++){
 		var vals = info[i].value;
 		var ypos = info[i].ypos;
@@ -422,15 +440,21 @@ function drawBarGraph(json){
 function drawAreaGraph(json){
 	var WIDTH  = json.graph.size[0],
 		LEFT   = json.graph.origin[0],
-		ctx    = settingCanvas(json),
 		info   = parseInfo(json),
-		normalize = normalizeData(json,info);
+		ctx    = settingCanvas(json,info);
+
+	normalizeData(json,info);
 
 	var xcount = json.xaxis.count;
 	var xpos = [], mwidth = WIDTH/(xcount-1);
 	for(var t=0;t<xcount;t++){ xpos[t] = LEFT + t*mwidth;}
 
+	// 軸の描画
+	drawXaxis(json,info,ctx,xpos);
+	drawYaxis(json,info,ctx);
+
 	// データ描画部
+	ctx.setLayer('graph');
 	for(var i=0;i<info.length;i++){
 		var vals = info[i].value;
 		var ypos = info[i].ypos;
@@ -460,8 +484,8 @@ function drawDotChart(json){
 		HEIGHT = json.graph.size[1],
 		LEFT   = json.graph.origin[0],
 		TOP    = json.graph.origin[1],
-		ctx    = settingCanvas(json),
-		info   = parseInfo(json);
+		info   = parseInfo(json),
+		ctx    = settingCanvas(json,info);
 
 	var xcount = json.xaxis.count;
 	var xpos = [], mwidth = WIDTH/xcount, moffset = mwidth/2;
@@ -477,6 +501,7 @@ function drawDotChart(json){
 	}
 
 	// データ描画部
+	ctx.setLayer('graph');
 	for(var i=0;i<info.length;i++){
 		var vals = info[i].value, rsize=[];
 		var ypos = TOP+HEIGHT*((i+0.5)/info.length);
@@ -599,6 +624,146 @@ function drawMarker(markerInfo, ctx, mkpos){
 			}
 		}
 	}
+}
+
+/* ----------- */
+/*   X軸描画   */
+/* ----------- */
+function drawXaxis(json, info, ctx, xpos){
+	if(!json.xaxis){ return;}
+
+	ctx.setLayer('xaxis');
+	ctx.setRendering('crispEdges');
+
+	var TOP = json.graph.origin[1], BOTTOM = TOP + json.graph.size[1],
+		LEFT = json.graph.origin[0], RIGHT = LEFT + json.graph.size[0];
+
+	/* X軸の補助線の描画 */
+	if((json.xaxis.line !== void 0) && (json.xaxis.line !== 'none')){
+		ctx.strokeStyle = ((json.xaxis.linecolor !== void 0) ? json.xaxis.linecolor : 'silver');
+		for(var t=0;t<json.xaxis.count;t++){
+			if(RIGHT-xpos[t]<2 || xpos[t]-LEFT<2){ continue;} /* 外枠に近すぎ */
+			ctx.strokeLine(xpos[t], TOP, xpos[t], BOTTOM);
+			if(json.xaxis.line === 'dashed'){ ctx.setDashSize(4);}
+		}
+	}
+
+	/* X軸の目盛りマークの描画 */
+	if((json.xaxis.tick === void 0) && (json.xaxis.tick !== 'none')){
+		ctx.strokeStyle = ((json.xaxis.tickcolor !== void 0) ? json.xaxis.tickcolor : 'black');
+		for(var t=0;t<json.xaxis.count;t++){
+			ctx.strokeLine(xpos[t], BOTTOM-5, xpos[t], BOTTOM+5);
+		}
+	}
+
+	/* X軸の目盛りの値の描画 */
+	if(!!json.xaxis.item){
+		ctx.fillStyle = 'black';
+		ctx.textAlign    = 'center';
+		ctx.textBaseline = 'top';
+		ctx.font         = '12px sans-serif';
+		for(var t=0;t<json.xaxis.count;t++){
+			var label = ((!!json.xaxis.item[t]) ? json.xaxis.item[t] : '');
+			if(label){ ctx.fillText(label, xpos[t], BOTTOM+10);}
+		}
+	}
+}
+
+/* ----------- */
+/*   Y軸描画   */
+/* ----------- */
+function drawYaxis(json, info, ctx){
+	if(!json.yaxis){ return;}
+
+	ctx.setLayer('yaxis');
+	ctx.setRendering('crispEdges');
+
+	var LEFT = json.graph.origin[0], RIGHT = LEFT + json.graph.size[0],
+		TOP = json.graph.origin[1], HEIGHT = json.graph.size[1];
+
+	/* Y補助線の間隔を計算する */
+	var ylabel = estimateAuxLine(json);
+
+	/* Y軸の補助線の描画 */
+	if((json.yaxis.line === void 0) && (json.yaxis.line !== 'none')){
+		ctx.strokeStyle = ((json.yaxis.linecolor !== void 0) ? json.yaxis.linecolor : 'silver');
+		for(var i=0;i<ylabel.length;i++){
+			if(TOP+HEIGHT-ylabel[i].ypos<2 || ylabel[i].ypos-TOP<2){ continue;} /* 外枠に近すぎ */
+			ctx.strokeLine(LEFT, ylabel[i].ypos, RIGHT, ylabel[i].ypos);
+			if(json.yaxis.line === 'dashed'){ ctx.setDashSize(4);}
+		}
+	}
+
+	/* Y軸の目盛りマークの描画 */
+	if((json.yaxis.tick === void 0) && (json.yaxis.tick !== 'none')){
+		ctx.strokeStyle = ((json.yaxis.tickcolor !== void 0) ? json.yaxis.tickcolor : 'black');
+		for(var i=0;i<ylabel.length;i++){
+			if(TOP+HEIGHT-ylabel[i].ypos<-1 || ylabel[i].ypos-TOP<-1){ continue;} /* 外枠オーバー */
+			ctx.strokeLine(LEFT-5,  ylabel[i].ypos, LEFT+5,  ylabel[i].ypos);
+			if(json.yaxis.scale != 'log'){ ctx.strokeLine(RIGHT-5, ylabel[i].ypos, RIGHT+5, ylabel[i].ypos);}
+		}
+	}
+
+	/* Y軸の目盛りの値の描画 */
+	if(true){
+		ctx.fillStyle = 'black';
+		ctx.textAlign    = 'right';
+		ctx.textBaseline = 'middle';
+		ctx.font         = '12px sans-serif';
+		for(var i=0;i<ylabel.length;i++){
+			if(TOP+HEIGHT-ylabel[i].ypos<-1 || ylabel[i].ypos-TOP<-1){ continue;} /* 外枠オーバー */
+			var label = ylabel[i].item;
+			if(label){ ctx.fillText(label, LEFT-10, ylabel[i].ypos);}
+		}
+	}
+}
+
+function estimateAuxLine(json){
+	var LEFT = json.graph.origin[0], RIGHT = LEFT + json.graph.size[0],
+		TOP = json.graph.origin[1], HEIGHT = json.graph.size[1],
+		minval = json.yaxis.range[0], topval = json.yaxis.range[1], dist = topval;
+
+	var ylabel= [], i=0, pf=[1,2,5], digit=Math.ceil(Math.log(topval-minval)*Math.LOG10E+1);
+	var ydata = [];
+	if(json.yaxis.scale != 'log'){
+		if(json.yaxis.scale === 'ratio' && topval>0.98){ dist = 0.1;}
+		else if(!json.yaxis.dist){
+			while(dist>0.01){
+				dist = (pf[i] * Math.pow(10,digit))|0;
+				if(((topval-minval)/dist)>5){ break;}
+				i--; if(i<0){ i=2; digit--;}
+			}
+		}
+		else{ dist = json.yaxis.dist;}
+
+		i=0;
+		for(var n=0;n<topval;n+=dist){ ydata[i]=n; i++;}
+
+		/* Y補助線を描画する場所を推測する */
+		for(var i=0;i<ydata.length;i++){
+			ylabel[i] = {item:ydata[i]};
+			if(json.yaxis.scale === 'ratio'){ ylabel[i] = {item:''+(Math.ceil(99.9*ydata[i])|0)+'%'};}
+			else{ ylabel[i] = {item:(ydata[i]|0)};}
+			ylabel[i].ypos = (TOP+HEIGHT*(1-(ydata[i]-minval)/(topval-minval)));
+		}
+	}
+	else{
+		digit = Math.ceil(topval); pf=[1,2,3,4,5,6,7,8,9]
+		while(dist>0.99){
+			dist = Math.ceil((pf[i] * Math.pow(10,digit))-0.1)|0;
+			ydata[digit*pf.length+i] = dist;
+			i--; if(i<0){ i=pf.length-1; digit--;}
+		}
+
+		/* Y補助線を描画する場所を推測する */
+		for(var i=0;i<ydata.length;i++){
+			var col = i%pf.length;
+			ylabel[i] = {item:((col==0||col==1||col==4) ? ydata[i]|0 : '')};
+			ylabel[i].ypos = (TOP+HEIGHT*(1-(Math.log(ydata[i])*Math.LOG10E-minval)/(topval-minval)));
+		}
+	}
+
+	return ylabel;
 }
 
 /* ------------ */
