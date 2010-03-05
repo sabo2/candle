@@ -1,4 +1,4 @@
-// Fire.js rev76
+// Fire.js rev77
 
 (function(){
 
@@ -58,8 +58,8 @@ function _extend_rc(obj, ads){
 /* ------------------------ */
 /*   CampFireオブジェクト   */
 /* ------------------------ */
-Camp.Fire = function(idname){
-	Camp.Fire.dance(idname);
+Camp.Fire = function(idname, forceDrawing){
+	Camp.Fire.dance(idname, forceDrawing);
 };
 
 /* ------------------ */
@@ -72,36 +72,36 @@ _extend( Camp.Fire, {
 	/* -------------------- */
 	/*   グラフを生成する   */
 	/* -------------------- */
-	danceAll : function(){
+	danceAll : function(forceDrawing){
 		var elements = _doc.getElementsByTagName('campfire');
-		for(var i=0;i<elements.length;i++){ this.dance(elements[i].id, type);}
+		for(var i=0;i<elements.length;i++){ this.dance(elements[i].id, forceDrawing);}
 	},
-	dance : function(idname, type){
+	dance : function(idname, forceDrawing){
 		if(typeof idname === 'string'){
-			this.draw(idname,type);
+			this.draw(idname, forceDrawing);
 		}
 		else if((typeof idname === 'object') && (idname instanceof Array)){
 			for(var i=0;i<idname.length;i++){
-				this.draw(idname[i],type);
+				this.draw(idname[i], forceDrawing);
 			}
 		}
 	},
 	/* alias */
-	all             : function(){ this.danceAll();},
-	initAllElements : function(){ this.danceAll();},
-	init        : function(idname){ this.dance(idname);},
-	initElement : function(idname){ this.dance(idname);},
+	all             : function(){ this.danceAll(false);},
+	initAllElements : function(){ this.danceAll(true); },
+	init        : function(idname){ this.dance(idname, true);},
+	initElement : function(idname){ this.dance(idname, true);},
 
 	/* -------------------- */
 	/*   グラフを描画する   */
 	/* -------------------- */
-	draw : function(idname, type){
+	draw : function(idname, forceDrawing){
 		var json = this.JSON[idname];
 		if(!json || !json.data){
 			this.parseData(idname);
 			json = this.JSON[idname];
 		}
-		if(!!type){ json.graph.type = type;}
+		else if(!forceDrawing){ return;}
 
 		this.drawGraph(idname);
 	},
