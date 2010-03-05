@@ -1,4 +1,4 @@
-// Fire.js rev78
+// Fire.js rev80
 
 (function(){
 
@@ -288,7 +288,7 @@ function parseInfo(json){
 
 	/* 割合グラフの場合は割合に変換 */
 	if(json.yaxis.scale === 'ratio'){
-		for(var t=0;t<vals.length;t++){
+		for(var t=0;t<json.xaxis.count;t++){
 			var total=0;
 			for(var i=0;i<info.length;i++){ total += (!isNaN(info[i].value[t]) ? info[i].value[t] : 0);}
 			for(var i=0;i<info.length;i++){ info[i].value[t] = (!isNaN(info[i].value[t]) ? info[i].value[t]/total : null); }
@@ -296,7 +296,7 @@ function parseInfo(json){
 	}
 	/* 対数グラフの場合は対数に変換 */
 	else if(json.yaxis.scale === 'log'){
-		for(var t=0;t<vals.length;t++){
+		for(var t=0;t<json.xaxis.count;t++){
 			for(var i=0;i<info.length;i++){
 				var val = info[i].value[t];
 				info[i].value[t] = ((!isNaN(val) && val>0) ? Math.log(val)*Math.LOG10E : 0);
@@ -365,7 +365,6 @@ function drawLineGraph(json){
 	// データ描画部
 	ctx.setLayer('graph');
 	for(var i=0;i<info.length;i++){
-		var vals = info[i].value;
 		var ypos = info[i].ypos;
 
 		// 描画する座標の所得
@@ -415,9 +414,7 @@ function drawBarGraph(json){
 	// データ描画部
 	ctx.setLayer('graph');
 	for(var i=0;i<info.length;i++){
-		var vals = info[i].value;
-		var ypos = info[i].ypos;
-		var ypos_b = info[i].yposb;
+		var ypos = info[i].ypos, ypos_b = info[i].yposb;
 
 		// 系列の色の設定
 		var color = info[i].color;
@@ -456,9 +453,7 @@ function drawAreaGraph(json){
 	// データ描画部
 	ctx.setLayer('graph');
 	for(var i=0;i<info.length;i++){
-		var vals = info[i].value;
-		var ypos = info[i].ypos;
-		var ypos_b = info[i].yposb;
+		var ypos = info[i].ypos, ypos_b = info[i].yposb;
 
 		// 系列の色の設定
 		var color = info[i].color;
@@ -748,7 +743,7 @@ function estimateAuxLine(json){
 		}
 	}
 	else{
-		digit = Math.ceil(topval); pf=[1,2,3,4,5,6,7,8,9]
+		digit = Math.ceil(topval); pf=[1,2,3,4,5,6,7,8,9];
 		while(dist>0.99){
 			dist = Math.ceil((pf[i] * Math.pow(10,digit))-0.1)|0;
 			ydata[digit*pf.length+i] = dist;
