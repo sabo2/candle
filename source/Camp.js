@@ -1,4 +1,4 @@
-// Camp.js rev69
+// Camp.js rev79
  
 (function(){
 
@@ -605,7 +605,7 @@ VectorContext.prototype = {
 	},
 
 	strokeLine : function(x1,y1,x2,y2){
-		if     (this.type===VML){ x1=x1*Z, y1=y1*Z, x2=x2*Z, y2=y2*Z;}
+		if     (this.type===VML){ x1=(x1*Z)|0, y1=(y1*Z)|0, x2=(x2*Z)|0, y2=(y2*Z)|0;}
 		else if(this.type===SL) { x1+=this.OFFSETX, y1+=this.OFFSETY, x2+=this.OFFSETX, y2+=this.OFFSETY;}
 		var stack = this.currentpath;
 		this.currentpath = [this.PATH_MOVE,x1,y1,this.PATH_LINE,x2,y2];
