@@ -1,4 +1,4 @@
-// Fire.js rev75
+// Fire.js rev76
 
 (function(){
 
@@ -165,33 +165,18 @@ _extend( Camp.Fire, {
 
 		if(!json || !json.data){ return;}
 		json.graph.type = json.graph.type.toLowerCase();
-		var fts = feature[json.graph.type];
-		if(fts!==void 0){
-			switch(fts[0]){
-				case 'POINT': drawPointGraph(json); break;
-				case 'LINE':  drawLineGraph(json);  break;
-				case 'BAR':   drawBarGraph(json);   break;
-				case 'AREA':  drawAreaGraph(json);  break;
-				case 'DOT':   drawDotChart(json);   break;
-			}
-			drawLegend(json,fts);
+		switch(json.graph.type){
+			case 'point': drawPointGraph(json); break;
+			case 'line':  drawLineGraph(json);  break;
+			case 'bar':   drawBarGraph(json);   break;
+			case 'area':  drawAreaGraph(json);  break;
+			case 'dotchart':
+			case 'dot':   drawDotChart(json);   break;
+			default: return;
 		}
+		drawLegend(json);
 	}
 });
-// ratio, stack
-var feature = {
-	point         : ['POINT', false, false],
-	pointratio    : ['POINT', true,  false],
-	line          : ['LINE',  false, false],
-	lineratio     : ['LINE',  true,  false],
-	bar           : ['BAR',   false, false],
-	barstack      : ['BAR',   false, true ],
-	barstackratio : ['BAR',   true,  true ],
-	area          : ['AREA',  false, true ],
-	arearatio     : ['AREA',  true,  true ],
-	dot           : ['DOT',   false, false],
-	dotchart      : ['DOT',   false, false]
-};
 
 /* --------------------------------- */
 /*   以下は描画関係関数。            */
@@ -203,10 +188,9 @@ var feature = {
 /* ------------------------------ */
 /* stack:積み重ねグラフかどうか ratio:割合グラフかどうか     */
 function normalizeData(json, info){
-	var ratio = feature[json.graph.type][1];
-	var stack = feature[json.graph.type][2];
-	var space = ((json.graph.topspace !== void 0)?json.graph.topspace:0.06);
-	if(ratio && stack){ space=0;}
+	var stack = !!json.graph.stacked;
+	var space = (((json.graph.padding     !== void 0) &&
+				  (json.graph.padding.top !== void 0)) ? json.graph.padding.top : 0.06);
 	var xcount = json.xaxis.count;
 	var HEIGHT = json.graph.size[1];
 	var TOP    = json.graph.origin[1];
@@ -217,7 +201,9 @@ function normalizeData(json, info){
 	}
 
 	/* グラフの上限になる値の設定 */
-	if(ratio && stack){ topval=1;}
+	if(stack && (json.yaxis.scale === 'ratio')){
+		topval=1; space=0;
+	}
 	else if(stack){
 		/* 全データ中最大の合計値を取得 */
 		var max = 0;
@@ -242,7 +228,7 @@ function normalizeData(json, info){
 		for(var i=0;i<info.length;i++){
 			var val = (!isNaN(info[i].value[t]) ? info[i].value[t] : 0);
 			if(topval>0){
-				info[i].yposb[t] = TOP+HEIGHT*(1- currentBase     /topval);//(i>0 ? info[i-1].yposb[t] : TOP+HEIGHT);
+				info[i].yposb[t] = TOP+HEIGHT*(1- currentBase     /topval);
 				info[i].ypos[t]  = TOP+HEIGHT*(1-(currentBase+val)/topval);
 			}
 			else{
@@ -290,12 +276,27 @@ function parseInfo(json){
 		cnt++;
 	}
 
+	/* yaxis.scaleをmanageする */
+	json.yaxis.scale = ((json.yaxis.scale !== void 0) ? json.yaxis.scale.toLowerCase() : '');
+	if     (json.yaxis.scale==='logarithm') { json.yaxis.scale = 'log';}
+	else if(json.yaxis.scale==='percent')   { json.yaxis.scale = 'ratio';}
+	else if(json.yaxis.scale==='percentage'){ json.yaxis.scale = 'ratio';}
+
 	/* 割合グラフの場合は割合に変換 */
-	if(feature[json.graph.type][1]){
+	if(json.yaxis.scale === 'ratio'){
 		for(var t=0;t<vals.length;t++){
 			var total=0;
 			for(var i=0;i<info.length;i++){ total += (!isNaN(info[i].value[t]) ? info[i].value[t] : 0);}
 			for(var i=0;i<info.length;i++){ info[i].value[t] = (!isNaN(info[i].value[t]) ? info[i].value[t]/total : null); }
+		}
+	}
+	/* 対数グラフの場合は対数に変換 */
+	else if(json.yaxis.scale === 'log'){
+		for(var t=0;t<vals.length;t++){
+			for(var i=0;i<info.length;i++){
+				var val = info[i].value[t];
+				info[i].value[t] = ((!isNaN(val) && val>0) ? Math.log(val)*Math.LOG10E : 0);
+			}
 		}
 	}
 
@@ -609,7 +610,7 @@ function drawLegend(json){
 		ctx = document.getElementById(json.idname).getContext("2d"),
 		info = parseInfo(json);
 
-	if(feature[json.graph.type][2]){ info = info.reverse();}
+	if(!!json.graph.stacked){ info = info.reverse();}
 
 	ctx.lineWidth = '1';
 	ctx.setLayer('legend');
