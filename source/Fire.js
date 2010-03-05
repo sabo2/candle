@@ -15,7 +15,8 @@ var _win = this,
 	_2PI = 2*Math.PI,
 
 	Camp = _win.Camp,
-	textContent = {};
+	textContent = {},
+	basefont = '12px "MS PGothic",Arial,sans-serif';
 
 /* ------------ */
 /*   共通関数   */
@@ -656,7 +657,7 @@ function drawXaxis(json, info, ctx, xpos){
 		ctx.fillStyle = 'black';
 		ctx.textAlign    = 'center';
 		ctx.textBaseline = 'top';
-		ctx.font         = '12px sans-serif';
+		ctx.font         = basefont;
 		for(var t=0;t<json.xaxis.count;t++){
 			var label = ((!!json.xaxis.item[t]) ? json.xaxis.item[t] : '');
 			if(label){ ctx.fillText(label, xpos[t], BOTTOM+10);}
@@ -704,7 +705,7 @@ function drawYaxis(json, info, ctx){
 		ctx.fillStyle = 'black';
 		ctx.textAlign    = 'right';
 		ctx.textBaseline = 'middle';
-		ctx.font         = '12px sans-serif';
+		ctx.font         = basefont;
 		for(var i=0;i<ylabel.length;i++){
 			if(TOP+HEIGHT-ylabel[i].ypos<-1 || ylabel[i].ypos-TOP<-1){ continue;} /* 外枠オーバー */
 			var label = ylabel[i].item;
@@ -778,7 +779,7 @@ function drawLegend(json){
 
 	var textwidth = 0;
 	for(var i=0;i<info.length;i++){
-		Camp.ME.style.font = '12px sans-serif';
+		Camp.ME.style.font = basefont;
 		Camp.ME.innerHTML = info[i].label;
 		if(textwidth < Camp.ME.offsetWidth){ textwidth = Camp.ME.offsetWidth;}
 	}
@@ -791,7 +792,7 @@ function drawLegend(json){
 	/* 項目の描画 */
 	ctx.textAlign    = 'left';
 	ctx.textBaseline = 'middle';
-	ctx.font         = '12px sans-serif';
+	ctx.font         = basefont;
 	for(var i=0;i<info.length;i++){
 		var color = info[i].color;
 		ctx.fillStyle = (!!color ? color : 'none');
