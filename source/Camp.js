@@ -1,4 +1,4 @@
-// Camp.js rev89
+// Camp.js rev90
  
 (function(){
 
@@ -231,21 +231,20 @@ var VectorContext = function(type, idname){
 		this.use.vml = true;
 	}
 
-	this.initElement(idname);
+	this.initElement();
 };
 VectorContext.prototype = {
 	/* additional functions (for initialize) */
-	initElement : function(idname){
+	initElement : function(){
 		var child = null;
 		if(this.type!==SL){ child = _doc.getElementById(this.canvasid)}
 		else if(!!this.content){ child = this.content.findName(this.canvasid);}
 
 		if(!child){
-			var parent = _doc.getElementById(idname);
-			var rect = getRectSize(parent);
-			if     (this.type===SVG){ this.appendSVG(parent,rect.width,rect.height);}
-			else if(this.type===SL) { this.appendSL (parent,rect.width,rect.height);}
-			else if(this.type===VML){ this.appendVML(parent,rect.width,rect.height);}
+			this.canvas = _doc.getElementById(this.idname);
+			if     (this.type===SVG){ this.appendSVG();}
+			else if(this.type===SL) { this.appendSL ();}
+			else if(this.type===VML){ this.appendVML();}
 
 			if(this.type!==SL){ this.afterInit();}
 		}
@@ -254,9 +253,9 @@ VectorContext.prototype = {
 		}
 	},
 	afterInit : function(){
-		var parent = _doc.getElementById(this.idname);
-		var rect   = getRectSize(parent);
+		var parent = this.canvas;
 		var child  = this.child;
+		var rect   = getRectSize(parent);
 
 		var self = this;
 		//parent.className = "canvas";
@@ -269,7 +268,6 @@ VectorContext.prototype = {
 		}
 		parent.getContext = function(type){ return self;};
 		parent.toDataURL = function(type){ return null; /* 未サポート */ };
-		this.canvas = parent;
 
 		this.target = this.child;
 		this.rect(0,0,rect.width,rect.height);
@@ -278,32 +276,36 @@ VectorContext.prototype = {
 		_initializing--;
 	},
 
-	appendSVG : function(parent, width, height){
-		var svgtop = _doc.createElementNS(SVGNS,'svg');
-		svgtop.setAttribute('id', this.canvasid);
-		svgtop.setAttribute('font-size', "10px");
-		svgtop.setAttribute('font-family', "sans-serif");
-		svgtop.setAttribute('width', width);
-		svgtop.setAttribute('height', height);
-		svgtop.setAttribute('viewBox', [0,0,width,height].join(' '));
+	appendSVG : function(){
+		var rect = getRectSize(this.canvas);
 
-		parent.appendChild(svgtop);
-		this.child = svgtop;
+		var top = _doc.createElementNS(SVGNS,'svg');
+		top.setAttribute('id', this.canvasid);
+		top.setAttribute('font-size', "10px");
+		top.setAttribute('font-family', "sans-serif");
+		top.setAttribute('width', rect.width);
+		top.setAttribute('height', rect.height);
+		top.setAttribute('viewBox', [0,0,rect.width,rect.height].join(' '));
+
+		this.canvas.appendChild(top);
+		this.child = top;
 	},
-	appendVML : function(parent, width, height){
-		var vmltop = _doc.createElement('div');
-		vmltop.id = this.canvasid;
+	appendVML : function(){
+		var rect = getRectSize(this.canvas);
 
-		vmltop.style.position = 'absolute';
-		vmltop.style.left   = '-2px';
-		vmltop.style.top    = '-2px';
-		vmltop.style.width  = width + 'px';
-		vmltop.style.height = height + 'px';
+		var top = _doc.createElement('div');
+		top.id = this.canvasid;
 
-		parent.appendChild(vmltop);
-		this.child = vmltop;
+		top.style.position = 'absolute';
+		top.style.left   = '-2px';
+		top.style.top    = '-2px';
+		top.style.width  = rect.width + 'px';
+		top.style.height = rect.height + 'px';
+
+		this.canvas.appendChild(top);
+		this.child = top;
 	},
-	appendSL : function(parent, width, height){
+	appendSL : function(){
 		var self = this, funcname = "_function_" + this.canvasid + "_onload";
 		_win[funcname] = function(sender, context, source){
 			self.content = document.getElementById([self.canvasid,'object'].join('_')).content;
@@ -311,7 +313,7 @@ VectorContext.prototype = {
 			self.afterInit.call(self);
 		};
 
-		parent.innerHTML = [
+		this.canvas.innerHTML = [
 			'<object type="application/x-silverlight" width="100%" height="100%" id="',this.canvasid,'_object" />',
 			'<param name="windowless" value="true" />',
 			'<param name="background" value="#00000000" />',	// アルファ値0 = 透明
@@ -324,7 +326,7 @@ VectorContext.prototype = {
 		].join('');
 	},
 	setLayer : function(layerid){
-		this.initElement(this.idname);
+		this.initElement();
 		if(!!layerid){
 			var lid = [this.canvasid,"layer",layerid].join('_');
 			var layer = (this.type!==SL ? _doc.getElementById(lid) : this.content.findName(lid));
@@ -395,7 +397,8 @@ VectorContext.prototype = {
 		if(this.type===SVG){
 			child.setAttribute('width', width);
 			child.setAttribute('height', height);
-			child.setAttribute('viewBox', [0,0,width,height].join(' '));
+			var m = child.getAttribute('viewBox').split(/ /);
+			child.setAttribute('viewBox', [m[0],m[1],width,height].join(' '));
 		}
 		else if(this.type==SL){
 			// 描画されないことがあるため、サイズを2度設定するおまじない
@@ -413,28 +416,30 @@ VectorContext.prototype = {
 		var child = this.canvas.firstChild;
 		if(this.type===SVG){
 			var m = child.getAttribute('viewBox').split(/ /);
-			m[0]=left, m[1]=top;
+			m[0]=-left, m[1]=-top;
 			child.setAttribute('viewBox', m.join(' '));
 		}
 		else if(this.type===VML){
 			child.style.position = 'absolute';
-			child.style.left = (-left-2)+'px';
-			child.style.top  = (-top -2)+'px';
+			child.style.left = left+'px';
+			child.style.top  = top +'px';
 		}
 		else if(this.type===SL){
-			this.x0 = -left;//(left<0?-left:0);
-			this.y0 = -top;//(top<0?-top:0);
+			this.x0 = left;//(left<0?-left:0);
+			this.y0 = top;//(top<0?-top:0);
 		}
 	},
 	clear : function(){
-		if(this.type!==SL){ _doc.getElementById(this.idname).innerHTML = '';}
+		if(this.type===SVG || this.type===VML){
+			var top = this.canvas.firstChild, el = top.firstChild;
+			while(!!el){ top.removeChild(el); el=top.firstChild;}
+		}
+		else if(this.type===SL) { this.content.findName(this.canvasid).children.clear();}
 
 		this.vid = '';
 		this.elements = [];
 		this.lastElement = null;
-		this.initElement(this.idname);
-
-		if(this.type===SL){ this.target.children.clear();}
+		this.initElement();
 	},
 
 	/* Canvas API functions (for path) */
@@ -759,7 +764,8 @@ CanvasRenderingContext2D_wrapper = function(type, idname){
 	this.y0 = 0;
 
 	// variables for internal
-	this.canvasid = '';
+	this.idname   = idname;
+	this.canvasid = EL_ID_HEADER+idname;
 	this.child    = null;		// this.canvasの直下にあるエレメント
 	this.context  = null;	// 本来のCanvasRenderingContext2Dオブジェクト
 
@@ -774,16 +780,14 @@ CanvasRenderingContext2D_wrapper = function(type, idname){
 	this.use.sl     = (type===SL);
 	this.use.flash  = (type===FLASH);
 
-	this.initElement(idname);
+	this.initElement();
 };
 
 //function addCanvasFunctions(){ _extend(CanvasRenderingContext2D.prototype, {
 CanvasRenderingContext2D_wrapper.prototype = {
 	/* extend functions (initialize) */
-	initElement : function(idname){
-		this.canvasid = EL_ID_HEADER+idname;
-
-		var parent = _doc.getElementById(idname);
+	initElement : function(){
+		var parent = _doc.getElementById(this.idname);
 		var canvas = _doc.getElementById(this.canvasid);
 
 		if(!canvas){
@@ -860,8 +864,8 @@ CanvasRenderingContext2D_wrapper.prototype = {
 //		canvas.style.left = (parseInt(canvas.style.left) - left) + 'px';
 //		canvas.style.top  = (parseInt(canvas.style.top ) - top)  + 'px';
 
-		this.x0 = -left;//(left<0?-left:0);
-		this.y0 = -top;//(top<0?-top:0);
+		this.x0 = left;//(left<0?-left:0);
+		this.y0 = top;//(top<0?-top:0);
 	},
 	clear : function(){
 		if(!!this.canvas.style.backgroundColor){
