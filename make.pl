@@ -26,7 +26,6 @@ sub input_flags{
 
 sub output{
 	&output_file('candle.js', ['source/candle.js']);
-	&output_file('candlefire.js', ['source/candle.js', 'source/fire.js']);
 }
 sub output_file{
 	my $filename = $_[0];
