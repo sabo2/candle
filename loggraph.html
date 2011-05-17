@@ -3,7 +3,8 @@
 <HEAD>
 <META NAME="robots" CONTENTS="noindex,nofollow">
 <TITLE>ƒƒO‰{——Š</TITLE>
-<script type="text/javascript" src="CampFire.js"></script>
+<script type="text/javascript" src="./source/Camp.js"></script>
+<script type="text/javascript" src="./source/Fire.js"></script>
 <script type="text/javascript">
 <!--
 	var fc    = 'month';
@@ -20,8 +21,9 @@
 		disp();
 	}
 	function disp(){
+		var idname = combi[fc][1];
 		Camp.select('vml');
-		Camp.Fire(combi[fc][1]);
+		Camp.Fire(idname);
 	}
 
 //-->
