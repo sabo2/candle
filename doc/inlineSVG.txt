@@ -1,4 +1,4 @@
-inlineSVG‚Ì—á
+inlineSVGã®ä¾‹
 	<svg id="svg_parent" width="200" height="200" shape-rendering="crispEdges" style="border:solid 1px silver;">
 		<g id="svg_base" stroke="gray" stroke-width="4px">
 			<polyline points="-40,0 40,0" />
@@ -10,28 +10,28 @@ inlineSVG‚Ì—á
 			<rect x="30" y="20" width="200" height="30" stroke-width="4px" stroke="red" fill="none" />
 		</g>
 		<g id="svg_text">
-			<text x="120" y="20" text-anchor="middle" dominant-baseline="middle" transform="rotate(270 120 20)">ƒeƒLƒXƒg•\¦</text>
+			<text x="120" y="20" text-anchor="middle" dominant-baseline="middle" transform="rotate(270 120 20)">ãƒ†ã‚­ã‚¹ãƒˆè¡¨ç¤º</text>
 		</g>
 	</svg>
 
-svg:svg‚ÌviewBox‘®«
+svg:svgã®viewBoxå±æ€§
 	viewBox="0 0 120 150"
-	’†‚ÌÀ•WŒn‚ğw’è‚Å‚«‚é
+	ä¸­ã®åº§æ¨™ç³»ã‚’æŒ‡å®šã§ãã‚‹
 
-svg:svg‚Ìshape-rendering‘®«
-	auto               ƒoƒ‰ƒ“ƒX ¦w’è‚È‚µ‚Ìê‡
-	optimizeSpeed      ‘¬“xd‹
-	crispEdges         ‘N–¾‚³d‹(ƒAƒ“ƒ`ƒGƒCƒŠƒAƒX‚©‚¯‚È‚¢)
-	geometricPrecision ³Šm‚³d‹(ƒAƒ“ƒ`ƒGƒCƒŠƒAƒX‚©‚¯‚é)
-	inherit            e—v‘f‚©‚çŒp³ ¦e—v‘f‚Åw’è‚ª‚ ‚Á‚½ê‡
+svg:svgã®shape-renderingå±æ€§
+	auto               ãƒãƒ©ãƒ³ã‚¹ â€»æŒ‡å®šãªã—ã®å ´åˆ
+	optimizeSpeed      é€Ÿåº¦é‡è¦–
+	crispEdges         é®®æ˜ã•é‡è¦–(ã‚¢ãƒ³ãƒã‚¨ã‚¤ãƒªã‚¢ã‚¹ã‹ã‘ãªã„)
+	geometricPrecision æ­£ç¢ºã•é‡è¦–(ã‚¢ãƒ³ãƒã‚¨ã‚¤ãƒªã‚¢ã‚¹ã‹ã‘ã‚‹)
+	inherit            è¦ªè¦ç´ ã‹ã‚‰ç¶™æ‰¿ â€»è¦ªè¦ç´ ã§æŒ‡å®šãŒã‚ã£ãŸå ´åˆ
 
-// svg:svg‚Ìq—v‘f‚É‚ÍAƒ^ƒO{‰üs•¶š‚Ì•”•ª‚àTEXTNODE‚Æ‚µ‚ÄŠÜ‚Ü‚ê‚é—Firefox3.6rc1
-// ‚¿‚å‚Á‚Æ’ˆÓ‚ª•K—v‚©‚àB
+// svg:svgã®å­è¦ç´ ã«ã¯ã€ã‚¿ã‚°ï¼‹æ”¹è¡Œæ–‡å­—ã®éƒ¨åˆ†ã‚‚TEXTNODEã¨ã—ã¦å«ã¾ã‚Œã‚‹ï¼ Firefox3.6rc1
+// ã¡ã‚‡ã£ã¨æ³¨æ„ãŒå¿…è¦ã‹ã‚‚ã€‚
 
-// svg:svg‚Å‚Ístyle‚Ìz-index‚Ìw’è‚ªŒø‚©‚È‚¢—Firefox
-// childNodes‚Ì‡‚É•`‰æ‚³‚ê‚é‚Ì‚ÅAsvg:gƒ^ƒO‚ğ‡‚É“ü‚ê‚»‚Ì’†‚Éinsertefore‚Æ‚©appendChild‚·‚é‚Æ‹gB
+// svg:svgã§ã¯styleã®z-indexã®æŒ‡å®šãŒåŠ¹ã‹ãªã„ï¼ Firefox
+// childNodesã®é †ã«æç”»ã•ã‚Œã‚‹ã®ã§ã€svg:gã‚¿ã‚°ã‚’é †ã«å…¥ã‚Œãã®ä¸­ã«inserteforeã¨ã‹appendChildã™ã‚‹ã¨å‰ã€‚
 
-VML‚Ì—á
+VMLã®ä¾‹
 	v\:group, v\:shape, v\:rect, v\:line, v\:oval, v\:path { behavior: url(#default#VML); display:inline-block; position:relative; }
 
 	<v:group id="vml_parent" coordsize="200,200">
@@ -46,16 +46,16 @@ VML‚Ì—á
 		</v:group>
 		<v:group id="svg_text">
 			<v:rect print="false">
-				<v:textbox style="left:120px;top:20px;" v-text-anchor="middle-center" transform="rotate(270 120 20)">ƒeƒLƒXƒg•\¦</v:textbox>
+				<v:textbox style="left:120px;top:20px;" v-text-anchor="middle-center" transform="rotate(270 120 20)">ãƒ†ã‚­ã‚¹ãƒˆè¡¨ç¤º</v:textbox>
 			</v:rect>
 		</v:group>
 	</v:group>
 
-v:group‚Ìcoordsize, coordorigin‘®«
-	’†‚ÌÀ•WŒn‚ğw’è‚Å‚«‚é
-	coordorigin‚Í¶ã‚Ì(x,y) coordsize‚Í(width,height)
+v:groupã®coordsize, coordoriginå±æ€§
+	ä¸­ã®åº§æ¨™ç³»ã‚’æŒ‡å®šã§ãã‚‹
+	coordoriginã¯å·¦ä¸Šã®(x,y) coordsizeã¯(width,height)
 
-“®“I‚È’Ç‰Á
+å‹•çš„ãªè¿½åŠ 
 	var rect = document.createElementNS("http://www.w3.org/2000/svg", "svg:rect");
 	rect.setAttribute("x", "85");
 	rect.setAttribute("y", "5");
@@ -66,7 +66,7 @@ v:group‚Ìcoordsize, coordorigin‘®«
 	rect.setAttribute("fill", "lime");
 	document.getElementById("svg_back").appendChild(rect);
 
-RECT—v‘f
+RECTè¦ç´ 
 	g.fillStyle = "black";
 	g.fillRect(20, 30, 60, 120);
 
@@ -76,11 +76,11 @@ RECT—v‘f
 	g.lineWidth = 1;
 	g.strokeRect(20, 30, 60, 120);
 
-	/* ‚Ç‚Á‚¿‚à“¯‚¶ */
+	/* ã©ã£ã¡ã‚‚åŒã˜ */
 	<rect x="20" y="30" width="60" height="120" stroke="black" stroke-width="1" fill-opacity="0" />
 	<rect x="20" y="30" width="60" height="120" stroke="black" stroke-width="1" fill="none" />
 
-CIRCLE—v‘f
+CIRCLEè¦ç´ 
 	g.fillStyle = "black";
 	g.beginPath();
 	g.arc(120, 150, 80 , 0, Math.PI*2, false);
@@ -88,19 +88,19 @@ CIRCLE—v‘f
 
 	<circle cx="120" cy="150" r="80" fill="black" />
 
-LINE—v‘f
+LINEè¦ç´ 
 	g.strokeStyle = "black";
 	g.lineWidth = 1;
 	g.beginPath();
 	g.moveTo(20, 30);
 	g.lineTo(90, 80);
-	g.closePath(); /* ‚ ‚Á‚Ä‚à‚È‚­‚Ä‚à‚¢‚¢‚Í‚¸ */
+	g.closePath(); /* ã‚ã£ã¦ã‚‚ãªãã¦ã‚‚ã„ã„ã¯ãš */
 	g.stroke();
 
-	/* ‚Ç‚Á‚¿‚à“¯‚¶ */
+	/* ã©ã£ã¡ã‚‚åŒã˜ */
 	<line x1="20" y1="30" x2="90" y2="80" stroke="black" stroke-width="1" />
 
-POLYLINE—v‘f
+POLYLINEè¦ç´ 
 	g.strokeStyle = "black";
 	g.lineWidth = 1;
 	g.beginPath();
@@ -109,12 +109,12 @@ POLYLINE—v‘f
 	g.lineTo(20, 130);
 	g.stroke();
 
-	/* ‚Ç‚ê‚à“¯‚¶ */
+	/* ã©ã‚Œã‚‚åŒã˜ */
 	<path d="M 20 30 L 90 80 L 20 130" stroke="black" stroke-width="1" fill="none" />
 	<path d="M 20 30 l 70 50 l -70 50" stroke="black" stroke-width="1" fill="none" />
 	<polyline points="20,30 90,80 20,130" stroke="black" stroke-width="1" fill="none" />
 
-POLYGON—v‘f
+POLYGONè¦ç´ 
 	g.fillStyle = "black";
 	g.lineWidth = 1;
 	g.beginPath();
@@ -124,15 +124,15 @@ POLYGON—v‘f
 	g.closePath();
 	g.fill();
 
-	/* ‚Ç‚ê‚à“¯‚¶ */
+	/* ã©ã‚Œã‚‚åŒã˜ */
 	<path d="M 20 30 L 90 80 L 20 130 z" fill="black" />
 	<path d="M 20 30 l 70 50 l -70 50 z" fill="black" />
 	<polygon points="20,30 90,80 20,130" fill="black" />
 
-	// PATH‚ÌM‚Æ‚©L‚Æ‚©‚ÍA¬•¶š‚¾‚Æ‘Š‘Îw’è‚ç‚µ‚¢
-	// line‚ârectAarc‚É‚àg‚¦‚é•¡G‚È}Œ`Œü‚¯
+	// PATHã®Mã¨ã‹Lã¨ã‹ã¯ã€å°æ–‡å­—ã ã¨ç›¸å¯¾æŒ‡å®šã‚‰ã—ã„
+	// lineã‚„rectã€arcã«ã‚‚ä½¿ãˆã‚‹è¤‡é›‘ãªå›³å½¢å‘ã‘
 
-~‚Æ‚©•\¦‚µ‚½‚¢ê‡
+Ã—ã¨ã‹è¡¨ç¤ºã—ãŸã„å ´åˆ
 	g.strokeStyle = "blue";
 	g.lineWidth = 1;
 	g.beginPath();
@@ -149,20 +149,20 @@ POLYGON—v‘f
 		<line x1="30" y1="80" x2="80" y2="30" stroke="blue" stroke-width="1" />
 	</g>
 
-	// ‘®«‚ÍƒOƒ‹[ƒv‚Å‚Ü‚Æ‚ß‚Äw’è‚Å‚«‚é
+	// å±æ€§ã¯ã‚°ãƒ«ãƒ¼ãƒ—ã§ã¾ã¨ã‚ã¦æŒ‡å®šã§ãã‚‹
 
-Graphic.js‚ÅCanvas->SVG‚Ì’u‚«Š·‚¦‚É•K—v‚È‚â‚Â
-	pzprŒÀ’è
+Graphic.jsã§Canvas->SVGã®ç½®ãæ›ãˆã«å¿…è¦ãªã‚„ã¤
+	pzpré™å®š
 		g.vml, g.vid, g.zidx, g.pelements, g.elements
-	ƒvƒƒpƒeƒB
+	ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£
 		g.fillStyle, g.strokeStyle, g.lineWidth
-	ŠÖ”
+	é–¢æ•°
 		g.fillRect(), g.strokeRect(), g.fill(), g.stroke(), g.arc(),
 		g.beginPath(), g.closePath(), g.moveTo(), g.lineTo(), g._clear()
 
-	V‹K’Ç‰Á‚ª•K—v‚Æv‚í‚ê‚é‚â‚Â
+	æ–°è¦è¿½åŠ ãŒå¿…è¦ã¨æ€ã‚ã‚Œã‚‹ã‚„ã¤
 		g.currentLayer, g.addLayer()
 
-	ƒRƒƒ“ƒgƒAƒEƒg’†
+	ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆä¸­
 		g.font, g.textAlign, g.textBaseline, g.fillText()
 		g.enabledash

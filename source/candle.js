@@ -2,7 +2,7 @@
  
 (function(){
 
-// ‘½d’è‹`–h~
+// å¤šé‡å®šç¾©é˜²æ­¢
 if(!!window.Candle){ return;}
 
 /* ------------- */
@@ -42,7 +42,7 @@ var _hex = (function(){
 })();
 
 /* ------------ */
-/*   ‹¤’ÊŠÖ”   */
+/*   å…±é€šé–¢æ•°   */
 /* ------------ */
 function getRectSize(el){
 	return { width :(el.offsetWidth  || el.clientWidth),
@@ -72,7 +72,7 @@ function _extend(obj, ads){
 }
 
 /* ------------------ */
-/*   TypeListƒNƒ‰ƒX   */
+/*   TypeListã‚¯ãƒ©ã‚¹   */
 /* ------------------ */
 var TypeList = function(){
 	this.canvas = false;
@@ -83,7 +83,7 @@ var TypeList = function(){
 };
 
 /* ------------------------------------------- */
-/*   VectorContext(VML)ƒNƒ‰ƒX—pconst•¶š—ñW   */
+/*   VectorContext(VML)ã‚¯ãƒ©ã‚¹ç”¨constæ–‡å­—åˆ—é›†   */
 /* ------------------------------------------- */
 var V_TAG_SHAPE    = '<v:shape',
 	V_TAG_GROUP    = '<v:group',
@@ -91,7 +91,7 @@ var V_TAG_SHAPE    = '<v:shape',
 	V_TAG_TEXTPATH = '<v:textpath',
 	V_TAG_POLYLINE = '<v:polyline',
 	V_TAG_PATH_FOR_TEXTPATH = '<v:path textpathok="t" />',
-	V_EL_UNSELECTABLE = '', // ƒfƒtƒHƒ‹ƒg‚Íunselectable‚Å‚È‚¢
+	V_EL_UNSELECTABLE = '', // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã¯unselectableã§ãªã„
 //	V_EL_UNSELECTABLE = ' unselectable="on"',
 	V_TAGEND      = '>',
 	V_TAGEND_NULL = ' />',
@@ -130,7 +130,7 @@ var V_TAG_SHAPE    = '<v:shape',
 	V_HEIGHT = { top:-0.7, hanging:-0.66, middle:-0.3, alphabetic:0, bottom:0.1 };
 
 /* ------------------------------------------- */
-/*   VectorContext(SVG)ƒNƒ‰ƒX—pconst•¶š—ñW   */
+/*   VectorContext(SVG)ã‚¯ãƒ©ã‚¹ç”¨constæ–‡å­—åˆ—é›†   */
 /* ------------------------------------------- */
 var SVGNS   = "http://www.w3.org/2000/svg",
 	XLINKNS = "http://www.w3.org/1999/xlink",
@@ -151,13 +151,13 @@ var SVGNS   = "http://www.w3.org/2000/svg",
 	S_HEIGHT = { top:-0.7, hanging:-0.66, middle:-0.3, alphabetic:0, bottom:0.1 },
 
 /* ------------------------------------------ */
-/*   VectorContext(SL)ƒNƒ‰ƒX—pconst•¶š—ñW   */
+/*   VectorContext(SL)ã‚¯ãƒ©ã‚¹ç”¨constæ–‡å­—åˆ—é›†   */
 /* ------------------------------------------ */
 	SL_WIDTH = { left:0, center:0.5, right:1 },
 	SL_HEIGHT = { top:0.2, hanging:0.2, middle:0.5, alphabetic:0.7, bottom:0.8 },
 
 /* --------------------------------- */
-/*   VectorContextƒNƒ‰ƒX—p•Ï”‚È‚Ç   */
+/*   VectorContextã‚¯ãƒ©ã‚¹ç”¨å¤‰æ•°ãªã©   */
 /* --------------------------------- */
 	EL_ID_HEADER = "canvas_o_",
 	ME    = null,
@@ -175,31 +175,31 @@ function initME(){
 }
 
 /* ----------------------- */
-/*   VectorContextƒNƒ‰ƒX   */
+/*   VectorContextã‚¯ãƒ©ã‚¹   */
 /* ----------------------- */
 var VectorContext = function(type, idname){
-	// canvas‚É‘¶İ‚·‚éƒvƒƒpƒeƒB•ƒfƒtƒHƒ‹ƒg’l
+	// canvasã«å­˜åœ¨ã™ã‚‹ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ï¼†ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤
 	this.fillStyle    = 'black';
 	this.strokeStyle  = 'black';
 	this.lineWidth    = 1;
 	this.font         = '14px system';
 	this.textAlign    = 'center';
 	this.textBaseline = 'middle';
-	this.canvas = null;	// eƒGƒŒƒƒ“ƒg‚Æ‚È‚édivƒGƒŒƒƒ“ƒg
+	this.canvas = null;	// è¦ªã‚¨ãƒ¬ãƒ¡ãƒ³ãƒˆã¨ãªã‚‹divã‚¨ãƒ¬ãƒ¡ãƒ³ãƒˆ
 
-	// changeOrigin—p(Sinverlight—p)
+	// changeOriginç”¨(Sinverlightç”¨)
 	this.x0 = 0;
 	this.y0 = 0;
 
-	// ŠO•”‚©‚ç•ÏX‚³‚ê‚é’Ç‰ÁƒvƒƒpƒeƒB
+	// å¤–éƒ¨ã‹ã‚‰å¤‰æ›´ã•ã‚Œã‚‹è¿½åŠ ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£
 	this.vid      = '';
 	this.elements = [];
 	this.lastElement = null;
 
 	// variables for internal
 	this.type   = type;
-	this.target = null;	// ƒGƒŒƒƒ“ƒg‚Ì’Ç‰Á‘ÎÛ‚Æ‚È‚éƒIƒuƒWƒFƒNƒg
-	this.child  = null;	// this.canvas‚Ì’¼‰º‚É‚ ‚éƒGƒŒƒƒ“ƒg
+	this.target = null;	// ã‚¨ãƒ¬ãƒ¡ãƒ³ãƒˆã®è¿½åŠ å¯¾è±¡ã¨ãªã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+	this.child  = null;	// this.canvasã®ç›´ä¸‹ã«ã‚ã‚‹ã‚¨ãƒ¬ãƒ¡ãƒ³ãƒˆ
 	this.idname = idname;
 	this.canvasid = EL_ID_HEADER+idname;
 	this.cpath    = [];
@@ -209,7 +209,7 @@ var VectorContext = function(type, idname){
 	this.isedgearray    = {_empty:false};
 	this.isedge         = false;
 
-	// Silverlight—p
+	// Silverlightç”¨
 	this.content = null;
 
 	this.use = new TypeList();
@@ -265,7 +265,7 @@ VectorContext.prototype = {
 			parent.style.border = "solid 1px silver";
 		}
 		parent.getContext = function(type){ return self;};
-		parent.toDataURL = function(type){ return null; /* –¢ƒTƒ|[ƒg */ };
+		parent.toDataURL = function(type){ return null; /* æœªã‚µãƒãƒ¼ãƒˆ */ };
 
 		this.target = this.child;
 		this.rect(0,0,rect.width,rect.height);
@@ -314,9 +314,9 @@ VectorContext.prototype = {
 		this.canvas.innerHTML = [
 			'<object type="application/x-silverlight" width="100%" height="100%" id="',this.canvasid,'_object" />',
 			'<param name="windowless" value="true" />',
-			'<param name="background" value="#00000000" />',	// ƒAƒ‹ƒtƒ@’l0 = “§–¾
+			'<param name="background" value="#00000000" />',	// ã‚¢ãƒ«ãƒ•ã‚¡å€¤0 = é€æ˜
 			'<param name="source" value="#',this.canvasid,'_script" />',
-			'<param name="onLoad" value="',funcname,'" />',	// ‘O‚Í100%,100%İ’è‚ª•K—v‚¾‚Á‚½‚İ‚½‚¢
+			'<param name="onLoad" value="',funcname,'" />',	// å‰ã¯100%,100%è¨­å®šãŒå¿…è¦ã ã£ãŸã¿ãŸã„
 			'</object>',
 			'<script type="text/xaml" id="',this.canvasid,'_script">',
 			'<Canvas xmlns="http://schemas.microsoft.com/client/2007" Name="',this.canvasid,'" />',
@@ -399,7 +399,7 @@ VectorContext.prototype = {
 			child.setAttribute('viewBox', [m[0],m[1],width,height].join(' '));
 		}
 		else if(this.type==SL){
-			// •`‰æ‚³‚ê‚È‚¢‚±‚Æ‚ª‚ ‚é‚½‚ßAƒTƒCƒY‚ğ2“xİ’è‚·‚é‚¨‚Ü‚¶‚È‚¢
+			// æç”»ã•ã‚Œãªã„ã“ã¨ãŒã‚ã‚‹ãŸã‚ã€ã‚µã‚¤ã‚ºã‚’2åº¦è¨­å®šã™ã‚‹ãŠã¾ã˜ãªã„
 			child.height = (height+1)+'px';
 
 			child.width  = width + 'px';
@@ -877,23 +877,23 @@ VectorContext.prototype = {
 };
 
 /* -------------------- */
-/*   Canvas’Ç‰ÁŠÖ”ŒQ   */
+/*   Canvasè¿½åŠ é–¢æ•°ç¾¤   */
 /* -------------------- */
 var CanvasRenderingContext2D_wrapper = function(type, idname){
-	// canvas‚É‘¶İ‚·‚éƒvƒƒpƒeƒB•ƒfƒtƒHƒ‹ƒg’l
+	// canvasã«å­˜åœ¨ã™ã‚‹ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ï¼†ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤
 	this.fillStyle    = 'black';
 	this.strokeStyle  = 'black';
 	this.lineWidth    = 1;
 	this.font         = '14px system';
 	this.textAlign    = 'center';
 	this.textBaseline = 'middle';
-	this.canvas = null;		// eƒGƒŒƒƒ“ƒg‚Æ‚È‚édivƒGƒŒƒƒ“ƒg
+	this.canvas = null;		// è¦ªã‚¨ãƒ¬ãƒ¡ãƒ³ãƒˆã¨ãªã‚‹divã‚¨ãƒ¬ãƒ¡ãƒ³ãƒˆ
 
 	// variables for internal
 	this.idname   = idname;
 	this.canvasid = EL_ID_HEADER+idname;
-	this.child    = null;		// this.canvas‚Ì’¼‰º‚É‚ ‚éƒGƒŒƒƒ“ƒg
-	this.context  = null;	// –{—ˆ‚ÌCanvasRenderingContext2DƒIƒuƒWƒFƒNƒg
+	this.child    = null;		// this.canvasã®ç›´ä¸‹ã«ã‚ã‚‹ã‚¨ãƒ¬ãƒ¡ãƒ³ãƒˆ
+	this.context  = null;	// æœ¬æ¥ã®CanvasRenderingContext2Dã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 
 	this.currentLayerId = '_empty';
 	this.isedgearray    = {_empty:false};
@@ -987,14 +987,14 @@ CanvasRenderingContext2D_wrapper.prototype = {
 	clear : function(){
 		if(!!this.canvas.style.backgroundColor){
 			this.setProperties();
-			this.context.setTransform(1,0,0,1,0,0); // •ÏŒ`‚ğƒŠƒZƒbƒg
+			this.context.setTransform(1,0,0,1,0,0); // å¤‰å½¢ã‚’ãƒªã‚»ãƒƒãƒˆ
 			this.context.fillStyle = parsecolorrev(this.canvas.style.backgroundColor);
 			var rect = getRectSize(this.canvas);
 			this.context.fillRect(0,0,rect.width,rect.height);
 		}
 	},
 
-	/* “à•”—pŠÖ” */
+	/* å†…éƒ¨ç”¨é–¢æ•° */
 	setProperties : function(){
 		this.context.fillStyle    = this.fillStyle;
 		this.context.strokeStyle  = this.strokeStyle;
@@ -1156,7 +1156,7 @@ CanvasRenderingContext2D_wrapper.prototype = {
 };
 
 /* ---------------------- */
-/*   CandleƒIƒuƒWƒFƒNƒg   */
+/*   Candleã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ   */
 /* ---------------------- */
 var Candle = function(idname, type){
 	Candle.initElementById.apply(Candle, [idname, type]);
@@ -1210,17 +1210,17 @@ _extend( Candle, {
 });
 
 /* --------------------------------------------------- */
-/* Candle.enable, Candle.currentƒIƒuƒWƒFƒNƒgƒf[ƒ^İ’è */
+/* Candle.enable, Candle.currentã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãƒ‡ãƒ¼ã‚¿è¨­å®š */
 /* --------------------------------------------------- */
 
-//	/* Candle.enable İ’è */
+//	/* Candle.enable è¨­å®š */
 	Candle.enable.canvas = (!!_doc.createElement('canvas').getContext);
 	Candle.enable.svg    = (!!_doc.createElementNS && !!_doc.createElementNS(SVGNS, 'svg').suspendRedraw);
 	Candle.enable.sl     = (function(){ try{ return (new ActiveXObject("AgControl.AgControl")).IsVersionSupported("1.0");}catch(e){} return false;})();
 	Candle.enable.flash  = false;
 	Candle.enable.vml    = _IE;
 
-//	/* Candle.currentİ’è */
+//	/* Candle.currentè¨­å®š */
 	for(var i=0;i<_types.length;i++){ Candle.current[_types[i]]=false;}
 	if     (Candle.enable.svg)   { Candle.current.svg    = true;}
 	else if(Candle.enable.canvas){ Candle.current.canvas = true;}
@@ -1228,7 +1228,7 @@ _extend( Candle, {
 	else if(Candle.enable.flash) { Candle.current.flash  = true;}
 	else if(Candle.enable.vml)   { Candle.current.vml    = true;}
 
-	/* ‰Šúİ’è for VML */
+	/* åˆæœŸè¨­å®š for VML */
 	if(Candle.enable.vml){
 		/* addNameSpace for VML */
 		_doc.namespaces.add("v", "urn:schemas-microsoft-com:vml");
@@ -1242,14 +1242,14 @@ _extend( Candle, {
 		_doc.write('</style>');
 	}
 
-	/* ‰Šúİ’è for Candleƒ^ƒO */
+	/* åˆæœŸè¨­å®š for Candleã‚¿ã‚° */
 	var text = [];
 	text.push("candle { display: block; }\n");
 	_doc.write('<style type="text/css" rel="stylesheet">');
 	_doc.write(text.join(''));
 	_doc.write('</style>');
 
-		// IE—pƒnƒbƒN
+		// IEç”¨ãƒãƒƒã‚¯
 	if(_IE){ _doc.createElement('candle');}
 
 	_win.Candle = Candle;

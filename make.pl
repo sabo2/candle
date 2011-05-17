@@ -11,16 +11,16 @@ sub main{
 }
 
 sub input_flags{
-	print "ƒŠƒŠ[ƒX—p‚Ìƒtƒ@ƒCƒ‹‚ğo—Í‚µ‚Ü‚·‚©H[y] ";
+	print "ãƒªãƒªãƒ¼ã‚¹ç”¨ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å‡ºåŠ›ã—ã¾ã™ã‹ï¼Ÿ[y] ";
 	$_ = <STDIN>; tr/\r\n//d;
 	if(/n/i){ $debug=1;}
 
-	print "ƒo[ƒWƒ‡ƒ“‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢[$version] ";
+	print "ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„[$version] ";
 	$_ = <STDIN>; tr/\r\n//d;
 	if($_){
 		$version = $_;
-		$version =~ s/\[a\]/ƒ¿/g;
-		$version =~ s/\[b\]/ƒÀ/g;
+		$version =~ s/\[a\]/Î±/g;
+		$version =~ s/\[b\]/Î²/g;
 	}
 }
 
@@ -45,7 +45,7 @@ sub output_file{
 	}
 	else{
 		open OUT, ">$filename.txt";
-		print OUT "// ƒeƒXƒg—p\n";
+		print OUT "// ãƒ†ã‚¹ãƒˆç”¨\n";
 		&printfiles_debug(\@files);
 		close OUT;
 
@@ -83,7 +83,7 @@ EOR
 	close DOC;
 }
 
-# ƒtƒ@ƒCƒ‹o—ÍŠÖ”
+# ãƒ•ã‚¡ã‚¤ãƒ«å‡ºåŠ›é–¢æ•°
 sub printfiles{
 	my @files = @{$_[0]};
 	foreach(@files){
@@ -91,9 +91,9 @@ sub printfiles{
 
 		print STDERR $filename;
 
-		# ÀÛ‚Ìo—Í•”
+		# å®Ÿéš›ã®å‡ºåŠ›éƒ¨
 		open SRC, $filename;
-		# •ÏŠ·‚ğ‚©‚¯‚½‚¢ê‡‚ÍAA‚±‚Ì’†‚É•ÏŠ·ˆ—‚ğ“ü‚ê‚é‚×‚µ
+		# å¤‰æ›ã‚’ã‹ã‘ãŸã„å ´åˆã¯ã€ã€ã“ã®ä¸­ã«å¤‰æ›å‡¦ç†ã‚’å…¥ã‚Œã‚‹ã¹ã—
 		while(<SRC>){
 			my $sline = $_;
 			$sline =~ tr/\r\n//d;
