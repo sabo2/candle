@@ -3,19 +3,19 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>VML test 1</title>
-<script type="text/javascript" src="./Camp.js" charset="Shift_JIS"></script>
+<script type="text/javascript" src="../source/candle.js" charset="Shift_JIS"></script>
 <script type="text/javascript">
 
 function onload_func(){
 
-	Camp.setflags('debugmode', true);
+	Candle.setflags('debugmode', true);
 
-	Camp('vml_base');
-	Camp('vml_base2', 'vml');
+	Candle('vml_base');
+	Candle('vml_base2', 'vml');
 
 	g = document.getElementById('vml_base').getContext("2d");
 	g.changeSize(200,200);
-	g.changeOrigin(-5,-5);
+	g.translate(-5,-5);
 	g.setRendering('crispEdges');
 
 	g.setLayer("baseline");
@@ -124,7 +124,7 @@ function onload_func(){
 </head>
 <body onload="javascript:onload_func();">
 <h1 id="h1title">test 1</h1>
-<camp id="vml_base"></camp>
-<camp id="vml_base2" style="margin-top:8pt;"></camp>
+<candle id="vml_base"></candle>
+<candle id="vml_base2" style="margin-top:8pt;"></candle>
 </body>
 </html>

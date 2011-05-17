@@ -3,8 +3,8 @@
 <HEAD>
 <META NAME="robots" CONTENTS="noindex,nofollow">
 <TITLE>ƒƒO‰{——Š</TITLE>
-<script type="text/javascript" src="./source/Camp.js"></script>
-<script type="text/javascript" src="./source/Fire.js"></script>
+<script type="text/javascript" src="../source/candle.js"></script>
+<script type="text/javascript" src="../source/fire.js"></script>
 <script type="text/javascript">
 <!--
 	var fc    = 'month';
@@ -22,15 +22,15 @@
 	}
 	function disp(){
 		var idname = combi[fc][1];
-		Camp.select('vml');
-		Camp.Fire(idname);
+		Candle.select('vml');
+		Candle.Fire(idname);
 	}
 
 //-->
 </script>
 <style type="text/css"> 
 <!--
-	campfire { border:solid 1px gray;}
+	candlefire { border:solid 1px gray;}
 	div.menu { color:blue; font-weight:100; text-decoration:underline; margin-right:4pt;}
 	div.menusel { color:black; font-weight:900; margin-right:4pt;}
 	td.cap { text-align: center; font-size:9pt; padding: 1pt}
@@ -83,7 +83,7 @@
 }
 </cdatalist>
 
-<campfire id="graph_month" include="graph_series">
+<candlefire id="graph_month" include="graph_series">
 {
 	graph : { type:"line", stacked:false, marker:"star,8,1"},
 
@@ -114,9 +114,9 @@
 		[0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1]
 	]
 }
-</campfire>
+</candlefire>
 
-<campfire id="graph_week" include="graph_series">
+<candlefire id="graph_week" include="graph_series">
 {
 	"graph-padding-top" : 0.06,
 
@@ -145,9 +145,9 @@
 		[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0]
 	]
 }
-</campfire>
+</candlefire>
 
-<campfire id="graph_date" include="graph_series">
+<candlefire id="graph_date" include="graph_series">
 {
 	"graph-marker" : "oval,4",
 
@@ -176,7 +176,7 @@
 		{ value:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0], marker:"oval-stroke"}
 	]
 }
-</campfire>
+</candlefire>
 
 </BODY>
 </HTML>

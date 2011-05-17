@@ -1,12 +1,12 @@
-// Fire.js rev95
+// fire.js rev95
 
 (function(){
 
-// Campがないと追加できません
-if(!window.Camp){ return;}
+// Candleがないと追加できません
+if(!window.Candle){ return;}
 
 // 多重定義防止
-if(!!window.Camp.Fire){ return;}
+if(!!window.Candle.Fire){ return;}
 
 var _win = this,
 	_doc = document,
@@ -14,7 +14,7 @@ var _win = this,
 	_mc = Math.cos,
 	_2PI = 2*Math.PI,
 
-	Camp = _win.Camp,
+	Candle = _win.Candle,
 	basefont = '12px "MS PGothic",Arial,sans-serif';
 
 /* ------------ */
@@ -79,14 +79,14 @@ function DataObject(name, element){
 /* ------------------------ */
 /*   CampFireオブジェクト   */
 /* ------------------------ */
-Camp.Fire = function(name, element){
-	Camp.Fire.dance(name, element);
+Candle.Fire = function(name, element){
+	Candle.Fire.dance(name, element);
 };
 
 /* ------------------ */
 /*   グラフ生成関数   */
 /* ------------------ */
-_extend( Camp.Fire, {
+_extend( Candle.Fire, {
 	/* グラフのデータ */
 	datas : {},
 
@@ -132,9 +132,9 @@ _extend( Camp.Fire, {
 
 		if(!json.element.getContext){
 			var self = this;
-			Camp(json.element.getAttribute('id'));
+			Candle(json.element.getAttribute('id'));
 			setTimeout(function(){
-				if(!Camp.isready()){ setTimeout(arguments.callee,10); return;}
+				if(!Candle.isready()){ setTimeout(arguments.callee,10); return;}
 				self.drawGraph(json);
 			},10);
 		}
@@ -538,7 +538,7 @@ function drawDotChart(json){
 		ctx.lineWidth =1;
 
 		// 系列の描画
-		if(ctx.fillStyle!=='none'&&ctx.fillStyle!=='white'&&Camp.parse(ctx.fillStyle)!=='#ffffff'){
+		if(ctx.fillStyle!=='none'&&ctx.fillStyle!=='white'&&Candle.parse(ctx.fillStyle)!=='#ffffff'){
 			for(var t=0;t<xcount;t++){ ctx.fillCircle(xpos[t], ypos, rsize[t]);}
 		}
 		else{
@@ -802,9 +802,9 @@ function drawLegend(json){
 
 	var textwidth = 0;
 	for(var i=0;i<info.length;i++){
-		Camp.ME.style.font = basefont;
-		Camp.ME.innerHTML = info[i].label;
-		if(textwidth < Camp.ME.offsetWidth){ textwidth = Camp.ME.offsetWidth;}
+		Candle.ME.style.font = basefont;
+		Candle.ME.innerHTML = info[i].label;
+		if(textwidth < Candle.ME.offsetWidth){ textwidth = Candle.ME.offsetWidth;}
 	}
 
 	/* 枠線 */
@@ -827,11 +827,11 @@ function drawLegend(json){
 	}
 }
 
-	/* ----------------------------- */
-	/* CampFire関連DOM/CSSデータ設定 */
-	/* ----------------------------- */
+	/* ------------------------------- */
+	/* CandleFire関連DOM/CSSデータ設定 */
+	/* ------------------------------- */
 	var text = [];
-	text.push("campfire { display: block; }\n");
+	text.push("candlefire { display: block; }\n");
 	text.push("cdatalist { display: none; }\n");
 	document.write('<style type="text/css" rel="stylesheet">');
 	document.write(text.join(''));
@@ -840,7 +840,7 @@ function drawLegend(json){
 	// IE用ハック
 	var _IE = !!(window.attachEvent && !window.opera);
 	if(_IE){
-		_doc.createElement('campfire');
+		_doc.createElement('candlefire');
 		_doc.createElement('cdatalist');
 	}
 

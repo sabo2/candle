@@ -1,9 +1,9 @@
-// Camp.js rev94
+// candle.js rev94
  
 (function(){
 
 // 多重定義防止
-if(!!window.Camp){ return;}
+if(!!window.Candle){ return;}
 
 /* ------------- */
 /*   variables   */
@@ -171,7 +171,7 @@ function initME(){
 	ME.innerHTML = '';
 	_doc.body.appendChild(ME);
 
-	Camp.ME = ME;
+	Candle.ME = ME;
 }
 
 /* ----------------------- */
@@ -1155,13 +1155,13 @@ CanvasRenderingContext2D_wrapper.prototype = {
 
 };
 
-/* -------------------- */
-/*   Campオブジェクト   */
-/* -------------------- */
-var Camp = function(idname, type){
-	Camp.initElementById.apply(Camp, [idname, type]);
+/* ---------------------- */
+/*   Candleオブジェクト   */
+/* ---------------------- */
+var Candle = function(idname, type){
+	Candle.initElementById.apply(Candle, [idname, type]);
 };
-_extend( Camp, {
+_extend( Candle, {
 	/* externs */
 	color : _color,
 	parse : parsecolor,
@@ -1209,27 +1209,27 @@ _extend( Camp, {
 	isready : function(){ return (_initializing===0);}
 });
 
-/* ----------------------------------------------- */
-/* Camp.enable, Camp.currentオブジェクトデータ設定 */
-/* ----------------------------------------------- */
+/* --------------------------------------------------- */
+/* Candle.enable, Candle.currentオブジェクトデータ設定 */
+/* --------------------------------------------------- */
 
-//	/* Camp.enable 設定 */
-	Camp.enable.canvas = (!!_doc.createElement('canvas').getContext);
-	Camp.enable.svg    = (!!_doc.createElementNS && !!_doc.createElementNS(SVGNS, 'svg').suspendRedraw);
-	Camp.enable.sl     = (function(){ try{ return (new ActiveXObject("AgControl.AgControl")).IsVersionSupported("1.0");}catch(e){} return false;})();
-	Camp.enable.flash  = false;
-	Camp.enable.vml    = _IE;
+//	/* Candle.enable 設定 */
+	Candle.enable.canvas = (!!_doc.createElement('canvas').getContext);
+	Candle.enable.svg    = (!!_doc.createElementNS && !!_doc.createElementNS(SVGNS, 'svg').suspendRedraw);
+	Candle.enable.sl     = (function(){ try{ return (new ActiveXObject("AgControl.AgControl")).IsVersionSupported("1.0");}catch(e){} return false;})();
+	Candle.enable.flash  = false;
+	Candle.enable.vml    = _IE;
 
-//	/* Camp.current設定 */
-	for(var i=0;i<_types.length;i++){ Camp.current[_types[i]]=false;}
-	if     (Camp.enable.svg)   { Camp.current.svg    = true;}
-	else if(Camp.enable.canvas){ Camp.current.canvas = true;}
-	else if(Camp.enable.sl)    { Camp.current.sl     = true;}
-	else if(Camp.enable.flash) { Camp.current.flash  = true;}
-	else if(Camp.enable.vml)   { Camp.current.vml    = true;}
+//	/* Candle.current設定 */
+	for(var i=0;i<_types.length;i++){ Candle.current[_types[i]]=false;}
+	if     (Candle.enable.svg)   { Candle.current.svg    = true;}
+	else if(Candle.enable.canvas){ Candle.current.canvas = true;}
+	else if(Candle.enable.sl)    { Candle.current.sl     = true;}
+	else if(Candle.enable.flash) { Candle.current.flash  = true;}
+	else if(Candle.enable.vml)   { Candle.current.vml    = true;}
 
 	/* 初期設定 for VML */
-	if(Camp.enable.vml){
+	if(Candle.enable.vml){
 		/* addNameSpace for VML */
 		_doc.namespaces.add("v", "urn:schemas-microsoft-com:vml");
 
@@ -1242,16 +1242,16 @@ _extend( Camp, {
 		_doc.write('</style>');
 	}
 
-	/* 初期設定 for Campタグ */
+	/* 初期設定 for Candleタグ */
 	var text = [];
-	text.push("camp { display: block; }\n");
+	text.push("candle { display: block; }\n");
 	_doc.write('<style type="text/css" rel="stylesheet">');
 	_doc.write(text.join(''));
 	_doc.write('</style>');
 
 		// IE用ハック
-	if(_IE){ _doc.createElement('camp');}
+	if(_IE){ _doc.createElement('candle');}
 
-	_win.Camp = Camp;
+	_win.Candle = Candle;
 
 })();
