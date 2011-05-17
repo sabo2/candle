@@ -1,4 +1,4 @@
-// Fire.js rev80
+// Fire.js rev95
 
 (function(){
 
@@ -15,7 +15,6 @@ var _win = this,
 	_2PI = 2*Math.PI,
 
 	Camp = _win.Camp,
-	textContent = {},
 	basefont = '12px "MS PGothic",Arial,sans-serif';
 
 /* ------------ */
@@ -55,116 +54,97 @@ function _extend_rc(obj, ads){
 		else{ obj[key] = ads[key];}
 	}
 }
+function innerText(element){
+	return (!!element.textContent ? element.textContent : element.innerText);
+}
+
+/* -------------------- */
+/*   DataObjectクラス   */
+/* -------------------- */
+function DataObject(name, element){
+	/* 内部管理用データ */
+	this.name    = name;
+	this.drawn   = false;
+	this.element = (!!element ? element : _doc.getElementById(name));
+
+	/* データ */
+	this.main   = {};
+	this.graph  = {};
+	this.legend = {};
+	this.xaxis  = {};
+	this.yaxis  = {};
+	this.data   = [];
+};
 
 /* ------------------------ */
 /*   CampFireオブジェクト   */
 /* ------------------------ */
-Camp.Fire = function(idname, forceDrawing){
-	Camp.Fire.dance(idname, forceDrawing);
+Camp.Fire = function(name, element){
+	Camp.Fire.dance(name, element);
 };
 
 /* ------------------ */
 /*   グラフ生成関数   */
 /* ------------------ */
 _extend( Camp.Fire, {
-
-	JSON : {},
+	/* グラフのデータ */
+	datas : {},
 
 	/* -------------------- */
 	/*   グラフを生成する   */
 	/* -------------------- */
-	danceAll : function(forceDrawing){
+	danceAll : function(){
 		var elements = _doc.getElementsByTagName('campfire');
-		for(var i=0;i<elements.length;i++){ this.dance(elements[i].id, forceDrawing);}
+		for(var i=0;i<elements.length;i++){ this.dance(elements[i].id, null);}
 	},
-	dance : function(idname, forceDrawing){
-		if(typeof idname === 'string'){
-			this.draw(idname, forceDrawing);
+	dance : function(name, element){
+		if(typeof name === 'string'){
+			this.draw(name, element);
 		}
-		else if((typeof idname === 'object') && (idname instanceof Array)){
-			for(var i=0;i<idname.length;i++){
-				this.draw(idname[i], forceDrawing);
+		else if((typeof name === 'object') && (name instanceof Array)){
+			for(var i=0;i<name.length;i++){
+				this.draw(name[i], null);
 			}
 		}
 	},
 	/* alias */
 	all             : function(){ this.danceAll(false);},
 	initAllElements : function(){ this.danceAll(true); },
-	init        : function(idname){ this.dance(idname, true);},
-	initElement : function(idname){ this.dance(idname, true);},
+	init        : function(name, element){ this.dance(name, element, true);},
+	initElement : function(name, element){ this.dance(name, element, true);},
+
+	/* グラフ描画済み */
+	lighting : function(name){
+		return (!!this.datas[name] && !!this.datas[name].drawn);
+	},
 
 	/* -------------------- */
 	/*   グラフを描画する   */
 	/* -------------------- */
-	draw : function(idname, forceDrawing){
-		var json = this.JSON[idname];
+	draw : function(name, element){
+		var json = this.datas[name];
 		if(!json || !json.data){
-			this.parseData(idname);
-			json = this.JSON[idname];
-		}
-		else if(!forceDrawing){ return;}
-
-		this.drawGraph(idname);
-	},
-
-	/* 入力されたデータを解析する */
-	parseData : function(idname){
-		var el = _doc.getElementById(idname);
-		if(!el){ return;}
-
-		/* テキストの中身を取得し、文字列を消去する */
-		var text = textContent[idname];
-		if(!text){
-			text = (!!el.textContent ? el.textContent : el.innerText);
-			textContent[idname] = text;
-		}
-		el.innerHTML = '';
-
-		/* JSONオブジェクトを取得 */
-		this.parseJSON(idname, el.getAttribute('include'));
-	},
-
-	/* テキストからJSONオブジェクトを取得する */
-	parseJSON : function(idname, include){
-		var text = textContent[idname];
-
-		/* JSONオブジェクトの初期化 */
-		var json = { main:{},graph:{},legend:{},xaxis:{},yaxis:{},data:[]};
-
-		/* JSONオブジェクトの生成 */
-		var jsonp = {};
-		try     { jsonp = JSON.parse(text);}
-		catch(e){ jsonp = eval("("+text+")");}
-
-		/* includeファイルからデータをコピーする */
-		if(!!include){
-			var incs = include.split(/\s\,\s/);
-			for(var i=0;i<incs.length;i++){
-				var eli = _doc.getElementById(incs[i]);
-				if(!eli){ continue;}
-
-				var texti = (!!eli.textContent ? eli.textContent : eli.innerText);
-				var jsoni = {};
-				try     { jsoni = JSON.parse(texti);}
-				catch(e){ jsoni = eval("("+texti+")");}
-				_extend_rc(json, jsoni);
-			}
+			this.parseData(name, element);
+			json = this.datas[name];
 		}
 
-		_extend_rc(json, jsonp);
+		if(!json || !json.data || json.drawn){ return;}
 
-		/* json.idnameをセット */
-		if(!json.idname){ json.idname = idname;}
-
-		/* this.JSONオブジェクトに内容を登録 */
-		this.JSON[idname] = json;
+		if(!json.element.getContext){
+			var self = this;
+			Camp(json.element.getAttribute('id'));
+			setTimeout(function(){
+				if(!Camp.isready()){ setTimeout(arguments.callee,10); return;}
+				self.drawGraph(json);
+			},10);
+		}
+		else{
+			this.drawGraph(json);
+		}
 	},
 
 	/* グラフを描画する */
-	drawGraph : function(idname){
-		var json = this.JSON[idname];
-
-		if(!json || !json.data){ return;}
+	drawGraph : function(json){
 		json.graph.type = json.graph.type.toLowerCase();
 		switch(json.graph.type){
 			case 'line':  drawLineGraph(json);  break;
@@ -175,6 +155,49 @@ _extend( Camp.Fire, {
 			default: return;
 		}
 		drawLegend(json);
+
+		json.drawn = true;
+	},
+
+	/* -------------------- */
+	/*   データを解析する   */
+	/* -------------------- */
+	addtext : function(name, text){
+		var json_ex = {};
+		try     { json_ex = JSON.parse(text);}
+		catch(e){ json_ex = eval("("+text+")");}
+		this.wood(name, json_ex);
+	},
+	wood : function(name, json){
+		_extend_rc(this.datas[name], json);
+		this.datas[name].drawn = false;
+	},
+
+	parseData : function(name, element){
+		/* JSONオブジェクトの初期化 */
+		this.datas[name] = new DataObject(name, element);
+
+		var el = this.datas[name].element;
+		if(!el){ return;}
+
+		/* テキストの中身を取得し、文字列を消去する */
+		var text = innerText(el);
+		el.innerHTML = '';
+
+		/* テキストからJSONオブジェクトを取得する */
+		var include = el.getAttribute('include');
+
+		/* includeファイルからデータをコピーする */
+		if(!!include){
+			var incs = include.split(/[\s\,]+/);
+			for(var i=0;i<incs.length;i++){
+				var eli = _doc.getElementById(incs[i]);
+				if(!!eli){ this.addtext(name, innerText(eli));}
+			}
+		}
+
+		/* JSONオブジェクトの生成 */
+		this.addtext(name, text);
 	}
 });
 
@@ -201,10 +224,11 @@ function normalizeData(json, info){
 	}
 
 	/* グラフの上限になる値の設定 */
-	if(!!json.yaxis && !!json.yaxis.range){
-		topval = json.yaxis.range[1];
-	}
-	else if(stack && (json.yaxis.scale === 'ratio')){
+//	if(!!json.yaxis && !!json.yaxis.range){
+//		topval = json.yaxis.range[1];
+//	}
+//	else
+	if(stack && (json.yaxis.scale === 'ratio')){
 		topval=1; space=0;
 	}
 	else if(stack){
@@ -311,13 +335,12 @@ function parseInfo(json){
 /* ------------------ */
 /*   描画領域の設定   */
 /* ------------------ */
-function settingCanvas(json,info){
+function settingCanvas(json){
 	/* canvas描画部 */
-	Camp(json.idname);
-	var ctx = document.getElementById(json.idname).getContext("2d");
+	var ctx = json.element.getContext("2d");
 	ctx.changeSize(json.main.size[0], json.main.size[1]);
 	ctx.clear();
-	ctx.changeOrigin(0, 0);
+	ctx.translate(0, 0);
 	ctx.lineWidth = '1';
 	
 	/* レイヤーの順番を設定 */
@@ -348,7 +371,7 @@ function drawLineGraph(json){
 	var WIDTH  = json.graph.size[0],
 		LEFT   = json.graph.origin[0],
 		info   = parseInfo(json),
-		ctx    = settingCanvas(json,info);
+		ctx    = settingCanvas(json);
 
 	normalizeData(json,info);
 
@@ -399,7 +422,7 @@ function drawBarGraph(json){
 	var WIDTH  = json.graph.size[0],
 		LEFT   = json.graph.origin[0],
 		info   = parseInfo(json),
-		ctx    = settingCanvas(json,info);
+		ctx    = settingCanvas(json);
 
 	normalizeData(json,info);
 
@@ -439,7 +462,7 @@ function drawAreaGraph(json){
 	var WIDTH  = json.graph.size[0],
 		LEFT   = json.graph.origin[0],
 		info   = parseInfo(json),
-		ctx    = settingCanvas(json,info);
+		ctx    = settingCanvas(json);
 
 	normalizeData(json,info);
 
@@ -481,7 +504,7 @@ function drawDotChart(json){
 		LEFT   = json.graph.origin[0],
 		TOP    = json.graph.origin[1],
 		info   = parseInfo(json),
-		ctx    = settingCanvas(json,info);
+		ctx    = settingCanvas(json);
 
 	var xcount = json.xaxis.count;
 	var xpos = [], mwidth = WIDTH/xcount, moffset = mwidth/2;
@@ -768,7 +791,7 @@ function estimateAuxLine(json){
 function drawLegend(json){
 	var LEFT   = json.graph.origin[0] + json.graph.size[0] + 10,
 		TOP    = json.graph.origin[1],
-		ctx = document.getElementById(json.idname).getContext("2d"),
+		ctx = json.element.getContext("2d"),
 		info = parseInfo(json);
 
 	if(!!json.graph.stacked){ info = info.reverse();}
