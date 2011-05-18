@@ -1,65 +1,77 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>VML test 1</title>
-<script type="text/javascript" src="../source/candle.js" charset="Shift_JIS"></script>
+<script type="text/javascript" src="./candle.debug.js"></script>
 <script type="text/javascript">
 
+Candle.debugmode = true;
+
 function onload_func(){
+	Candle.start('vml_base', '', function(g){
+		g.changeSize(200,200);
+		g.translate(-5,-5);
+		g.setRendering('crispEdges');
 
-	Candle.setflags('debugmode', true);
+		g.setLayer("baseline");
 
-	Candle('vml_base');
-	Candle('vml_base2', 'vml');
+		g.strokeStyle = "gray";
+		g.lineWidth = 4;
+		g.strokeLine(-40,0,40,0);
+		g.strokeLine(0,-40,0,40);
 
-	g = document.getElementById('vml_base').getContext("2d");
-	g.changeSize(200,200);
-	g.translate(-5,-5);
-	g.setRendering('crispEdges');
+		g.setLayer("back");
 
-	g.setLayer("baseline");
+		g.setLayer("top");
+		g.strokeStyle = "blue";
+		g.strokeRect(10,10,180,180);
 
-	g.strokeStyle = "gray";
-	g.lineWidth = 4;
-	g.strokeLine(-40,0,40,0);
-	g.strokeLine(0,-40,0,40);
+		g.strokeStyle = 'red';
+		g.strokeRect(30,20,30,200);
+		g.strokeRect(20,30,200,30);
 
-	g.setLayer("back");
+		g.setLayer("rect");
+		g.fillText("テキスト表示テキスト表示テキスト表示",20,120);
 
-	g.setLayer("top");
-	g.strokeStyle = "blue";
-	g.strokeRect(10,10,180,180);
+//		g.strokeStyle = 'green';
+//		g.beginPath();
+//		g.arc(150,150,25,0,Math.PI/2,false);
+//		g.stroke();
 
-	g.strokeStyle = 'red';
-	g.strokeRect(30,20,30,200);
-	g.strokeRect(20,30,200,30);
+//		alert(g.getLayerElement().innerHTML);
+//		alert(document.getElementById("vml_base").innerHTML);
 
-	g.setLayer("rect");
-	g.fillText("テキスト表示テキスト表示テキスト表示",20,120);
+		var title = document.getElementById('h1title');
+		if     (g.use.vml){ title.innerHTML = 'VML test 1';}
+		else if(g.use.svg){ title.innerHTML = 'SVG test 1';}
+		else if(g.use.canvas){ title.innerHTML = 'Canvas test 1';}
+		else if(g.use.sl) { title.innerHTML = 'Silverlight test 1';}
 
-//	g.strokeStyle = 'green';
-//	g.beginPath();
-//	g.arc(150,150,25,0,Math.PI/2,false);
-//	g.stroke();
+		if(g.use.canvas){
+			var img = document.createElement('img');
+			img.src = document.getElementById('vml_base').toDataURL();
+			img.width = "100";
+			//img.style.backgroundColor = "yellow";
+			document.body.appendChild(img);
+		}
+	});
+	Candle.start('vml_base2', 'vml', function(g){
+		g = document.getElementById('vml_base2').getContext("2d");
+		g.changeSize(200,100);
 
-//	alert(g.getLayerElement().innerHTML);
-//	alert(document.getElementById("vml_base").innerHTML);
+		g.strokeStyle = 'red';
+		g.lineWidth = 2;
+		g.fillStyle = "white";
+		g.setLinePath(25,75,75,25,175,25,false);
+		g.shape();
 
-	g = document.getElementById('vml_base2').getContext("2d");
-	g.changeSize(200,100);
+		g.fillStyle = "rgb(255,204,204)";
+		g.shapeCircle(65,65,15);
 
-	g.strokeStyle = 'red';
-	g.lineWidth = 2;
-	g.fillStyle = "white";
-	g.setLinePath(25,75,75,25,175,25,false);
-	g.shape();
-
-	g.fillStyle = "rgb(255,204,204)";
-	g.shapeCircle(65,65,15);
-
-	g.lineWidth = 2;
-	g.strokeCross(165,65,15);
+		g.lineWidth = 2;
+		g.strokeCross(165,65,15);
+	});
 
 //	alert(document.body.innerHTML);
 /*
@@ -106,25 +118,12 @@ function onload_func(){
 	g.lineTo(400,200);
 	g.stroke();
 */
-	var title = document.getElementById('h1title');
-	if     (g.use.vml){ title.innerHTML = 'VML test 1';}
-	else if(g.use.svg){ title.innerHTML = 'SVG test 1';}
-	else if(g.use.canvas){ title.innerHTML = 'Canvas test 1';}
-	else if(g.use.sl) { title.innerHTML = 'Silverlight test 1';}
-
-	if(document.getElementById('vml_base').getContext("2d").use.canvas){
-		var img = document.createElement('img');
-		img.src = document.getElementById('vml_base').toDataURL();
-		img.width = "100";
-	//	img.style.backgroundColor = "yellow";
-		document.body.appendChild(img);
-	}
 }
 </script>
 </head>
 <body onload="javascript:onload_func();">
 <h1 id="h1title">test 1</h1>
-<candle id="vml_base"></candle>
-<candle id="vml_base2" style="margin-top:8pt;"></candle>
+<div id="vml_base"></div>
+<div id="vml_base2" style="margin-top:8pt;"></div>
 </body>
 </html>

@@ -1,9 +1,14 @@
 <!DOCTYPE html>
+<html>
 <head>
-<script type="text/javascript" src="../source/candle.js"></script>
+<script type="text/javascript" src="./candle.debug.js"></script>
 <script type="text/javascript">
+
+Candle.select('vml');
+
 function onload_func(){
-	Candle('can','svg');
+	if(!Candle.isready('can')){ setTimeout(arguments.callee,50); return;}
+
 	var ctx = document.getElementById('can').getContext("2d");
 	ctx.lineWidth = '1';
 	ctx.strokeStyle = "silver";
@@ -11,9 +16,9 @@ function onload_func(){
 	ctx.strokeLine(100,0,100,200);
 
 	ctx.fillStyle = "blue";
-	ctx.font = "32px \"ＭＳ Ｐゴシック\",Sans-Serif";
+	ctx.font = "32px \"MS PGothic\", Sans-Serif";
 	ctx.textAlign = "center";
-	ctx.textBaseline = "hanging";
+	ctx.textBaseline = "top";
 	ctx.fillText("testfortest_2",100,100);
 
 //	var el = document.getElementById('metrix');
