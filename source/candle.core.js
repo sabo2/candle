@@ -111,8 +111,11 @@ var Candle = {
 		for(var i=0;i<elements.length;i++){ this.start(elements[i].id);}
 	},
 	start : function(idname, type, initCallBack){
-		if(!!_doc.getElementById(this.EL_ID_HEADER + idname)){ return;}
+		var el = _doc.getElementById(this.EL_ID_HEADER + idname);
+		if(!!el){ return;}
 		if(!this.ME){ this.initME();}
+
+		if(this.readyflag[idname]===true){ initCallBack(el.getContext('2d')); return;}
 
 		var choice = type;
 		if(!this.enable[choice]){ choice=this.current;}
@@ -123,13 +126,16 @@ var Candle = {
 		var context = new this.wrapper[choice](idname), self = this;
 
 		if(!!context && !!initCallBack){
-			setTimeout(function(){
-				if(!self.isready(idname)){
-					setTimeout(arguments.callee,20);
-					return;
-				}
-				initCallBack(context);
-			},20);
+			if(self.isready(idname)){ initCallBack(context);}
+			else{
+				setTimeout(function(){
+					if(!self.isready(idname)){
+						setTimeout(arguments.callee,20);
+						return;
+					}
+					initCallBack(context);
+				},20);
+			}
 		}
 	},
 
