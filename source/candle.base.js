@@ -1,4 +1,4 @@
-// candle.svg.js
+// candle.base.js
  
 (function(){
 
@@ -11,6 +11,32 @@ if(!window.Candle){ return;}
 var Candle = window.Candle,
 	_doc = document,
 	_2PI = 2*Math.PI;
+
+/* ------------------- */
+/*  WrapperBaseクラス  */
+/* ------------------- */
+Candle.addWrapper('wrapperbase',{
+	initialize : function(idname){
+		// canvasに存在するプロパティ＆デフォルト値
+		this.fillStyle    = 'black';
+		this.strokeStyle  = 'black';
+		this.lineWidth    = 1;
+		this.font         = '14px system';
+		this.textAlign    = 'center';
+		this.textBaseline = 'middle';
+		this.canvas = null;		// 親エレメントとなるdivエレメント
+
+		// variables for internal
+		this.idname   = idname;
+		this.canvasid = Candle.EL_ID_HEADER+idname;
+		this.child    = null;	// 親エレメントの直下にあるエレメント
+
+		// Layer additional
+		this.currentLayerId = '_empty';
+		this.isedgearray    = {_empty:false};
+		this.isedge         = false;
+	}
+});
 
 /* ----------------------- */
 /*   VectorContextクラス   */

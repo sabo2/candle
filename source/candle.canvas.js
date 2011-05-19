@@ -5,6 +5,9 @@
 // Candleオブジェクトがない場合は何もしない
 if(!window.Candle){ return;}
 
+// canvas描画可能条件
+if(!document.createElement('canvas').getContext){ return;}
+
 /* ------------- */
 /*  const value  */
 /* ------------- */

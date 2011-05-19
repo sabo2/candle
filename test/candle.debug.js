@@ -1,10 +1,10 @@
 (function(){
-	var _doc = document;
-	_doc.write('<script type="text/javascript" src="../../candle/source/candle.core.js"></script>');
-	_doc.write('<script type="text/javascript" src="../../candle/source/candle.vector.js"></script>');
-	_doc.write('<script type="text/javascript" src="../../candle/source/candle.svg.js"></script>');
-	_doc.write('<script type="text/javascript" src="../../candle/source/candle.canvas.js"></script>');
-	_doc.write('<script type="text/javascript" src="../../candle/source/candle.sl.js"></script>');
-	_doc.write('<script type="text/javascript" src="../../candle/source/candle.vml.js"></script>');
-	_doc.write('<script type="text/javascript" src="../../candle/source/candle.core2.js"></script>');
+	var _doc = document, dir = '../../candle/source/';
+	_doc.write('<script type="text/javascript" src="'+dir+'candle.core.js"></script>');
+	_doc.write('<script type="text/javascript" src="'+dir+'candle.base.js"></script>');
+
+	_doc.write('<script type="text/javascript" src="'+dir+'candle.svg.js"></script>');
+	_doc.write('<script type="text/javascript" src="'+dir+'candle.canvas.js"></script>');
+	_doc.write('<script type="text/javascript" src="'+dir+'candle.sl.js"></script>');
+	_doc.write('<script type="text/javascript" src="'+dir+'candle.vml.js"></script>');
 })();

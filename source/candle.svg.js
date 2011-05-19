@@ -5,6 +5,11 @@
 // Candleオブジェクトがない場合は何もしない
 if(!window.Candle){ return;}
 
+// SVG描画可能条件
+var SVGNS   = "http://www.w3.org/2000/svg",
+	XLINKNS = "http://www.w3.org/1999/xlink";
+if(!document.createElementNS || !document.createElementNS(SVGNS, 'svg').suspendRedraw){ return;}
+
 /* ------------- */
 /*   variables   */
 /* ------------- */
@@ -15,9 +20,7 @@ var Candle = window.Candle,
 /* ------------------------------------------- */
 /*   VectorContext(SVG)クラス用const文字列集   */
 /* ------------------------------------------- */
-var SVGNS   = "http://www.w3.org/2000/svg",
-	XLINKNS = "http://www.w3.org/1999/xlink",
-	S_PATH_MOVE   = ' M',
+var S_PATH_MOVE   = ' M',
 	S_PATH_LINE   = ' L',
 	S_PATH_ARCTO  = ' A',
 	S_PATH_CLOSE  = ' z',

@@ -1,9 +1,13 @@
-// candle.svg.js
+// candle.sl.js
  
 (function(){
 
 // Candleオブジェクトがない場合は何もしない
 if(!window.Candle){ return;}
+
+// Silverlight描画条件
+try{ if(!(new ActiveXObject("AgControl.AgControl")).IsVersionSupported("1.0")){ return;} }
+catch(e){ return;}
 
 /* ------------- */
 /*   variables   */

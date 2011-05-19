@@ -9,7 +9,8 @@ if(!!window.Candle){ return;}
 /*   variables   */
 /* ------------- */
 var _doc = document,
-	_color = [];
+	_color = [],
+	_css = [];
 
 /* ---------- */
 /*   arrays   */
@@ -48,17 +49,24 @@ var Candle = {
 	},
 
 	/* TypeList class */
-	_types : [],
-	addTypes : function(type){ this._types.push(type);},
+	_order : [],
+	enable : {},
+	addTypes : function(type){
+		this._order.push(type);
+		this.enable[type] = true;
+		if(!this.current){ this.current=type;}
+	},
 
 	TypeList : function(type){
-		for(var i=0;i<Candle._types.length;i++){
-			this[Candle._types[i]]=(Candle._types[i]===type);
+		for(var i=0;i<Candle._order.length;i++){
+			this[Candle._order[i]]=(Candle._order[i]===type);
 		}
 	},
+
 	/* Selected & Enable types */
+	current : '',
 	select : function(type){
-		if(this.enable[type]!==true){ return false;}
+		if(!this.enable[type]){ return false;}
 		this.current = type;
 		return true;
 	},
@@ -146,34 +154,39 @@ var Candle = {
 	isready : function(idname){ return !!this.readyflag[idname];},
 	allready : function(){ return (this._initializing===0);},
 
-	debugmode : false
+	debugmode : false,
+
+	/* initialize functions */
+	onload : function(){
+		// style要素挿入
+		var style = _doc.createElement('style');
+		style.setAttribute('type', "text/css");
+		_doc.getElementsByTagName('head')[0].appendChild(style);
+
+		var s = _doc.styleSheets[_doc.styleSheets.length - 1];
+		for(var i=0;i<_css.length;i++){
+			if(!!s.insertRule){ s.insertRule(_css[i][0]+'{'+_css[i][1]+'}', i);}
+			else if(!!s.addRule){ s.addRule(_css[i][0],_css[i][1],-1);}
+		}
+		this.sheet = s;
+
+		this.initAllElements();
+	},
+
+	sheet : null,
+	addCSS : function(sel,rule){ _css.push([sel,rule]);}
 };
 
-/* ------------- */
-/*  WrapperBase  */
-/* ------------- */
-Candle.addWrapper('wrapperbase',{
-	initialize : function(idname){
-		// canvasに存在するプロパティ＆デフォルト値
-		this.fillStyle    = 'black';
-		this.strokeStyle  = 'black';
-		this.lineWidth    = 1;
-		this.font         = '14px system';
-		this.textAlign    = 'center';
-		this.textBaseline = 'middle';
-		this.canvas = null;		// 親エレメントとなるdivエレメント
+// CSS設定
+Candle.addCSS("candle", "display:block;");
 
-		// variables for internal
-		this.idname   = idname;
-		this.canvasid = Candle.EL_ID_HEADER+idname;
-		this.child    = null;	// 親エレメントの直下にあるエレメント
+// 初期化関数設定 
+var func = function(){ Candle.onload();};
+if(!!window.addEventListener){ window.addEventListener("load",func,false);}
+else if(!!window.attachEvent){ window.attachEvent("onload",func);}
 
-		// Layer additional
-		this.currentLayerId = '_empty';
-		this.isedgearray    = {_empty:false};
-		this.isedge         = false;
-	}
-});
+// IE用ハック
+_doc.createElement('candle');
 
 // extern
 window.Candle = Candle;

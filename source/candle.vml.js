@@ -1,9 +1,12 @@
-// candle.svg.js
+// candle.vml.js
  
 (function(){
 
 // Candleオブジェクトがない場合は何もしない
 if(!window.Candle){ return;}
+
+// VML描画可能条件
+if(!window.attachEvent || !!window.opera){ return;}
 
 /* ------------- */
 /*   variables   */
@@ -63,6 +66,16 @@ var V_TAG_SHAPE    = '<v:shape',
 
 	Z  = 10,
 	Z2 = Z/2;
+
+/* ----------------------- */
+/*   CSS, NameSpace設定    */
+/* ----------------------- */
+/* addNameSpace for VML */
+_doc.namespaces.add("v", "urn:schemas-microsoft-com:vml");
+
+/* addStyleSheet for VML */
+Candle.addCSS("v\\:shape, v\\:group, v\\:polyline, v\\:image", "behavior: url(#default#VML); position:absolute; width:10px; height:10px;");
+Candle.addCSS("v\\:path, v\\:textpath, v\\:stroke", "behavior: url(#default#VML);");
 
 /* ----------------------- */
 /*   VectorContextクラス   */
