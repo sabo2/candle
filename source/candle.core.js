@@ -74,14 +74,14 @@ var Candle = {
 	/* externs */
 	ME     : null,
 	initME : function(){
-		ME = _doc.createElement('div');
-		ME.style.display  = 'inline';
-		ME.style.position = 'absolute';
-		ME.style.left     = '-9000px';
-		ME.innerHTML = '';
-		_doc.body.appendChild(ME);
+		var me = _doc.createElement('div');
+		me.style.display  = 'inline';
+		me.style.position = 'absolute';
+		me.style.left     = '-9000px';
+		me.innerHTML = '';
+		_doc.body.appendChild(me);
 
-		this.ME = ME;
+		this.ME = me;
 	},
 
 	/* color parser */
