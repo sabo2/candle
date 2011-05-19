@@ -9,115 +9,118 @@
 Candle.debugmode = true;
 
 function onload_func(){
-	Candle.start('vml_base', '', function(g){
-		g.changeSize(200,200);
-		g.translate(-5,-5);
-		g.setRendering('crispEdges');
+	Candle.start('vml_base', '', vml_draw);
+	Candle.start('vml_base2', 'vml', vml_draw2);
+	Candle.start('vml_base3', 'canvas', vml_draw3)
+}
 
-		g.setLayer("baseline");
+function vml_draw(g){
+	g.changeSize(200,200);
+	g.translate(-5,-5);
+	g.setRendering('crispEdges');
 
-		g.strokeStyle = "gray";
-		g.lineWidth = 4;
-		g.strokeLine(-40,0,40,0);
-		g.strokeLine(0,-40,0,40);
+	g.setLayer("baseline");
 
-		g.setLayer("back");
+	g.strokeStyle = "gray";
+	g.lineWidth = 4;
+	g.strokeLine(-40,0,40,0);
+	g.strokeLine(0,-40,0,40);
 
-		g.setLayer("top");
-		g.strokeStyle = "blue";
-		g.strokeRect(10,10,180,180);
+	g.setLayer("back");
 
-		g.strokeStyle = 'red';
-		g.strokeRect(30,20,30,200);
-		g.strokeRect(20,30,200,30);
+	g.setLayer("top");
+	g.strokeStyle = "blue";
+	g.strokeRect(10,10,180,180);
 
-		g.setLayer("rect");
-		g.fillText("テキスト表示テキスト表示テキスト表示",20,120);
+	g.strokeStyle = 'red';
+	g.strokeRect(30,20,30,200);
+	g.strokeRect(20,30,200,30);
 
-//		g.strokeStyle = 'green';
-//		g.beginPath();
-//		g.arc(150,150,25,0,Math.PI/2,false);
-//		g.stroke();
+	g.setLayer("rect");
+	g.fillText("テキスト表示テキスト表示テキスト表示",20,120);
 
-//		alert(g.getLayerElement().innerHTML);
-//		alert(document.getElementById("vml_base").innerHTML);
+//	g.strokeStyle = 'green';
+//	g.beginPath();
+//	g.arc(150,150,25,0,Math.PI/2,false);
+//	g.stroke();
 
-		var title = document.getElementById('h1title');
-		if     (g.use.vml){ title.innerHTML = 'VML test 1';}
-		else if(g.use.svg){ title.innerHTML = 'SVG test 1';}
-		else if(g.use.canvas){ title.innerHTML = 'Canvas test 1';}
-		else if(g.use.sl) { title.innerHTML = 'Silverlight test 1';}
+//	alert(g.getLayerElement().innerHTML);
+//	alert(document.getElementById("vml_base").innerHTML);
 
-		if(g.use.canvas){
-			var img = document.createElement('img');
-			img.src = document.getElementById('vml_base').toDataURL();
-			img.width = "100";
-			//img.style.backgroundColor = "yellow";
-			document.body.appendChild(img);
-		}
-	});
-	Candle.start('vml_base2', 'vml', function(g){
-		g = document.getElementById('vml_base2').getContext("2d");
-		g.changeSize(200,100);
+	var title = document.getElementById('h1title');
+	if     (g.use.vml){ title.innerHTML = 'VML test 1';}
+	else if(g.use.svg){ title.innerHTML = 'SVG test 1';}
+	else if(g.use.canvas){ title.innerHTML = 'Canvas test 1';}
+	else if(g.use.sl) { title.innerHTML = 'Silverlight test 1';}
 
-		g.strokeStyle = 'red';
-		g.lineWidth = 2;
-		g.fillStyle = "white";
-		g.setLinePath(25,75,75,25,175,25,false);
-		g.shape();
+	if(g.use.canvas){
+		var img = document.createElement('img');
+		img.src = document.getElementById('vml_base').toDataURL();
+		img.width = "100";
+		//img.style.backgroundColor = "yellow";
+		document.body.appendChild(img);
+	}
+}
 
-		g.fillStyle = "rgb(255,204,204)";
-		g.shapeCircle(65,65,15);
+function vml_draw2(g){
+	g.changeSize(200,100);
 
-		g.lineWidth = 2;
-		g.strokeCross(165,65,15);
-	});
+	g.strokeStyle = 'red';
+	g.lineWidth = 2;
+	g.fillStyle = "white";
+	g.setLinePath(25,75,75,25,175,25,false);
+	g.shape();
 
-//	alert(document.body.innerHTML);
-/*
-	g = document.getElementById('vml_base3').getContext("2d");
+	g.fillStyle = "rgb(255,204,204)";
+	g.shapeCircle(65,65,15);
+
+	g.lineWidth = 2;
+	g.strokeCross(165,65,15);
+}
+
+function vml_draw3(g){
 	g.changeSize(400,200);
+	g.fillStyle = 'yellowgreen';
 
 	g.beginPath();
 	g.arc(50,50,25,0,Math.PI/2,false);
 	g.lineTo(100,100);
-	g.stroke();
+	g.shape();
 
 	g.beginPath();
 	g.arc(150,50,25,Math.PI/2,0,false);
 	g.lineTo(200,100);
-	g.stroke();
+	g.shape();
 
 	g.beginPath();
 	g.arc(250,50,25,0,Math.PI/2,true);
 	g.lineTo(300,100);
-	g.stroke();
+	g.shape();
 
 	g.beginPath();
 	g.arc(350,50,25,Math.PI/2,0,true);
 	g.lineTo(400,100);
-	g.stroke();
+	g.shape();
 
 	g.beginPath();
 	g.arc(50,150,25,0,Math.PI/0.8,false);
 	g.lineTo(100,200);
-	g.stroke();
+	g.shape();
 
 	g.beginPath();
 	g.arc(150,150,25,Math.PI/0.8,0,false);
 	g.lineTo(200,200);
-	g.stroke();
+	g.shape();
 
 	g.beginPath();
 	g.arc(250,150,25,0,Math.PI/0.8,true);
 	g.lineTo(300,200);
-	g.stroke();
+	g.shape();
 
 	g.beginPath();
 	g.arc(350,150,25,Math.PI/0.8,0,true);
 	g.lineTo(400,200);
-	g.stroke();
-*/
+	g.shape();
 }
 </script>
 </head>
@@ -125,5 +128,6 @@ function onload_func(){
 <h1 id="h1title">test 1</h1>
 <div id="vml_base"></div>
 <div id="vml_base2" style="margin-top:8pt;"></div>
+<div id="vml_base3" style="margin-top:8pt;"></div>
 </body>
 </html>
