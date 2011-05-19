@@ -112,10 +112,13 @@ var Candle = {
 	},
 	start : function(idname, type, initCallBack){
 		var el = _doc.getElementById(this.EL_ID_HEADER + idname);
-		if(!!el){ return;}
+		if(!!el){
+			if(this.readyflag[idname]===true){
+				initCallBack(el.parentNode.getContext('2d'));
+			}
+			return;
+		}
 		if(!this.ME){ this.initME();}
-
-		if(this.readyflag[idname]===true){ initCallBack(el.getContext('2d')); return;}
 
 		var choice = type;
 		if(!this.enable[choice]){ choice=this.current;}
