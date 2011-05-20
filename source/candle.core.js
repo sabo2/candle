@@ -162,27 +162,33 @@ var Candle = {
 
 	/* initialize functions */
 	onload : function(){
-		// style要素挿入
-		var style = _doc.createElement('style');
-		style.setAttribute('type', "text/css");
-		_doc.getElementsByTagName('head')[0].appendChild(style);
-
-		var s = _doc.styleSheets[_doc.styleSheets.length - 1];
-		for(var i=0;i<_css.length;i++){
-			if(!!s.insertRule){ s.insertRule(_css[i][0]+'{'+_css[i][1]+'}', i);}
-			else if(!!s.addRule){ s.addRule(_css[i][0],_css[i][1],-1);}
-		}
-		this.sheet = s;
-
+		this.createCSS();
 		this.initAllElements();
 	},
 
 	sheet : null,
-	addCSS : function(sel,rule){ _css.push([sel,rule]);}
+	createCSS : function(){
+		if(!!this.sheet){ return;}
+		var _head = _doc.getElementsByTagName('head')[0];
+		if(!!_head){
+			var style = _doc.createElement('style');
+			style.setAttribute('type', "text/css");
+			_head.appendChild(style);
+		}
+		else{ _doc.write("<style></style>");}
+		this.sheet = _doc.styleSheets[_doc.styleSheets.length - 1];
+		for(var i=0;i<_css.length;i++){ this.addCSS(_css[i][0],_css[i][1]);}
+		_css=[];
+	},
+	addCSS : function(sel,rule){
+		if(!!this.sheet){
+			var s = this.sheet;
+			if(!!s.insertRule){ s.insertRule(sel+'{'+rule+'}',s.cssRules.length);}
+			else if(!!s.addRule){ s.addRule(sel,rule,-1);}
+		}
+		else{ _css.push(sel,rule);}
+	}
 };
-
-// CSS設定
-Candle.addCSS("candle", "display:block;");
 
 // 初期化関数設定 
 var func = function(){ Candle.onload();};
@@ -191,6 +197,10 @@ else if(!!window.attachEvent){ window.attachEvent("onload",func);}
 
 // IE用ハック
 _doc.createElement('candle');
+
+// CSS設定 
+Candle.createCSS();
+Candle.addCSS('candle','display:block;');
 
 // extern
 window.Candle = Candle;
