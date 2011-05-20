@@ -25,8 +25,6 @@ var _hex = (function(){
 /*   Candleオブジェクト   */
 /* ---------------------- */
 var Candle = {
-	EL_ID_HEADER : "canvas_o_",
-
 	/* wrapper classes */
 	wrapper : {},
 	addWrapper : function(classname, proto){
@@ -113,6 +111,12 @@ var Candle = {
 	},
 
 	/* functions */
+	_counter : -1,
+	getcanvasid : function(){
+		this._counter++;
+		return "_candle_canvas_"+this._counter;
+	},
+
 	_initializing : 0,
 	initAllElements : function(){
 		var elements = _doc.getElementsByTagName('candle');

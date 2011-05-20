@@ -28,7 +28,7 @@ Candle.addWrapper('wrapperbase',{
 
 		// variables for internal
 		this.idname   = idname;
-		this.canvasid = Candle.EL_ID_HEADER+idname;
+		this.canvasid = Candle.getcanvasid();
 		this.child    = null;	// 親エレメントの直下にあるエレメント
 
 		// Layer additional
