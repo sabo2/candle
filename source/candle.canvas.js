@@ -131,16 +131,16 @@ Candle.addWrapper('canvas',{
 	closePath : function(){ this.context.closePath();},
 
 	moveTo : function(x,y){
-		this.context.moveTo(this.ePos(x),this.ePos(y));
+		this.context.moveTo(this.ePos(x,true),this.ePos(y,true));
 	},
 	lineTo : function(x,y){
-		this.context.lineTo(this.ePos(x),this.ePos(y));
+		this.context.lineTo(this.ePos(x,true),this.ePos(y,true));
 	},
 	rect : function(x,y,w,h){
-		this.context.rect(this.ePos(x),this.ePos(y),w,h);
+		this.context.rect(this.ePos(x,true),this.ePos(y,true),w,h);
 	},
 	arc  : function(cx,cy,r,startRad,endRad,antiClockWise){
-		this.context.arc(this.ePos(cx),this.ePos(cy),r,startRad,endRad,antiClockWise);
+		this.context.arc(this.ePos(cx,false),this.ePos(cy,false),r,startRad,endRad,antiClockWise);
 	},
 
 	/* Canvas API functions (for drawing) */
@@ -155,14 +155,14 @@ Candle.addWrapper('canvas',{
 	/* Canvas API functions (rect) */
 	fillRect   : function(x,y,w,h){
 		this.setProperties();
-		this.context.fillRect(this.ePos(x),this.ePos(y),w,h);
+		this.context.fillRect(this.ePos(x,false),this.ePos(y,false),w,h);
 	},
 	strokeRect : function(x,y,w,h){
 		this.setProperties();
-		this.context.strokeRect(this.ePos(x),this.ePos(y),w,h);
+		this.context.strokeRect(this.ePos(x,true),this.ePos(y,true),w,h);
 	},
 	shapeRect : function(x,y,w,h){
-		x=this.ePos(x); y=this.ePos(y); w=this.eLen(w); h=this.eLen(h);
+		x=this.ePos(x,true); y=this.ePos(y,true); w=this.eLen(w); h=this.eLen(h);
 		this.setProperties();
 		this.context.fillRect(x,y,w,h);
 		this.context.strokeRect(x,y,w,h);
@@ -199,7 +199,7 @@ Candle.addWrapper('canvas',{
 	},
 	setLinePath_com : function(array){
 		for(var i=0,len=array.length;i<len;i++){
-			var a1=this.ePos(array[i][0]), a2=this.ePos(array[i][1]);
+			var a1=this.ePos(array[i][0],true), a2=this.ePos(array[i][1],true);
 			if(i===0){ this.context.moveTo(a1,a2);}
 			else     { this.context.lineTo(a1,a2);}
 		}
@@ -209,13 +209,13 @@ Candle.addWrapper('canvas',{
 	strokeLine : function(x1,y1,x2,y2){
 		this.setProperties();
 		this.context.beginPath();
-		this.context.moveTo(this.ePos(x1),this.ePos(y1));
-		this.context.lineTo(this.ePos(x2),this.ePos(y2));
+		this.context.moveTo(this.ePos(x1,true),this.ePos(y1,true));
+		this.context.lineTo(this.ePos(x2,true),this.ePos(y2,true));
 		this.context.stroke();
 	},
 	strokeCross : function(cx,cy,l){
-		var x1=this.ePos(cx-l), y1=this.ePos(cy-l),
-			x2=this.ePos(cx+l), y2=this.ePos(cy+l);
+		var x1=this.ePos(cx-l,true), y1=this.ePos(cy-l,true),
+			x2=this.ePos(cx+l,true), y2=this.ePos(cy+l,true);
 
 		this.setProperties();
 		this.context.beginPath();
@@ -230,25 +230,29 @@ Candle.addWrapper('canvas',{
 	fillCircle : function(cx,cy,r){
 		this.setProperties();
 		this.context.beginPath();
-		this.context.arc(this.ePos(cx),this.ePos(cy),r,0,_2PI,false);
+		this.context.arc(this.ePos(cx,false),this.ePos(cy,false),r,0,_2PI,false);
 		this.context.fill();
 	},
 	strokeCircle : function(cx,cy,r){
 		this.setProperties();
 		this.context.beginPath();
-		this.context.arc(this.ePos(cx),this.ePos(cy),r,0,_2PI,false);
+		this.context.arc(this.ePos(cx,true),this.ePos(cy,true),r,0,_2PI,false);
 		this.context.stroke();
 	},
 	shapeCircle : function(cx,cy,r){
 		this.setProperties();
 		this.context.beginPath();
-		this.context.arc(this.ePos(cx),this.ePos(cy),r,0,_2PI,false);
+		this.context.arc(this.ePos(cx,true),this.ePos(cy,true),r,0,_2PI,false);
 		this.context.fill();
 		this.context.stroke();
 	},
 
 	/* internal functions */
-	ePos : function(num){ return (this.isedge ? (num+0.5)|0 : num);},
+	ePos : function(num,stroke){
+		if(!this.isedge){ return num;}
+		else if(!stroke){ return (num+0.5)|0;}
+		else            { return ((num+0.5)|0) - (this.lineWidth%2===1?0.5:0);}
+	},
 	eLen : function(num){ return (this.isedge ? num|0 : num);}
 });
 
