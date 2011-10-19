@@ -35,13 +35,21 @@ Candle.addWrapper('wrapperbase',{
 		this.currentLayerId = '_empty';
 		this.isedgearray    = {_empty:false};
 		this.isedge         = false;
-	}
+	},
+
+	/* internal functions */
+	ePos : function(num,stroke){
+		if(!this.isedge){ return num;}
+		else if(!stroke){ return (num+0.5)|0;}
+		else            { return ((num+0.5)|0) - (this.lineWidth%2===1?0.5:0);}
+	},
+	eLen : function(num){ return (this.isedge ? num|0 : num);}
 });
 
 /* ----------------------- */
 /*   VectorContextクラス   */
 /* ----------------------- */
-Candle.addWrapper('vector',{
+Candle.addWrapper('vector:wrapperbase',{
 
 	initialize : function(idname){
 		Candle.wrapper.wrapperbase.prototype.initialize.call(this, idname);
@@ -223,7 +231,7 @@ Candle.addWrapper('vector',{
 		this.cpath = [];
 		for(var i=0,len=array.length;i<len;i++){
 			this.cpath.push(i===0 ? this.PATH_MOVE : this.PATH_LINE);
-			this.cpath.push(this.ePos(array[i][0]),this.ePos(array[i][1]));
+			this.cpath.push(this.ePos(array[i][0],true),this.ePos(array[i][1],true));
 		}
 	},
 	setDashSize : function(size){},
@@ -269,8 +277,6 @@ Candle.addWrapper('vector',{
 	},
 
 	/* internal functions */
-	ePos : function(num){ return num;},
-	eLen : function(num){ return num;},
 	addVectorElement : function(isfill,isstroke){}
 });
 

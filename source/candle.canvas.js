@@ -20,7 +20,7 @@ var Candle = window.Candle,
 /* -------------------- */
 Candle.addTypes('canvas');
 
-Candle.addWrapper('canvas',{
+Candle.addWrapper('canvas:wrapperbase',{
 
 	initialize : function(idname){
 		Candle.wrapper.wrapperbase.prototype.initialize.call(this, idname);
@@ -245,15 +245,7 @@ Candle.addWrapper('canvas',{
 		this.context.arc(this.ePos(cx,true),this.ePos(cy,true),r,0,_2PI,false);
 		this.context.fill();
 		this.context.stroke();
-	},
-
-	/* internal functions */
-	ePos : function(num,stroke){
-		if(!this.isedge){ return num;}
-		else if(!stroke){ return (num+0.5)|0;}
-		else            { return ((num+0.5)|0) - (this.lineWidth%2===1?0.5:0);}
-	},
-	eLen : function(num){ return (this.isedge ? num|0 : num);}
+	}
 });
 
 })();

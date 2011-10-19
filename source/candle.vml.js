@@ -161,16 +161,16 @@ Candle.addWrapper('vml:vector',{
 
 	/* Canvas API functions (for path) */
 	moveTo : function(x,y){
-		this.cpath.push(this.PATH_MOVE,this.ePos(x),this.ePos(y));
+		this.cpath.push(this.PATH_MOVE,this.ePos(x,true),this.ePos(y,true));
 		this.lastpath = this.PATH_MOVE;
 	},
 	lineTo : function(x,y){
 		if(this.lastpath!==this.PATH_LINE){ this.cpath.push(this.PATH_LINE);}
-		this.cpath.push(this.ePos(x),this.ePos(y));
+		this.cpath.push(this.ePos(x,true),this.ePos(y,true));
 		this.lastpath = this.PATH_LINE;
 	},
 	rect : function(x,y,w,h){
-		x=this.ePos(x); y=this.ePos(y); w=this.eLen(w); h=this.eLen(h);
+		x=this.ePos(x,true); y=this.ePos(y,true); w=this.eLen(w); h=this.eLen(h);
 		this.cpath.push(this.PATH_MOVE,x,y,this.PATH_LINE,(x+w),y,(x+w),(y+h),x,(y+h),this.PATH_CLOSE);
 	},
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
@@ -276,16 +276,18 @@ Candle.addWrapper('vml:vector',{
 	},
 
 	strokeLine : function(x1,y1,x2,y2){
-		x1=this.ePos(x1); y1=this.ePos(y1); x2=this.ePos(x2); y2=this.ePos(y2);
+		x1=this.ePos(x1,true); y1=this.ePos(y1,true); x2=this.ePos(x2,true); y2=this.ePos(y2,true);
 		Candle.wrapper.vector.prototype.strokeLine.call(this,x1,y1,x2,y2);
 	},
 	strokeCross : function(cx,cy,l){
-		cx=this.ePos(cx); cy=this.ePos(cy); l=this.eLen(l);
+		cx=this.ePos(cx,true); cy=this.ePos(cy,true); l=this.eLen(l);
 		Candle.wrapper.vector.prototype.strokeCross.call(this,cx,cy,l);
 	},
 
 	/* internal functions */
-	ePos : function(num){ return (num*Z-Z2)|0;},
+	ePos : function(num,stroke){
+		return (Candle.wrapper.vector.prototype.ePos.call(this,num,stroke)*Z-Z2)|0;
+	},
 	eLen : function(num){ return (num*Z)|0;},
 	addVectorElement : function(isfill,isstroke){
 		var path = this.cpath.join(' ');
