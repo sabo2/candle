@@ -66,6 +66,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 		parent.getContext = function(type){ return self;};
 		parent.toDataURL = function(type){ return (!!type?child.toDataURL(type):child.toDataURL());};
 
+		this.setLayer();
 		this.context = this.child.getContext('2d');
 
 		Candle._initializing--;
@@ -82,10 +83,10 @@ Candle.addWrapper('canvas:wrapperbase',{
 	/* layer functions */
 	setLayer : function(layerid){
 		this.currentLayerId = (!!layerid ? layerid : '_empty');
-		if(this.isedgearray[this.currentLayerId] === void 0){
-			this.isedgearray[this.currentLayerId] = false;
-		}
-		this.isedge = this.isedgearray[this.currentLayerId];
+		if(this.isedgearray[this.currentLayerId] !== void 0)
+			{ this.isedge = this.isedgearray[this.currentLayerId];}
+		else
+			{ this.isedge = this.isedgearray['_empty'];}
 	},
 
 	/* property functions */

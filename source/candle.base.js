@@ -89,6 +89,8 @@ Candle.addWrapper('vector:wrapperbase',{
 		this.rect(0,0,rect.width,rect.height);
 		this.addVectorElement(false,false);
 
+		this.setLayer();
+
 		Candle._initializing--;
 		Candle.readyflag[this.idname] = true;
 	},
@@ -118,10 +120,10 @@ Candle.addWrapper('vector:wrapperbase',{
 	},
 
 	setLayerEdge : function(){
-		if(this.isedgearray[this.currentLayerId] === void 0){
-			this.isedgearray[this.currentLayerId] = false;
-		}
-		this.isedge = this.isedgearray[this.currentLayerId];
+		if(this.isedgearray[this.currentLayerId] !== void 0)
+			{ this.isedge = this.isedgearray[this.currentLayerId];}
+		else
+			{ this.isedge = this.isedgearray['_empty'];}
 	},
 	getLayerById : function(){},
 	createLayer : function(lid){ return null;},
