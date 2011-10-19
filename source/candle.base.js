@@ -40,8 +40,8 @@ Candle.addWrapper('wrapperbase',{
 	/* internal functions */
 	ePos : function(num,stroke){
 		if(!this.isedge){ return num;}
-		else if(!stroke){ return (num+0.5)|0;}
-		else            { return ((num+0.5)|0) - (this.lineWidth%2===1?0.5:0);}
+		else if(!stroke){ return (num+(num>0?0.5:-0.5))|0;}
+		else            { return ((num+(num>0?0.5:-0.5))|0) - (this.lineWidth%2===1?0.5:0);}
 	},
 	eLen : function(num){ return (this.isedge ? num|0 : num);}
 });
