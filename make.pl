@@ -25,7 +25,7 @@ sub input_flags{
 }
 
 sub output{
-	&output_file('candle.js', ['source/candle.js']);
+	&output_file('candle.js', ['core','base','svg','canvas','sl','vml']);
 }
 sub output_file{
 	my $filename = $_[0];
@@ -87,7 +87,7 @@ EOR
 sub printfiles{
 	my @files = @{$_[0]};
 	foreach(@files){
-		my $filename = $_;
+		my $filename = "source/candle.$_.js";
 
 		print STDERR $filename;
 
