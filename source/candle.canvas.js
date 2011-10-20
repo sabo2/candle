@@ -30,6 +30,9 @@ Candle.addWrapper('canvas:wrapperbase',{
 
 		this.use = new Candle.TypeList('canvas');
 
+		this.x0 = 0;
+		this.y0 = 0;
+
 		this.initElement();
 	},
 
@@ -76,6 +79,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 	clear : function(){
 		this.setProperties();
 		this.context.setTransform(1,0,0,1,0,0); // 変形をリセット
+		this.context.translate(this.x0, this.y0);
 		var rect = Candle.getRectSize(this.canvas);
 		this.context.clearRect(0,0,rect.width,rect.height);
 	},
@@ -182,6 +186,8 @@ Candle.addWrapper('canvas:wrapperbase',{
 
 	/* Canvas API functions (for transform) */
 	translate : function(left,top){
+		this.x0 = left;
+		this.y0 = top;
 		this.context.translate(left, top);
 	},
 
