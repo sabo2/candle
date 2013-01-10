@@ -80,7 +80,7 @@ function vml_draw2(g){
 
 function vml_draw3(g){
 	g.changeSize(400,200);
-	g.fillStyle = 'yellowgreen';
+	g.fillStyle = (!g.use.vml ? 'yellowgreen' : '#33cc00');
 
 	g.beginPath();
 	g.arc(50,50,25,0,Math.PI/2,false);
