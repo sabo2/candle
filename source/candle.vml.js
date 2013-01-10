@@ -74,8 +74,15 @@ var V_TAG_SHAPE    = '<v:shape',
 /* ネームスペースの追加はVML描画可能条件に移動しました */
 
 /* addStyleSheet for VML */
-Candle.addCSS("v\\:shape, v\\:group, v\\:polyline, v\\:image", "behavior: url(#default#VML); position:absolute; width:10px; height:10px;");
-Candle.addCSS("v\\:path, v\\:textpath, v\\:stroke", "behavior: url(#default#VML);");
+var V_BH  = "behavior: url(#default#VML);";
+var V_BH2 = V_BH + " position:absolute; width:10px; height:10px;";
+Candle.addCSS("v\\:shape",    V_BH2);
+Candle.addCSS("v\\:group",    V_BH2);
+Candle.addCSS("v\\:polyline", V_BH2);
+Candle.addCSS("v\\:image",    V_BH2);
+Candle.addCSS("v\\:path",     V_BH);
+Candle.addCSS("v\\:textpath", V_BH);
+Candle.addCSS("v\\:stroke",   V_BH);
 
 /* ----------------------- */
 /*   VectorContextクラス   */
