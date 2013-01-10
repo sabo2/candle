@@ -6,7 +6,7 @@
 if(!window.Candle){ return;}
 
 // VML描画可能条件
-if(!window.attachEvent || !!window.opera){ return;}
+try{ document.namespaces.add("v", "urn:schemas-microsoft-com:vml");}catch(e){ return;}
 
 /* ------------- */
 /*   variables   */
@@ -71,7 +71,7 @@ var V_TAG_SHAPE    = '<v:shape',
 /*   CSS, NameSpace設定    */
 /* ----------------------- */
 /* addNameSpace for VML */
-_doc.namespaces.add("v", "urn:schemas-microsoft-com:vml");
+/* ネームスペースの追加はVML描画可能条件に移動しました */
 
 /* addStyleSheet for VML */
 Candle.addCSS("v\\:shape, v\\:group, v\\:polyline, v\\:image", "behavior: url(#default#VML); position:absolute; width:10px; height:10px;");
