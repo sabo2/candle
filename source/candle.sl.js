@@ -210,7 +210,7 @@ Candle.addWrapper('sl:vector',{
 	/* extended functions */
 	setDashSize : function(size){
 		if(!this.lastElement){ return;}
-		this.lastElement.StrokeDashArray = ''+size;
+		this.lastElement.StrokeDashArray = ''+size+','+size;
 	},
 
 	strokeLine : function(x1,y1,x2,y2){

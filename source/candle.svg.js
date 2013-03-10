@@ -178,7 +178,7 @@ Candle.addWrapper('svg:vector',{
 	/* extended functions */
 	setDashSize : function(size){
 		if(!this.lastElement){ return;}
-		this.lastElement.setAttribute('stroke-dasharray', size);
+		this.lastElement.setAttribute('stroke-dasharray', ""+size+" "+size);
 	},
 
 	/* internal functions */

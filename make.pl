@@ -38,7 +38,8 @@ sub output_file{
 
 		&output_doc("notices.txt", $filename);
 
-		system("copy /Y /B .\\notices.txt + .\\$filename.txt .\\$filename");
+		# system("copy /Y /B .\\notices.txt + .\\$filename.txt .\\$filename");
+		system("cat ./notices.txt ./$filename.txt > ./$filename");
 
 		unlink("notices.txt");
 		unlink("$filename.txt");
