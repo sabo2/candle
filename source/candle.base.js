@@ -84,6 +84,7 @@ Candle.addWrapper('vector:wrapperbase',{
 		}
 		parent.getContext = function(type){ return self;};
 		parent.toDataURL = function(type){ return null; /* 未サポート */ };
+		parent.toBlob = function(){ return null; /* 未サポート */ };
 
 		this.target = this.child;
 		this.rect(0,0,rect.width,rect.height);

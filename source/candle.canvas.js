@@ -68,6 +68,8 @@ Candle.addWrapper('canvas:wrapperbase',{
 		}
 		parent.getContext = function(type){ return self;};
 		parent.toDataURL = function(type){ return (!!type?child.toDataURL(type):child.toDataURL());};
+		parent.toBlob = function(){ return child.toBlob(); };
+		child.toBlob = child.toBlob || child.msToBlob;
 
 		this.setLayer();
 		this.context = this.child.getContext('2d');
