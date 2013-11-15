@@ -118,21 +118,21 @@ Candle.addWrapper('sl:vector',{
 
 	/* Canvas API functions (for path) */
 	moveTo : function(x,y){
-		this.cpath.push(this.PATH_MOVE,this.ePos(x,true),this.ePos(y,true));
+		this.cpath.push(this.PATH_MOVE,x+this.x0,y+this.y0);
 		this.lastpath = this.PATH_MOVE;
 	},
 	lineTo : function(x,y){
 		if(this.lastpath!==this.PATH_LINE){ this.cpath.push(this.PATH_LINE);}
-		this.cpath.push(this.ePos(x,true),this.ePos(y,true));
+		this.cpath.push(x+this.x0,y+this.y0);
 		this.lastpath = this.PATH_LINE;
 	},
 	rect : function(x,y,w,h){
-		x=this.ePos(x,true); y=this.ePos(y,true); w=this.eLen(w); h=this.eLen(h);
+		x+=this.x0; y+=this.y0;
 		this.cpath.push(this.PATH_MOVE,x,y,this.PATH_LINE,(x+w),y,(x+w),(y+h),x,(y+h),this.PATH_CLOSE);
 		this.lastpath = this.PATH_CLOSE;
 	},
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
-		cx=this.ePos(cx,false); cy=this.ePos(cy,false);
+		cx+=this.x0; cy+=this.y0;
 		Candle.wrapper.vector.prototype.arc.call(this,cx,cy,r,startRad,endRad,antiClockWise);
 	},
 
@@ -215,22 +215,19 @@ Candle.addWrapper('sl:vector',{
 	},
 
 	strokeLine : function(x1,y1,x2,y2){
-		x1=this.ePos(x1,true); y1=this.ePos(y1,true); x2=this.ePos(x2,true); y2=this.ePos(y2,true);
+		x1+=this.x0; y1+=this.y0; x2+=this.x0; y2+=this.y0;
 		Candle.wrapper.vector.prototype.strokeLine.call(this,x1,y1,x2,y2);
 	},
 	strokeDashedLine : function(x1,y1,x2,y2,sizes){
-		x1=this.ePos(x1,true); y1=this.ePos(y1,true); x2=this.ePos(x2,true); y2=this.ePos(y2,true);
+		x1+=this.x0; y1+=this.y0; x2+=this.x0; y2+=this.y0;
 		Candle.wrapper.vector.prototype.strokeDashedLine.call(this,x1,y1,x2,y2,sizes);
 	},
 	strokeCross : function(cx,cy,l){
-		cx=this.ePos(cx,true); cy=this.ePos(cy,true); l=this.eLen(l);
+		cx+=this.x0; cy+=this.y0;
 		Candle.wrapper.vector.prototype.strokeCross.call(this,cx,cy,l);
 	},
 
 	/* internal functions */
-	ePos : function(num,stroke){
-		return Candle.wrapper.vector.prototype.ePos.call(this,num+this.x0,stroke);
-	},
 	addVectorElement : function(isfill,isstroke){
 		var path = this.cpath.join(' ');
 

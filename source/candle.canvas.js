@@ -99,7 +99,9 @@ Candle.addWrapper('canvas:wrapperbase',{
 			{ this.isedge = this.isedgearray[this.currentLayerId];}
 		else
 			{ this.isedge = this.isedgearray['_empty'];}
-		
+		this.setEdgeStyle(layerid);
+	},
+	setEdgeStyle : function(layerid){
 		var s = this.canvas.style;
 		if('imageRendering' in s){
 			s.imageRendering = '';
@@ -116,6 +118,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 	setRendering : function(render){
 		this.isedgearray[this.currentLayerId] = (render==='crispEdges');
 		this.isedge = this.isedgearray[this.currentLayerId];
+		this.setEdgeStyle(this.currentLayerId);
 	},
 	setUnselectable : function(unsel){
 		if(unsel===(void 0)){ unsel = true;}else{ unsel = !!unsel;}
@@ -155,16 +158,16 @@ Candle.addWrapper('canvas:wrapperbase',{
 	closePath : function(){ this.context.closePath();},
 
 	moveTo : function(x,y){
-		this.context.moveTo(this.ePos(x,true),this.ePos(y,true));
+		this.context.moveTo(x,y);
 	},
 	lineTo : function(x,y){
-		this.context.lineTo(this.ePos(x,true),this.ePos(y,true));
+		this.context.lineTo(x,y);
 	},
 	rect : function(x,y,w,h){
-		this.context.rect(this.ePos(x,true),this.ePos(y,true),w,h);
+		this.context.rect(x,y,w,h);
 	},
 	arc  : function(cx,cy,r,startRad,endRad,antiClockWise){
-		this.context.arc(this.ePos(cx,false),this.ePos(cy,false),r,startRad,endRad,antiClockWise);
+		this.context.arc(cx,cy,r,startRad,endRad,antiClockWise);
 	},
 
 	/* Canvas API functions (for drawing) */
@@ -179,11 +182,11 @@ Candle.addWrapper('canvas:wrapperbase',{
 	/* Canvas API functions (rect) */
 	fillRect   : function(x,y,w,h){
 		this.setProperties();
-		this.context.fillRect(this.ePos(x,false),this.ePos(y,false),w,h);
+		this.context.fillRect(x,y,w,h);
 	},
 	strokeRect : function(x,y,w,h){
 		this.setProperties();
-		this.context.strokeRect(this.ePos(x,true),this.ePos(y,true),w,h);
+		this.context.strokeRect(x,y,w,h);
 	},
 	shapeRect : function(x,y,w,h){
 		this.setProperties();
@@ -225,9 +228,9 @@ Candle.addWrapper('canvas:wrapperbase',{
 	},
 	setLinePath_com : function(array){
 		for(var i=0,len=array.length;i<len;i++){
-			var a1=this.ePos(array[i][0],true), a2=this.ePos(array[i][1],true);
-			if(i===0){ this.context.moveTo(a1,a2);}
-			else     { this.context.lineTo(a1,a2);}
+			var ar=array[i];
+			if(i===0){ this.context.moveTo(ar[0],ar[1]);}
+			else     { this.context.lineTo(ar[0],ar[1]);}
 		}
 	},
 	setDashSize : function(size){ },
@@ -235,8 +238,8 @@ Candle.addWrapper('canvas:wrapperbase',{
 	strokeLine : function(x1,y1,x2,y2){
 		this.setProperties();
 		this.context.beginPath();
-		this.context.moveTo(this.ePos(x1,true),this.ePos(y1,true));
-		this.context.lineTo(this.ePos(x2,true),this.ePos(y2,true));
+		this.context.moveTo(x1,y1);
+		this.context.lineTo(x2,y2);
 		this.context.stroke();
 	},
 	strokeDashedLine : function(x1,y1,x2,y2,sizes){
@@ -245,8 +248,8 @@ Candle.addWrapper('canvas:wrapperbase',{
 			function(x1,y1,x2,y2,sizes){
 				self.setProperties();
 				c.beginPath();
-				c.moveTo(self.ePos(x1,true),self.ePos(y1,true));
-				c.lineTo(self.ePos(x2,true),self.ePos(y2,true));
+				c.moveTo(x1,y1);
+				c.lineTo(x2,y2);
 				c.setLineDash(sizes);
 				c.stroke();
 				c.setLineDash([]);
@@ -278,15 +281,14 @@ Candle.addWrapper('canvas:wrapperbase',{
 		this.strokeDashedLine(x1,y1,x2,y2,sizes);
 	},
 	strokeCross : function(cx,cy,l){
-		var x1=this.ePos(cx-l,true), y1=this.ePos(cy-l,true),
-			x2=this.ePos(cx+l,true), y2=this.ePos(cy+l,true);
+		var x1=cx-l, y1=cy-l, x2=cx+l, y2=cy+l;
 
 		this.setProperties();
 		this.context.beginPath();
-		this.context.moveTo(x1,y1);
-		this.context.lineTo(x2,y2);
-		this.context.moveTo(x1,y2);
-		this.context.lineTo(x2,y1);
+		this.context.moveTo(cx-l,cy-l);
+		this.context.lineTo(cx+l,cy+l);
+		this.context.moveTo(cx-l,cy+l);
+		this.context.lineTo(cx+l,cy-l);
 		this.context.stroke();
 	},
 
@@ -294,19 +296,19 @@ Candle.addWrapper('canvas:wrapperbase',{
 	fillCircle : function(cx,cy,r){
 		this.setProperties();
 		this.context.beginPath();
-		this.context.arc(this.ePos(cx,false),this.ePos(cy,false),r,0,_2PI,false);
+		this.context.arc(cx,cy,r,0,_2PI,false);
 		this.context.fill();
 	},
 	strokeCircle : function(cx,cy,r){
 		this.setProperties();
 		this.context.beginPath();
-		this.context.arc(this.ePos(cx,true),this.ePos(cy,true),r,0,_2PI,false);
+		this.context.arc(cx,cy,r,0,_2PI,false);
 		this.context.stroke();
 	},
 	shapeCircle : function(cx,cy,r){
 		this.setProperties();
 		this.context.beginPath();
-		this.context.arc(this.ePos(cx,true),this.ePos(cy,true),r,0,_2PI,false);
+		this.context.arc(cx,cy,r,0,_2PI,false);
 		this.context.fill();
 		this.context.stroke();
 	}

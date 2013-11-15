@@ -35,14 +35,7 @@ Candle.addWrapper('wrapperbase',{
 		this.currentLayerId = '_empty';
 		this.isedgearray    = {_empty:false};
 		this.isedge         = false;
-	},
-
-	/* internal functions */
-	ePos : function(num,stroke){
-		if(!stroke){ return (num+(num>0?0.5:-0.5))|0;}
-		else       { return ((num+(num>0?0.5:-0.5) - (this.lineWidth%2===1?0.5:0))|0);}
-	},
-	eLen : function(num){ return num;}
+	}
 });
 
 /* ----------------------- */
@@ -234,7 +227,7 @@ Candle.addWrapper('vector:wrapperbase',{
 		this.cpath = [];
 		for(var i=0,len=array.length;i<len;i++){
 			this.cpath.push(i===0 ? this.PATH_MOVE : this.PATH_LINE);
-			this.cpath.push(this.ePos(array[i][0],true),this.ePos(array[i][1],true));
+			this.cpath.push(array[i][0],array[i][1]);
 		}
 	},
 	setDashSize : function(sizes){},

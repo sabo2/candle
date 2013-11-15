@@ -274,6 +274,13 @@ Candle.addWrapper('vml:vector',{
 	},
 
 	/* extended functions */
+	setLinePath_com : function(array){
+		this.cpath = [];
+		for(var i=0,len=array.length;i<len;i++){
+			this.cpath.push(i===0 ? this.PATH_MOVE : this.PATH_LINE);
+			this.cpath.push(this.ePos(array[i][0],true),this.ePos(array[i][1],true));
+		}
+	},
 	setDashSize : function(sizes){
 		if(!this.lastElement){ return;}
 		var el = _doc.createElement('v:stroke');
@@ -298,9 +305,13 @@ Candle.addWrapper('vml:vector',{
 
 	/* internal functions */
 	ePos : function(num,stroke){
-		return (Candle.wrapper.vector.prototype.ePos.call(this,num,stroke)*Z-Z2)|0;
+		if(!stroke){ num = (num+(num>0?0.5:-0.5))|0;}
+		else       { num = ((num+(num>0?0.5:-0.5) - (this.lineWidth%2===1?0.5:0))|0);}
+		return (num*Z-Z2)|0;
 	},
-	eLen : function(num){ return (num*Z)|0;},
+	eLen : function(num){
+		return (num*Z)|0;
+	},
 	addVectorElement : function(isfill,isstroke){
 		var path = this.cpath.join(' ');
 
