@@ -39,11 +39,10 @@ Candle.addWrapper('wrapperbase',{
 
 	/* internal functions */
 	ePos : function(num,stroke){
-		if(!this.isedge){ return num;}
-		else if(!stroke){ return (num+(num>0?0.5:-0.5))|0;}
-		else            { return ((num+(num>0?0.5:-0.5) - (this.lineWidth%2===1?0.5:0))|0);}
+		if(!stroke){ return (num+(num>0?0.5:-0.5))|0;}
+		else       { return ((num+(num>0?0.5:-0.5) - (this.lineWidth%2===1?0.5:0))|0);}
 	},
-	eLen : function(num){ return (this.isedge ? num|0 : num);}
+	eLen : function(num){ return num;}
 });
 
 /* ----------------------- */

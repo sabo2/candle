@@ -99,6 +99,17 @@ Candle.addWrapper('canvas:wrapperbase',{
 			{ this.isedge = this.isedgearray[this.currentLayerId];}
 		else
 			{ this.isedge = this.isedgearray['_empty'];}
+		
+		var s = this.canvas.style;
+		if('imageRendering' in s){
+			s.imageRendering = '';
+			if(this.isedge){
+				s.imageRendering = 'pixelated';
+				if(!s.imageRendering){ s.imageRendering = '-webkit-optimize-contrast';}
+				if(!s.imageRendering){ s.imageRendering = '-moz-crisp-edges';}
+				if(!s.imageRendering){ s.imageRendering = '-o-crisp-edges';}
+			}
+		}
 	},
 
 	/* property functions */
@@ -175,7 +186,6 @@ Candle.addWrapper('canvas:wrapperbase',{
 		this.context.strokeRect(this.ePos(x,true),this.ePos(y,true),w,h);
 	},
 	shapeRect : function(x,y,w,h){
-		x=this.ePos(x,true); y=this.ePos(y,true); w=this.eLen(w); h=this.eLen(h);
 		this.setProperties();
 		this.context.fillRect(x,y,w,h);
 		this.context.strokeRect(x,y,w,h);
