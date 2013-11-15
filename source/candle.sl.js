@@ -129,6 +129,7 @@ Candle.addWrapper('sl:vector',{
 	rect : function(x,y,w,h){
 		x=this.ePos(x,true); y=this.ePos(y,true); w=this.eLen(w); h=this.eLen(h);
 		this.cpath.push(this.PATH_MOVE,x,y,this.PATH_LINE,(x+w),y,(x+w),(y+h),x,(y+h),this.PATH_CLOSE);
+		this.lastpath = this.PATH_CLOSE;
 	},
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
 		cx=this.ePos(cx,false); cy=this.ePos(cy,false);
@@ -203,19 +204,23 @@ Candle.addWrapper('sl:vector',{
 	/* Canvas API functions (for transform) */
 	translate : function(left,top){
 		var child = this.canvas.firstChild;
-		this.x0 = left;//(left<0?-left:0);
-		this.y0 = top;//(top<0?-top:0);
+		this.x0 = left; /* (left<0?-left:0); */
+		this.y0 = top;  /* (top<0 ?-top :0); */
 	},
 
 	/* extended functions */
-	setDashSize : function(size){
+	setDashSize : function(sizes){
 		if(!this.lastElement){ return;}
-		this.lastElement.StrokeDashArray = ''+size+','+size;
+		this.lastElement.StrokeDashArray = sizes.join(",");
 	},
 
 	strokeLine : function(x1,y1,x2,y2){
 		x1=this.ePos(x1,true); y1=this.ePos(y1,true); x2=this.ePos(x2,true); y2=this.ePos(y2,true);
 		Candle.wrapper.vector.prototype.strokeLine.call(this,x1,y1,x2,y2);
+	},
+	strokeDashedLine : function(x1,y1,x2,y2,sizes){
+		x1=this.ePos(x1,true); y1=this.ePos(y1,true); x2=this.ePos(x2,true); y2=this.ePos(y2,true);
+		Candle.wrapper.vector.prototype.strokeDashedLine.call(this,x1,y1,x2,y2,sizes);
 	},
 	strokeCross : function(cx,cy,l){
 		cx=this.ePos(cx,true); cy=this.ePos(cy,true); l=this.eLen(l);

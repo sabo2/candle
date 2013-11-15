@@ -176,9 +176,9 @@ Candle.addWrapper('svg:vector',{
 	},
 
 	/* extended functions */
-	setDashSize : function(size){
+	setDashSize : function(sizes){
 		if(!this.lastElement){ return;}
-		this.lastElement.setAttribute('stroke-dasharray', ""+size+" "+size);
+		this.lastElement.setAttribute('stroke-dasharray', sizes.join(" "));
 	},
 
 	/* internal functions */

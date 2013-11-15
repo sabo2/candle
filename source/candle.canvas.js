@@ -8,6 +8,12 @@ if(!window.Candle){ return;}
 // canvas描画可能条件
 if(!document.createElement('canvas').getContext){ return;}
 
+var p = CanvasRenderingContext2D.prototype;
+if(!p.setLineDash){
+	if     ('mozDash' in p)       { p.setLineDash = function(sizes){ this.mozDash=sizes;};}
+	else if('webkitLineDash' in p){ p.setLineDash = function(sizes){ this.webkitLineDash=sizes;};}
+}
+
 /* ------------- */
 /*  const value  */
 /* ------------- */
@@ -222,6 +228,44 @@ Candle.addWrapper('canvas:wrapperbase',{
 		this.context.moveTo(this.ePos(x1,true),this.ePos(y1,true));
 		this.context.lineTo(this.ePos(x2,true),this.ePos(y2,true));
 		this.context.stroke();
+	},
+	strokeDashedLine : function(x1,y1,x2,y2,sizes){
+		var self = this, c = this.context;
+		this.strokeDashedLine = ((!!c.setLineDash) ?
+			function(x1,y1,x2,y2,sizes){
+				self.setProperties();
+				c.beginPath();
+				c.moveTo(self.ePos(x1,true),self.ePos(y1,true));
+				c.lineTo(self.ePos(x2,true),self.ePos(y2,true));
+				c.setLineDash(sizes);
+				c.stroke();
+				c.setLineDash([]);
+			}
+		:
+			function(x1,y1,x2,y2,sizes){
+				if((sizes.length%2)===1){ sizes = sizes.concat(sizes);}
+				var fillStyle_sv = self.fillStyle;
+				self.fillStyle = self.strokeStyle;
+				self.setProperties();
+				self.beginPath();
+				self.moveTo(x1, y1);
+				var length = Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
+				var distance=0, phase=0;
+				var tilt=(y2-y1)/(x2-x1), tilts=tilt*tilt+1;
+				while(distance<length){
+					var a = Math.sqrt(distance*distance/tilts);
+					var px = x1+a, py = y1+tilt*a;
+					if((phase&1)===0){ self.moveTo(px, py);}
+					else             { self.lineTo(px, py);}
+					distance += sizes[phase];
+					phase++;
+					if(phase>=sizes.length){ phase=0;}
+				}
+				self.stroke();
+				self.fillStyle = fillStyle_sv;
+			}
+		);
+		this.strokeDashedLine(x1,y1,x2,y2,sizes);
 	},
 	strokeCross : function(cx,cy,l){
 		var x1=this.ePos(cx-l,true), y1=this.ePos(cy-l,true),

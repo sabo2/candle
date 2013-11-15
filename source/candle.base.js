@@ -41,7 +41,7 @@ Candle.addWrapper('wrapperbase',{
 	ePos : function(num,stroke){
 		if(!this.isedge){ return num;}
 		else if(!stroke){ return (num+(num>0?0.5:-0.5))|0;}
-		else            { return ((num+(num>0?0.5:-0.5))|0) - (this.lineWidth%2===1?0.5:0);}
+		else            { return ((num+(num>0?0.5:-0.5) - (this.lineWidth%2===1?0.5:0))|0);}
 	},
 	eLen : function(num){ return (this.isedge ? num|0 : num);}
 });
@@ -165,6 +165,7 @@ Candle.addWrapper('vector:wrapperbase',{
 	},
 	rect : function(x,y,w,h){
 		this.cpath.push(this.PATH_MOVE,x,y,this.PATH_LINE,(x+w),y,(x+w),(y+h),x,(y+h),this.PATH_CLOSE);
+		this.lastpath = this.PATH_CLOSE;
 	},
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
 		var sx,sy,ex,ey;
@@ -237,12 +238,19 @@ Candle.addWrapper('vector:wrapperbase',{
 			this.cpath.push(this.ePos(array[i][0],true),this.ePos(array[i][1],true));
 		}
 	},
-	setDashSize : function(size){},
+	setDashSize : function(sizes){},
 
 	strokeLine : function(x1,y1,x2,y2){
 		var stack = this.cpath;
 		this.cpath = [this.PATH_MOVE,x1,y1,this.PATH_LINE,x2,y2];
 		this.addVectorElement(false,true);
+		this.cpath = stack;
+	},
+	strokeDashedLine : function(x1,y1,x2,y2,sizes){
+		var stack = this.cpath;
+		this.cpath = [this.PATH_MOVE,x1,y1,this.PATH_LINE,x2,y2];
+		this.addVectorElement(false,true);
+		this.setDashSize(sizes);
 		this.cpath = stack;
 	},
 	strokeCross : function(cx,cy,l){
