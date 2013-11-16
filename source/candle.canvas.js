@@ -122,35 +122,37 @@ Candle.addWrapper('canvas:wrapperbase',{
 	},
 	setUnselectable : function(unsel){
 		if(unsel===(void 0)){ unsel = true;}else{ unsel = !!unsel;}
-		this.canvas.style.MozUserSelect    = (unsel ? 'none' : 'text');
-		this.canvas.style.WebkitUserSelect = (unsel ? 'none' : 'text');
-		this.canvas.style.userSelect       = (unsel ? 'none' : 'text');
+		var s = this.canvas.style;
+		s.MozUserSelect = s.WebkitUserSelect = s.userSelect = (unsel ? 'none' : 'text');
 	},
 
 	getContextElement : function(){ return this.child;},
 	getLayerElement   : function(){ return this.child;},
 
 	changeSize : function(width,height){
-		this.canvas.style.width  = width + 'px';
-		this.canvas.style.height = height + 'px';
+		var parent = this.canvas;
+		parent.style.width  = width + 'px';
+		parent.style.height = height + 'px';
 
-		var canvas = this.canvas.firstChild;
-		var left = parseInt(canvas.style.left), top = parseInt(canvas.style.top);
-		width += (left<0?-left:0); height += (top<0?-top:0);
-		canvas.style.width  = width + 'px';
-		canvas.style.height = height + 'px';
-		canvas.width  = width;
-		canvas.height = height;
+		var child = this.child;
+		var left = parseInt(child.style.left), top = parseInt(child.style.top);
+		width += (left<0?-left:0);
+		height += (top<0?-top:0);
+		child.style.width  = width + 'px';
+		child.style.height = height + 'px';
+		child.width  = width;
+		child.height = height;
 	},
 
 	/* 内部用関数 */
 	setProperties : function(){
-		this.context.fillStyle    = this.fillStyle;
-		this.context.strokeStyle  = this.strokeStyle;
-		this.context.lineWidth    = this.lineWidth;
-		this.context.font         = this.font;
-		this.context.textAlign    = this.textAlign;
-		this.context.textBaseline = this.textBaseline;
+		var c = this.context;
+		c.fillStyle    = this.fillStyle;
+		c.strokeStyle  = this.strokeStyle;
+		c.lineWidth    = this.lineWidth;
+		c.font         = this.font;
+		c.textAlign    = this.textAlign;
+		c.textBaseline = this.textBaseline;
 	},
 
 	/* Canvas API functions (for path) */
@@ -236,16 +238,18 @@ Candle.addWrapper('canvas:wrapperbase',{
 	setDashSize : function(size){ },
 
 	strokeLine : function(x1,y1,x2,y2){
+		var c = this.context;
 		this.setProperties();
-		this.context.beginPath();
-		this.context.moveTo(x1,y1);
-		this.context.lineTo(x2,y2);
-		this.context.stroke();
+		c.beginPath();
+		c.moveTo(x1,y1);
+		c.lineTo(x2,y2);
+		c.stroke();
 	},
 	strokeDashedLine : function(x1,y1,x2,y2,sizes){
 		var self = this, c = this.context;
-		this.strokeDashedLine = ((!!c.setLineDash) ?
+		this.strokeDashedLine = ((!!this.context.setLineDash) ?
 			function(x1,y1,x2,y2,sizes){
+				var c = self.context;
 				self.setProperties();
 				c.beginPath();
 				c.moveTo(x1,y1);
@@ -257,60 +261,59 @@ Candle.addWrapper('canvas:wrapperbase',{
 		:
 			function(x1,y1,x2,y2,sizes){
 				if((sizes.length%2)===1){ sizes = sizes.concat(sizes);}
-				var fillStyle_sv = self.fillStyle;
-				self.fillStyle = self.strokeStyle;
-				self.setProperties();
-				self.beginPath();
-				self.moveTo(x1, y1);
 				var length = Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
-				var distance=0, phase=0;
-				var tilt=(y2-y1)/(x2-x1), tilts=tilt*tilt+1;
+				var distance=0, phase=0, tilt=(y2-y1)/(x2-x1), tilts=tilt*tilt+1;
+				var c = self.context;
+				self.setProperties();
+				c.beginPath();
+				c.moveTo(x1, y1);
 				while(distance<length){
 					var a = Math.sqrt(distance*distance/tilts);
 					var px = x1+a, py = y1+tilt*a;
-					if((phase&1)===0){ self.moveTo(px, py);}
-					else             { self.lineTo(px, py);}
+					if((phase&1)===0){ c.moveTo(px, py);}
+					else             { c.lineTo(px, py);}
 					distance += sizes[phase];
 					phase++;
 					if(phase>=sizes.length){ phase=0;}
 				}
-				self.stroke();
-				self.fillStyle = fillStyle_sv;
+				c.stroke();
 			}
 		);
 		this.strokeDashedLine(x1,y1,x2,y2,sizes);
 	},
 	strokeCross : function(cx,cy,l){
-		var x1=cx-l, y1=cy-l, x2=cx+l, y2=cy+l;
-
+		var c = this.context;
 		this.setProperties();
-		this.context.beginPath();
-		this.context.moveTo(cx-l,cy-l);
-		this.context.lineTo(cx+l,cy+l);
-		this.context.moveTo(cx-l,cy+l);
-		this.context.lineTo(cx+l,cy-l);
-		this.context.stroke();
+		c.beginPath();
+		c.moveTo(cx-l,cy-l);
+		c.lineTo(cx+l,cy+l);
+		c.moveTo(cx-l,cy+l);
+		c.lineTo(cx+l,cy-l);
+		c.stroke();
 	},
 
 	/* extended functions (circle) */
 	fillCircle : function(cx,cy,r){
+		var c = this.context;
 		this.setProperties();
-		this.context.beginPath();
-		this.context.arc(cx,cy,r,0,_2PI,false);
-		this.context.fill();
+		c.beginPath();
+		c.arc(cx,cy,r,0,_2PI,false);
+		c.fill();
 	},
 	strokeCircle : function(cx,cy,r){
+		var c = this.context;
 		this.setProperties();
-		this.context.beginPath();
-		this.context.arc(cx,cy,r,0,_2PI,false);
-		this.context.stroke();
+		c.beginPath();
+		c.arc(cx,cy,r,0,_2PI,false);
+		c.stroke();
 	},
 	shapeCircle : function(cx,cy,r){
+		var c = this.context;
 		this.setProperties();
-		this.context.beginPath();
-		this.context.arc(cx,cy,r,0,_2PI,false);
-		this.context.fill();
-		this.context.stroke();
+		c.beginPath();
+		c.arc(cx,cy,r,0,_2PI,false);
+		c.fill();
+		c.stroke();
 	}
 });
 
