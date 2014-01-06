@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta charset="utf-8" />
 <title>crispEdge test</title>
-<script type="text/javascript" src="./candle.debug.js"></script>
+<script type="text/javascript" src="../dist/candle.js"></script>
 <script type="text/javascript">
 
 Candle.debugmode = true;
@@ -24,9 +24,8 @@ function vml_draw(g, rendering){
 	g.fillStyle = "navy";
 
 	g.lineWidth = 1;
-	g.strokeLine(5, 5,75, 5);
+	g.strokeDashedLine(5, 5,75, 5, [4]);
 	g.fillRect(105,4,70,1);
-	g.setDashSize(4);
 
 	g.lineWidth = 2;
 	g.strokeLine(5,15,75,15);
