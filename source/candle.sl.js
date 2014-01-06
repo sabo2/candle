@@ -2,19 +2,12 @@
  
 (function(){
 
-// Candleオブジェクトがない場合は何もしない
-if(!window.Candle){ return;}
-
+/* --------------------------- */
+/*   SilverLight描画可能条件   */
+/* --------------------------- */
 // Silverlight描画条件
 try{ if(!(new ActiveXObject("AgControl.AgControl")).IsVersionSupported("1.0")){ return;} }
 catch(e){ return;}
-
-/* ------------- */
-/*   variables   */
-/* ------------- */
-var Candle = window.Candle,
-	_doc = document,
-	_2PI = 2*Math.PI;
 
 /* ------------------------------------------ */
 /*   VectorContext(SL)クラス用const文字列集   */

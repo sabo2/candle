@@ -2,24 +2,19 @@
  
 (function(){
 
-// Candleオブジェクトがない場合は何もしない
-if(!window.Candle){ return;}
-
-// canvas描画可能条件
+/* ---------------------- */
+/*   canvas描画可能条件   */
+/* ---------------------- */
 if(!document.createElement('canvas').getContext){ return;}
 
+/* -------------------------- */
+/*   canvasブラウザ依存対策   */
+/* -------------------------- */
 var p = CanvasRenderingContext2D.prototype;
 if(!p.setLineDash){
 	if     ('mozDash' in p)       { p.setLineDash = function(sizes){ this.mozDash=sizes;};}
 	else if('webkitLineDash' in p){ p.setLineDash = function(sizes){ this.webkitLineDash=sizes;};}
 }
-
-/* ------------- */
-/*  const value  */
-/* ------------- */
-var Candle = window.Candle,
-	_doc = document,
-	_2PI = 2*Math.PI;
 
 /* -------------------- */
 /*   Canvas用ラッパー   */

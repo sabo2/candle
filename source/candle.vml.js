@@ -2,18 +2,10 @@
  
 (function(){
 
-// Candleオブジェクトがない場合は何もしない
-if(!window.Candle){ return;}
-
-// VML描画可能条件
+/* ------------------- */
+/*   VML描画可能条件   */
+/* ------------------- */
 try{ document.namespaces.add("v", "urn:schemas-microsoft-com:vml");}catch(e){ return;}
-
-/* ------------- */
-/*   variables   */
-/* ------------- */
-var Candle = window.Candle,
-	_doc = document,
-	_2PI = 2*Math.PI;
 
 /* ------------------------------------------- */
 /*   VectorContext(VML)クラス用const文字列集   */

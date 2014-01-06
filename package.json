@@ -1,0 +1,20 @@
+{
+  "name": "candle",
+  "version": "0.2.0",
+  "description": "This is a support script for pzpr.js",
+  "main": "candle.js",
+  "keywords": [
+    "graphic",
+    "HTML5",
+    "canvas",
+    "SVG"
+  ],
+  "author": "sabo2",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-uglify": "~0.2.7",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-text-replace": "~0.3.10"
+  }
+}

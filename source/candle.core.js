@@ -1,14 +1,10 @@
 // candle.core.js
- 
-(function(){
-
-// 多重定義防止
-if(!!window.Candle){ return;}
 
 /* ------------- */
 /*   variables   */
 /* ------------- */
 var _doc = document,
+	_2PI = 2*Math.PI,
 	_color = [],
 	_css = [];
 
@@ -25,6 +21,8 @@ var _hex = (function(){
 /*   Candleオブジェクト   */
 /* ---------------------- */
 var Candle = {
+	version: "<deploy-version>",
+	
 	/* wrapper classes */
 	wrapper : {},
 	addWrapper : function(classname, proto){
@@ -191,9 +189,8 @@ var Candle = {
 };
 
 // 初期化関数設定 
-var func = function(){ Candle.onload();};
-if(!!window.addEventListener){ window.addEventListener("load",func,false);}
-else if(!!window.attachEvent){ window.attachEvent("onload",func);}
+if(!!window.addEventListener){ window.addEventListener("load",function(){ Candle.onload();},false);}
+else if(!!window.attachEvent){ window.attachEvent("onload",function(){ Candle.onload();});}
 
 // IE用ハック
 _doc.createElement('candle');
@@ -204,5 +201,3 @@ Candle.addCSS('candle','display:block;');
 
 // extern
 window.Candle = Candle;
-
-})();

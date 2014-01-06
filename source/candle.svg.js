@@ -1,21 +1,13 @@
 // candle.svg.js
- 
+
 (function(){
 
-// Candleオブジェクトがない場合は何もしない
-if(!window.Candle){ return;}
-
-// SVG描画可能条件
+/* ------------------- */
+/*   SVG描画可能条件   */
+/* ------------------- */
 var SVGNS   = "http://www.w3.org/2000/svg",
 	XLINKNS = "http://www.w3.org/1999/xlink";
 if(!document.createElementNS || !document.createElementNS(SVGNS, 'svg').suspendRedraw){ return;}
-
-/* ------------- */
-/*   variables   */
-/* ------------- */
-var Candle = window.Candle,
-	_doc = document,
-	_2PI = 2*Math.PI;
 
 /* ------------------------------------------- */
 /*   VectorContext(SVG)クラス用const文字列集   */

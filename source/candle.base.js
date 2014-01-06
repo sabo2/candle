@@ -1,17 +1,5 @@
 // candle.base.js
  
-(function(){
-
-// Candleオブジェクトがない場合は何もしない
-if(!window.Candle){ return;}
-
-/* ------------- */
-/*   variables   */
-/* ------------- */
-var Candle = window.Candle,
-	_doc = document,
-	_2PI = 2*Math.PI;
-
 /* ------------------- */
 /*  WrapperBaseクラス  */
 /* ------------------- */
@@ -282,5 +270,3 @@ Candle.addWrapper('vector:wrapperbase',{
 	/* internal functions */
 	addVectorElement : function(isfill,isstroke){}
 });
-
-})();
