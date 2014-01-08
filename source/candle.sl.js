@@ -143,10 +143,9 @@ Candle.addWrapper('sl:vector',{
 	},
 
 	/* Canvas API functions (for text) */
-	fillText : function(text,x,y){
+	fillText_main : function(text,x,y){
 		var already = (!!this.vid && !!this.elements[this.vid]);
 		var ME = Candle.ME;
-
 		ME.style.font = this.font;
 		var xaml;
 		if(!already){
@@ -159,7 +158,10 @@ Candle.addWrapper('sl:vector',{
 			];
 			xaml = this.content.createFromXaml(ar.join(''));
 		}
-		else{ xaml = this.elements[this.vid];}
+		else{
+			xaml = this.elements[this.vid];
+			xaml.Visibility = "Visible";
+		}
 
 		xaml["Foreground"] = Candle.parse(this.fillStyle);
 		xaml["FontFamily"] = ME.style.fontFamily.replace(/\"/g,'\'');
@@ -168,25 +170,20 @@ Candle.addWrapper('sl:vector',{
 		var offset = xaml.ActualHeight * SL_HEIGHT[this.textBaseline.toLowerCase()];
 		xaml["Canvas.Top"] = y+this.y0 - (!isNaN(offset)?offset:0);
 
-		if(!already){
-			this.target.children.add(xaml);
-			if(!!this.vid){ this.elements[this.vid] = xaml; this.vid='';}
-		}
+		if(!already){ this.target.children.add(xaml);}
+		return xaml;
 	},
 
 	/* Canvas API functions (for image) */
-	drawImage : function(image,sx,sy,sw,sh,dx,dy,dw,dh){
-		if(sw===(void 0)){ sw=image.width; sh=image.height;}
-		if(dx===(void 0)){ dx=sx; sx=0; dy=sy; sy=0; dw=sw; dh=sh;}
-		var already = (!!this.vid && !!this.elements[this.vid]);
-
-		var xaml;
+	drawImage_main : function(image,sx,sy,sw,sh,dx,dy,dw,dh){
+		var xaml, already = (!!this.vid && !!this.elements[this.vid]);
 		if(!already){
 			var ar = ['<Image Source="', image.src, '" />'];
 			xaml = this.content.createFromXaml(ar.join(''));
 		}
 		else{
 			xaml = this.elements[this.vid];
+			xaml.Visibility = "Visible";
 			xaml["Source"] = image.src;
 		}
 
@@ -197,10 +194,8 @@ Candle.addWrapper('sl:vector',{
 		xaml.Clip = this.content.createFromXaml(
 			['<RectangleGeometry Rect="',sx*(dw/sw),',',sy*(dh/sh),',',dw,',',dh,'" />'].join(''));
 
-		if(!already){
-			this.target.children.add(xaml);
-			if(!!this.vid){ this.elements[this.vid] = xaml; this.vid='';}
-		}
+		if(!already){ this.target.children.add(xaml);}
+		return xaml;
 	},
 
 	/* Canvas API functions (for transform) */
@@ -229,18 +224,24 @@ Candle.addWrapper('sl:vector',{
 	},
 
 	/* internal functions */
-	addVectorElement : function(isfill,isstroke){
-		var path = this.cpath.join(' ');
-
-		var ar = ['<Path Data="', path ,'"'];
-		if(isfill)  { ar.push(' Fill="', Candle.parse(this.fillStyle), '"');}
-		if(isstroke){ ar.push(' Stroke="', Candle.parse(this.strokeStyle), '" StrokeThickness="', this.lineWidth, '"');}
-		ar.push(' />');
-
-		var xaml = this.content.createFromXaml(ar.join(''));
-		this.target.children.add(xaml);
-
-		if(!!this.vid){ this.elements[this.vid] = xaml; this.vid='';}
+	addVectorElement_main : function(isfill,isstroke){
+		var xaml, already = (!!this.vid && !!this.elements[this.vid]);
+		var fillcolor = Candle.parse(this.fillStyle), strokecolor = Candle.parse(this.strokeStyle);
+		if(!already){
+			var ar = ['<Path', ' Data="', this.cpath.join(' ') ,'"'];
+			if(isfill)  { ar.push(' Fill="', fillcolor, '"');}
+			if(isstroke){ ar.push(' Stroke="', strokecolor, '"');}
+			if(isstroke){ ar.push(' StrokeThickness="', this.lineWidth, '"');}
+			ar.push(' />');
+			
+			var xaml = this.content.createFromXaml(ar.join(''));
+			this.target.children.add(xaml);
+		}
+		else{
+			el.Visibility = "Visible";
+			if(isfill)  { el.fill   = fillcolor;}
+			if(isstroke){ el.stroke = strokecolor;}
+		}
 
 		return xaml;
 	}

@@ -9,6 +9,8 @@ var SVGNS   = "http://www.w3.org/2000/svg",
 	XLINKNS = "http://www.w3.org/1999/xlink";
 if(!document.createElementNS || !document.createElementNS(SVGNS, 'svg').suspendRedraw){ return;}
 
+function newEL(tag){ return _doc.createElementNS(SVGNS, tag);}
+
 /* ------------------------------------------- */
 /*   VectorContext(SVG)クラス用const文字列集   */
 /* ------------------------------------------- */
@@ -54,7 +56,7 @@ Candle.addWrapper('svg:vector',{
 		this.canvas = _doc.getElementById(this.idname);
 
 		var rect = Candle.getRectSize(this.canvas);
-		var top = _doc.createElementNS(SVGNS,'svg');
+		var top = newEL('svg');
 		top.setAttribute('id', this.canvasid);
 		top.setAttribute('font-size', "10px");
 		top.setAttribute('font-family', "sans-serif");
@@ -80,7 +82,7 @@ Candle.addWrapper('svg:vector',{
 	/* layer functions */
 	setLayerEdge : function(){ /* nop */ },
 	createLayer : function(lid){
-		var layer = _doc.createElementNS(SVGNS,'g');
+		var layer = newEL('g');
 		layer.setAttribute('id', lid);
 		this.target.appendChild(layer);
 		return layer;
@@ -108,14 +110,17 @@ Candle.addWrapper('svg:vector',{
 	},
 
 	/* Canvas API functions (for text) */
-	fillText : function(text,x,y){
+	fillText_main : function(text,x,y){
 		var already = (!!this.vid && !!this.elements[this.vid]);
 		var ME = Candle.ME;
-
 		ME.style.font = this.font; ME.innerHTML = text;
 		var top = y - (ME.offsetHeight * S_HEIGHT[this.textBaseline.toLowerCase()]);
 
-		var el = (already ? this.elements[this.vid] : _doc.createElementNS(SVGNS,'text'));
+		if(!already){ el = newEL('text');}
+		else{
+			el = this.elements[this.vid];
+			el.removeAttribute('opacity');
+		}
 		el.setAttribute('x', x);
 		el.setAttribute('y', top);
 		el.setAttribute(S_ATT_FILL, Candle.parse(this.fillStyle));
@@ -124,35 +129,38 @@ Candle.addWrapper('svg:vector',{
 		if(!already){
 			el.appendChild(_doc.createTextNode(text));
 			this.target.appendChild(el);
-			if(!!this.vid){ this.elements[this.vid] = el; this.vid='';}
 		}
 		else{
 			el.replaceChild(_doc.createTextNode(text), el.firstChild);
 		}
+		return el;
 	},
 
 	/* Canvas API functions (for image) */
-	drawImage : function(image,sx,sy,sw,sh,dx,dy,dw,dh){
-		if(sw===(void 0)){ sw=image.width; sh=image.height;}
-		if(dx===(void 0)){ dx=sx; sx=0; dy=sy; sy=0; dw=sw; dh=sh;}
-		var already = (!!this.vid && !!this.elements[this.vid]);
-
-		var el = (already ? this.elements[this.vid] : _doc.createElementNS(SVGNS, "svg"));
+	drawImage_main : function(image,sx,sy,sw,sh,dx,dy,dw,dh){
+		var el, img, already = (!!this.vid && !!this.elements[this.vid]);
+		if(!already){
+			el = newEL('svg');
+			img = newEL("image");
+			el.appendChild(img);
+		}
+		else{
+			el = this.elements[this.vid];
+			el.removeAttribute('opacity');
+			img = el.firstChild;
+		}
 		el.setAttribute("viewBox", [sx,sy,sw,sh].join(" "));
 		el.setAttribute("x", dx);
 		el.setAttribute("y", dy);
 		el.setAttribute("width",  dw);
 		el.setAttribute("height", dh);
 
-		var img = (already ? el.firstChild : _doc.createElementNS(SVGNS, "image"));
 		img.setAttributeNS(null, "width",  image.width);
 		img.setAttributeNS(null, "height", image.height);
 		img.setAttributeNS(XLINKNS, "xlink:href", image.src);
-		if(!already){
-			el.appendChild(img);
-			this.target.appendChild(el);
-			if(!!this.vid){ this.elements[this.vid] = el; this.vid='';}
-		}
+
+		if(!already){ this.target.appendChild(el);}
+		return el;
 	},
 
 	/* Canvas API functions (for transform) */
@@ -169,18 +177,23 @@ Candle.addWrapper('svg:vector',{
 	},
 
 	/* internal functions */
-	addVectorElement : function(isfill,isstroke){
-		var path = this.cpath.join(' ');
-
-		var el = _doc.createElementNS(SVGNS,'path');
-		el.setAttribute('d', path);
-		el.setAttribute(S_ATT_FILL,   (isfill ? Candle.parse(this.fillStyle) : S_NONE));
-		el.setAttribute(S_ATT_STROKE, (isstroke ? Candle.parse(this.strokeStyle) : S_NONE));
-		if(isstroke) { el.setAttribute(S_ATT_STROKEWIDTH, this.lineWidth, 'px');}
-
-		this.target.appendChild(el);
-		if(!!this.vid){ this.elements[this.vid] = el; this.vid='';}
-
+	addVectorElement_main : function(isfill,isstroke){
+		var el, already = (!!this.vid && !!this.elements[this.vid]);
+		var fillcolor = Candle.parse(this.fillStyle), strokecolor = Candle.parse(this.strokeStyle);
+		if(!already){
+			el = newEL('path');
+			el.setAttribute('d', this.cpath.join(' '));
+			el.setAttribute(S_ATT_FILL,   (isfill ? fillcolor : S_NONE));
+			el.setAttribute(S_ATT_STROKE, (isstroke ? strokecolor : S_NONE));
+			if(isstroke){ el.setAttribute(S_ATT_STROKEWIDTH, this.lineWidth, 'px');}
+			
+			this.target.appendChild(el);
+		}
+		else{
+			el.removeAttribute('opacity');
+			el.setAttribute(S_ATT_FILL,   (isfill ? fillcolor : S_NONE));
+			el.setAttribute(S_ATT_STROKE, (isstroke ? strokecolor : S_NONE));
+		}
 		return el;
 	}
 });

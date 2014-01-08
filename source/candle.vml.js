@@ -195,10 +195,9 @@ Candle.addWrapper('vml:vector',{
 	},
 
 	/* Canvas API functions (for text) */
-	fillText : function(text,x,y){
+	fillText_main : function(text,x,y){
 		var already = (!!this.vid && !!this.elements[this.vid]);
 		var ME = Candle.ME;
-
 		x=(x*Z-Z2)|0, y=(y*Z-Z2)|0;
 		ME.style.font = this.font; ME.innerHTML = text;
 		var top  = y - ((ME.offsetHeight * V_HEIGHT[this.textBaseline.toLowerCase()])*Z-Z2)|0;
@@ -206,6 +205,7 @@ Candle.addWrapper('vml:vector',{
 		var wid = (ME.offsetWidth*Z-Z2)|0;
 		var left = x - (wid * V_WIDTH[this.textAlign.toLowerCase()])|0;
 
+		var el;
 		if(!already){
 			var ar = [
 				V_TAG_GROUP, V_ATT_COORDSIZE, V_TAGEND,
@@ -221,24 +221,22 @@ Candle.addWrapper('vml:vector',{
 			];
 
 			this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
-			if(!!this.vid){ this.elements[this.vid] = this.target.lastChild.lastChild; this.vid='';}
+			el = this.target.lastChild.lastChild;
 		}
 		else{
-			var el = this.elements[this.vid];
+			el = this.elements[this.vid];
 //			el.points = [left,top,left+wid,top].join(',');
+			el.style.display = 'inline';
 			el.fillcolor = Candle.parse(this.fillStyle);
 			el.lastChild.style.font = this.font;
 			el.lastChild.string = text;
 		}
+		return el;
 	},
 
 	/* Canvas API functions (for image) */
-	drawImage : function(image,sx,sy,sw,sh,dx,dy,dw,dh){
-		if(sw===(void 0)){ sw=image.width; sh=image.height;}
-		if(dx===(void 0)){ dx=sx; sx=0; dy=sy; sy=0; dw=sw; dh=sh;}
-		var already = (!!this.vid && !!this.elements[this.vid]);
-
-		var el;
+	drawImage_main : function(image,sx,sy,sw,sh,dx,dy,dw,dh){
+		var el, already = (!!this.vid && !!this.elements[this.vid]);
 		if(!already){
 			var ar = [V_TAG_IMAGE, ' src="', image.src, V_ATT_END, V_ATT_COORDSIZE, V_TAGEND_NULL];
 			this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
@@ -248,6 +246,7 @@ Candle.addWrapper('vml:vector',{
 			el = this.elements[this.vid];
 			el.src = image.src;
 		}
+		el.style.display = 'inline';
 		el.style.left = dx;
 		el.style.top  = dy;
 		el.style.width  = dw;
@@ -257,7 +256,7 @@ Candle.addWrapper('vml:vector',{
 		el.cropright  = (1-(sx+sw)/image.width);
 		el.cropbottom = (1-(sy+sh)/image.height);
 
-		if(!already && !!this.vid){ this.elements[this.vid] = el; this.vid='';}
+		return el;
 	},
 
 	/* Canvas API functions (for transform) */
@@ -306,19 +305,28 @@ Candle.addWrapper('vml:vector',{
 	eLen : function(num){
 		return (num*Z)|0;
 	},
-	addVectorElement : function(isfill,isstroke){
-		var path = this.cpath.join(' ');
+	addVectorElement_main : function(isfill,isstroke){
+		var el, already = (!!this.vid && !!this.elements[this.vid]);
+		var fillcolor = Candle.parse(this.fillStyle), strokecolor = Candle.parse(this.strokeStyle);
+		if(!already){
+			var path = this.cpath.join(' ');
+			path = [path, (!isfill ? V_PATH_NOFILL : ''), (!isstroke ? V_PATH_NOSTROKE : '')].join('');
+			var ar = [V_TAG_SHAPE, V_EL_UNSELECTABLE, V_ATT_COORDSIZE, V_ATT_PATH, path, V_ATT_END];
+			if(isfill)  { ar.push(V_ATT_FILLCOLOR, fillcolor, V_ATT_END);}
+			if(isstroke){ ar.push(V_ATT_STROKECOLOR, strokecolor, V_ATT_END);}
+			if(isstroke){ ar.push(V_ATT_STROKEWEIGHT, this.lineWidth, 'px', V_ATT_END);}
+			ar.push(V_TAGEND_NULL);
+			
+			this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
+			el = this.target.lastChild;
+		}
+		else{
+			el.style.display = 'inline';
+			if(isfill)  { el.fillcolor   = fillcolor;}
+			if(isstroke){ el.strokecolor = strokecolor;}
+		}
 
-		path = [path, (!isfill ? V_PATH_NOFILL : ''), (!isstroke ? V_PATH_NOSTROKE : '')].join('');
-		var ar = [V_TAG_SHAPE, V_EL_UNSELECTABLE, V_ATT_COORDSIZE, V_ATT_PATH, path, V_ATT_END];
-		if(isfill)  { ar.push(V_ATT_FILLCOLOR, Candle.parse(this.fillStyle), V_ATT_END);}
-		if(isstroke){ ar.push(V_ATT_STROKECOLOR, Candle.parse(this.strokeStyle), V_ATT_END, V_ATT_STROKEWEIGHT, this.lineWidth, 'px', V_ATT_END);}
-		ar.push(V_TAGEND_NULL);
-
-		this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
-		if(!!this.vid){ this.elements[this.vid] = this.target.lastChild; this.vid='';}
-
-		return this.target.lastChild;
+		return el;
 	}
 });
 
