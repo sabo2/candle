@@ -321,6 +321,7 @@ Candle.addWrapper('vml:vector',{
 			el = this.target.lastChild;
 		}
 		else{
+			el = this.elements[this.vid];
 			el.style.display = 'inline';
 			if(isfill)  { el.fillcolor   = fillcolor;}
 			if(isstroke){ el.strokecolor = strokecolor;}

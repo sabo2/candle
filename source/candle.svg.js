@@ -190,6 +190,7 @@ Candle.addWrapper('svg:vector',{
 			this.target.appendChild(el);
 		}
 		else{
+			el = this.elements[this.vid];
 			el.removeAttribute('opacity');
 			el.setAttribute(S_ATT_FILL,   (isfill ? fillcolor : S_NONE));
 			el.setAttribute(S_ATT_STROKE, (isstroke ? strokecolor : S_NONE));

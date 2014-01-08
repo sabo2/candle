@@ -238,6 +238,7 @@ Candle.addWrapper('sl:vector',{
 			this.target.children.add(xaml);
 		}
 		else{
+			el = this.elements[this.vid];
 			el.Visibility = "Visible";
 			if(isfill)  { el.fill   = fillcolor;}
 			if(isstroke){ el.stroke = strokecolor;}
