@@ -55,6 +55,8 @@ Candle.addWrapper('svg:vector',{
 
 		var rect = Candle.getRectSize(this.canvas);
 		var top = _doc.createElementNS(SVGNS,'svg');
+		top.setAttribute('xmlns', SVGNS);
+		top.setAttribute('xmlns:xlink', XLINKNS);
 		top.setAttribute('id', this.canvasid);
 		top.setAttribute('font-size', "10px");
 		top.setAttribute('font-family', "sans-serif");
