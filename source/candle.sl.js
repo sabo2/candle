@@ -47,6 +47,19 @@ Candle.addWrapper('sl:vector',{
 
 		this.initElement();
 	},
+	hidekey : function(vid){
+		if(!!this.elements[vid]){
+			this.elements[vid].Visibility = "Collapsed";
+		}
+		return this;
+	},
+	release : function(vid){
+		if(!!this.elements[vid]){
+			this.elements[vid].Visibility = "Collapsed";
+			delete this.elements[vid];
+		}
+		return this;
+	},
 
 	/* additional functions (for initialize) */
 	initElement : function(){
@@ -157,10 +170,8 @@ Candle.addWrapper('sl:vector',{
 
 		if(!already){
 			this.target.children.add(xaml);
-			this.lastElement = xaml;
+			if(!!this.vid){ this.elements[this.vid] = xaml; this.vid='';}
 		}
-
-		if(!already && !!this.vid){ this.elements[this.vid] = this.lastElement; this.vid='';}
 	},
 
 	/* Canvas API functions (for image) */
@@ -188,10 +199,8 @@ Candle.addWrapper('sl:vector',{
 
 		if(!already){
 			this.target.children.add(xaml);
-			this.lastElement = xaml;
+			if(!!this.vid){ this.elements[this.vid] = xaml; this.vid='';}
 		}
-
-		if(!already && !!this.vid){ this.elements[this.vid] = this.lastElement; this.vid='';}
 	},
 
 	/* Canvas API functions (for transform) */
@@ -202,9 +211,8 @@ Candle.addWrapper('sl:vector',{
 	},
 
 	/* extended functions */
-	setDashSize : function(sizes){
-		if(!this.lastElement){ return;}
-		this.lastElement.StrokeDashArray = sizes.join(",");
+	setDashSize : function(obj, sizes){
+		obj.StrokeDashArray = sizes.join(",");
 	},
 
 	strokeLine : function(x1,y1,x2,y2){
@@ -230,10 +238,11 @@ Candle.addWrapper('sl:vector',{
 		ar.push(' />');
 
 		var xaml = this.content.createFromXaml(ar.join(''));
-		this.lastElement = xaml;
 		this.target.children.add(xaml);
 
-		if(!!this.vid){ this.elements[this.vid] = this.lastElement; this.vid='';}
+		if(!!this.vid){ this.elements[this.vid] = xaml; this.vid='';}
+
+		return xaml;
 	}
 });
 

@@ -36,6 +36,9 @@ Candle.addWrapper('canvas:wrapperbase',{
 
 		this.initElement();
 	},
+	setkey : function(vid){ return this;},
+	hidekey : function(vid){ return this;},
+	release : function(vid){ return this;},
 
 	/* extend functions (initialize) */
 	initElement : function(){
@@ -230,7 +233,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 			else     { this.context.lineTo(ar[0],ar[1]);}
 		}
 	},
-	setDashSize : function(size){ },
+	setDashSize : function(obj, size){ },
 
 	strokeLine : function(x1,y1,x2,y2){
 		var c = this.context;

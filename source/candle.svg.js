@@ -124,13 +124,11 @@ Candle.addWrapper('svg:vector',{
 		if(!already){
 			el.appendChild(_doc.createTextNode(text));
 			this.target.appendChild(el);
-			this.lastElement = el;
+			if(!!this.vid){ this.elements[this.vid] = el; this.vid='';}
 		}
 		else{
 			el.replaceChild(_doc.createTextNode(text), el.firstChild);
 		}
-
-		if(!already && !!this.vid){ this.elements[this.vid] = this.lastElement; this.vid='';}
 	},
 
 	/* Canvas API functions (for image) */
@@ -153,10 +151,8 @@ Candle.addWrapper('svg:vector',{
 		if(!already){
 			el.appendChild(img);
 			this.target.appendChild(el);
-			this.lastElement = el;
+			if(!!this.vid){ this.elements[this.vid] = el; this.vid='';}
 		}
-
-		if(!already && !!this.vid){ this.elements[this.vid] = this.lastElement; this.vid='';}
 	},
 
 	/* Canvas API functions (for transform) */
@@ -168,9 +164,8 @@ Candle.addWrapper('svg:vector',{
 	},
 
 	/* extended functions */
-	setDashSize : function(sizes){
-		if(!this.lastElement){ return;}
-		this.lastElement.setAttribute('stroke-dasharray', sizes.join(" "));
+	setDashSize : function(obj, sizes){
+		obj.setAttribute('stroke-dasharray', sizes.join(" "));
 	},
 
 	/* internal functions */
@@ -184,9 +179,9 @@ Candle.addWrapper('svg:vector',{
 		if(isstroke) { el.setAttribute(S_ATT_STROKEWIDTH, this.lineWidth, 'px');}
 
 		this.target.appendChild(el);
-		this.lastElement = el;
+		if(!!this.vid){ this.elements[this.vid] = el; this.vid='';}
 
-		if(!!this.vid){ this.elements[this.vid] = this.lastElement; this.vid='';}
+		return el;
 	}
 });
 

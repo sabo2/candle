@@ -96,6 +96,12 @@ Candle.addWrapper('vml:vector',{
 
 		this.initElement();
 	},
+	hidekey : function(vid){
+		if(!!this.elements[vid]){
+			this.elements[vid].style.display = 'none';
+		}
+		return this;
+	},
 
 	/* additional functions (for initialize) */
 	initElement : function(){
@@ -215,7 +221,7 @@ Candle.addWrapper('vml:vector',{
 			];
 
 			this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
-			this.lastElement = this.target.lastChild.lastChild;
+			if(!!this.vid){ this.elements[this.vid] = this.target.lastChild.lastChild; this.vid='';}
 		}
 		else{
 			var el = this.elements[this.vid];
@@ -224,8 +230,6 @@ Candle.addWrapper('vml:vector',{
 			el.lastChild.style.font = this.font;
 			el.lastChild.string = text;
 		}
-
-		if(!already && !!this.vid){ this.elements[this.vid] = this.lastElement; this.vid='';}
 	},
 
 	/* Canvas API functions (for image) */
@@ -238,8 +242,7 @@ Candle.addWrapper('vml:vector',{
 		if(!already){
 			var ar = [V_TAG_IMAGE, ' src="', image.src, V_ATT_END, V_ATT_COORDSIZE, V_TAGEND_NULL];
 			this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
-			this.lastElement = this.target.lastChild;
-			el = this.lastElement;
+			el = this.target.lastChild;
 		}
 		else{
 			el = this.elements[this.vid];
@@ -254,7 +257,7 @@ Candle.addWrapper('vml:vector',{
 		el.cropright  = (1-(sx+sw)/image.width);
 		el.cropbottom = (1-(sy+sh)/image.height);
 
-		if(!already && !!this.vid){ this.elements[this.vid] = this.lastElement; this.vid='';}
+		if(!already && !!this.vid){ this.elements[this.vid] = el; this.vid='';}
 	},
 
 	/* Canvas API functions (for transform) */
@@ -273,13 +276,12 @@ Candle.addWrapper('vml:vector',{
 			this.cpath.push(this.ePos(array[i][0],true),this.ePos(array[i][1],true));
 		}
 	},
-	setDashSize : function(sizes){
-		if(!this.lastElement){ return;}
+	setDashSize : function(obj, sizes){
 		var el = _doc.createElement('v:stroke');
 		if     (sizes[0]<=2){ el.dashstyle = 'ShortDash';}
 		else if(sizes[0]<=5){ el.dashstyle = 'Dash';}
 		else                { el.dashstyle = 'LongDash';}
-		this.lastElement.appendChild(el);
+		obj.appendChild(el);
 	},
 
 	strokeLine : function(x1,y1,x2,y2){
@@ -314,9 +316,9 @@ Candle.addWrapper('vml:vector',{
 		ar.push(V_TAGEND_NULL);
 
 		this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
-		this.lastElement = this.target.lastChild;
+		if(!!this.vid){ this.elements[this.vid] = this.target.lastChild; this.vid='';}
 
-		if(!!this.vid){ this.elements[this.vid] = this.lastElement; this.vid='';}
+		return this.target.lastChild;
 	}
 });
 

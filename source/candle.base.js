@@ -37,7 +37,6 @@ Candle.addWrapper('vector:wrapperbase',{
 		// 外部から変更される追加プロパティ
 		this.vid      = '';
 		this.elements = [];
-		this.lastElement = null;
 
 		// variables for internal
 		this.target = null;	// エレメントの追加対象となるオブジェクト
@@ -45,6 +44,23 @@ Candle.addWrapper('vector:wrapperbase',{
 		// 描画中path
 		this.cpath    = [];
 		this.lastpath = '';
+	},
+	setkey : function(vid){
+		this.vid = vid;
+		return this;
+	},
+	hidekey : function(vid){
+		if(!!this.elements[vid]){
+			this.elements[vid].setAttribute('opacity',0);
+		}
+		return this;
+	},
+	release : function(vid){
+		if(!!this.elements[vid]){
+			this.target.removeChild(this.elements[vid]);
+			delete this.elements[vid];
+		}
+		return this;
 	},
 
 	/* additional functions (for initialize) */
@@ -83,7 +99,6 @@ Candle.addWrapper('vector:wrapperbase',{
 	resetElement : function(){
 		this.vid = '';
 		this.elements = [];
-		this.lastElement = null;
 		this.initTarget();
 	},
 
@@ -218,7 +233,7 @@ Candle.addWrapper('vector:wrapperbase',{
 			this.cpath.push(array[i][0],array[i][1]);
 		}
 	},
-	setDashSize : function(sizes){},
+	setDashSize : function(obj, sizes){},
 
 	strokeLine : function(x1,y1,x2,y2){
 		var stack = this.cpath;
@@ -229,8 +244,8 @@ Candle.addWrapper('vector:wrapperbase',{
 	strokeDashedLine : function(x1,y1,x2,y2,sizes){
 		var stack = this.cpath;
 		this.cpath = [this.PATH_MOVE,x1,y1,this.PATH_LINE,x2,y2];
-		this.addVectorElement(false,true);
-		this.setDashSize(sizes);
+		var obj = this.addVectorElement(false,true);
+		this.setDashSize(obj, sizes);
 		this.cpath = stack;
 	},
 	strokeCross : function(cx,cy,l){
@@ -268,5 +283,5 @@ Candle.addWrapper('vector:wrapperbase',{
 	},
 
 	/* internal functions */
-	addVectorElement : function(isfill,isstroke){}
+	addVectorElement : function(isfill,isstroke){ return null;}
 });
