@@ -1,5 +1,15 @@
 (function(){
-	var _doc = document, dir = '../../candle/source/';
+	var dir="", srcs=document.getElementsByTagName('script');
+	for(var i=0;i<srcs.length;i++){
+		var result = srcs[i].src.match(/^(.*\/)candle\.js$/);
+		if(result){
+			if(result[1].match(/\/$/)){ dir = result[1];}
+			else{ dir = result[1]+'/';}
+			break;
+		}
+	}
+
+	var _doc = document;
 	_doc.write('<script type="text/javascript" src="'+dir+'candle.core.js"></script>');
 	_doc.write('<script type="text/javascript" src="'+dir+'candle.base.js"></script>');
 

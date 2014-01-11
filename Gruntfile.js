@@ -31,6 +31,8 @@ module.exports = function(grunt){
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
+    clean: ["dist/*"],
+
     concat: {
       options: {
         banner: banner_full
@@ -42,7 +44,22 @@ module.exports = function(grunt){
       }
     },
 
+    copy: {
+      debug: {
+        files: [
+          { expand: true, cwd: "src", src: ["*.js"], dest: "dist" }
+        ]
+      }
+    },
+
     replace: {
+      debug: {
+        src: 'dist/candle.core.js',
+        overwrite: true,
+        replacements: [
+          { from: "<deploy-version>", to: "<%= pkg.version %>"}
+        ]
+      },
       candle: {
         src: 'dist/candle.concat.js',
         overwrite: true,
@@ -66,11 +83,11 @@ module.exports = function(grunt){
   });
   
   function mod2file(mod){
-    return "source/candle." + mod + ".js";
+    return "src/candle." + mod + ".js";
   }
   function wrap(array){
-    array.unshift("source/intro.js");
-    array.push   ("source/outro.js");
+    array.unshift("src/intro.js");
+    array.push   ("src/outro.js");
     return array;
   }
   
@@ -79,8 +96,11 @@ module.exports = function(grunt){
   
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-text-replace');
   
-  grunt.registerTask('default', ['concat', 'replace', 'uglify']);
+  grunt.registerTask('default', ['clean', 'copy:debug', 'replace:debug']);
+  grunt.registerTask('release', ['clean', 'concat', 'replace:candle', 'uglify']);
 };
 
