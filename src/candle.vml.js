@@ -164,6 +164,14 @@ Candle.addWrapper('vml:vector',{
 		child.style.height = height + 'px';
 	},
 
+	/* Canvas API functions (for transform) */
+	translate : function(left,top){
+		var child = this.canvas.firstChild;
+		child.style.position = 'absolute';
+		child.style.left = left+'px';
+		child.style.top  = top +'px';
+	},
+
 	/* Canvas API functions (for path) */
 	moveTo : function(x,y){
 		this.cpath.push(this.PATH_MOVE,this.ePos(x,true),this.ePos(y,true));
@@ -192,6 +200,45 @@ Candle.addWrapper('vml:vector',{
 		if(endRad-startRad>=_2PI){ sx+=1;}
 		this.cpath.push(com,(cx-r),(cy-r),(cx+r),(cy+r),sx,sy,ex,ey);
 		this.lastpath = com;
+	},
+
+	/* extended functions */
+	setLinePath_com : function(array){
+		this.cpath = [];
+		for(var i=0,len=array.length;i<len;i++){
+			this.cpath.push(i===0 ? this.PATH_MOVE : this.PATH_LINE);
+			this.cpath.push(this.ePos(array[i][0],true),this.ePos(array[i][1],true));
+		}
+	},
+	setDashSize : function(obj, sizes){
+		var el = _doc.createElement('v:stroke');
+		if     (sizes[0]<=2){ el.dashstyle = 'ShortDash';}
+		else if(sizes[0]<=5){ el.dashstyle = 'Dash';}
+		else                { el.dashstyle = 'LongDash';}
+		obj.appendChild(el);
+	},
+
+	strokeLine : function(x1,y1,x2,y2){
+		x1=this.ePos(x1,true); y1=this.ePos(y1,true); x2=this.ePos(x2,true); y2=this.ePos(y2,true);
+		Candle.wrapper.vector.prototype.strokeLine.call(this,x1,y1,x2,y2);
+	},
+	strokeDashedLine : function(x1,y1,x2,y2,sizes){
+		x1=this.ePos(x1,true); y1=this.ePos(y1,true); x2=this.ePos(x2,true); y2=this.ePos(y2,true);
+		Candle.wrapper.vector.prototype.strokeDashedLine.call(this,x1,y1,x2,y2,sizes);
+	},
+	strokeCross : function(cx,cy,l){
+		cx=this.ePos(cx,true); cy=this.ePos(cy,true); l=this.eLen(l);
+		Candle.wrapper.vector.prototype.strokeCross.call(this,cx,cy,l);
+	},
+
+	/* internal functions */
+	ePos : function(num,stroke){
+		if(!stroke){ num = (num+(num>0?0.5:-0.5))|0;}
+		else       { num = ((num+(num>0?0.5:-0.5) - (this.lineWidth%2===1?0.5:0))|0);}
+		return (num*Z-Z2)|0;
+	},
+	eLen : function(num){
+		return (num*Z)|0;
 	},
 
 	/* Canvas API functions (for text) */
@@ -259,52 +306,7 @@ Candle.addWrapper('vml:vector',{
 		return el;
 	},
 
-	/* Canvas API functions (for transform) */
-	translate : function(left,top){
-		var child = this.canvas.firstChild;
-		child.style.position = 'absolute';
-		child.style.left = left+'px';
-		child.style.top  = top +'px';
-	},
-
-	/* extended functions */
-	setLinePath_com : function(array){
-		this.cpath = [];
-		for(var i=0,len=array.length;i<len;i++){
-			this.cpath.push(i===0 ? this.PATH_MOVE : this.PATH_LINE);
-			this.cpath.push(this.ePos(array[i][0],true),this.ePos(array[i][1],true));
-		}
-	},
-	setDashSize : function(obj, sizes){
-		var el = _doc.createElement('v:stroke');
-		if     (sizes[0]<=2){ el.dashstyle = 'ShortDash';}
-		else if(sizes[0]<=5){ el.dashstyle = 'Dash';}
-		else                { el.dashstyle = 'LongDash';}
-		obj.appendChild(el);
-	},
-
-	strokeLine : function(x1,y1,x2,y2){
-		x1=this.ePos(x1,true); y1=this.ePos(y1,true); x2=this.ePos(x2,true); y2=this.ePos(y2,true);
-		Candle.wrapper.vector.prototype.strokeLine.call(this,x1,y1,x2,y2);
-	},
-	strokeDashedLine : function(x1,y1,x2,y2,sizes){
-		x1=this.ePos(x1,true); y1=this.ePos(y1,true); x2=this.ePos(x2,true); y2=this.ePos(y2,true);
-		Candle.wrapper.vector.prototype.strokeDashedLine.call(this,x1,y1,x2,y2,sizes);
-	},
-	strokeCross : function(cx,cy,l){
-		cx=this.ePos(cx,true); cy=this.ePos(cy,true); l=this.eLen(l);
-		Candle.wrapper.vector.prototype.strokeCross.call(this,cx,cy,l);
-	},
-
 	/* internal functions */
-	ePos : function(num,stroke){
-		if(!stroke){ num = (num+(num>0?0.5:-0.5))|0;}
-		else       { num = ((num+(num>0?0.5:-0.5) - (this.lineWidth%2===1?0.5:0))|0);}
-		return (num*Z-Z2)|0;
-	},
-	eLen : function(num){
-		return (num*Z)|0;
-	},
 	addVectorElement_main : function(isfill,isstroke){
 		var el, already = (!!this.vid && !!this.elements[this.vid]);
 		var fillcolor = Candle.parse(this.fillStyle), strokecolor = Candle.parse(this.strokeStyle);

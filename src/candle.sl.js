@@ -122,6 +122,13 @@ Candle.addWrapper('sl:vector',{
 		child.height = height + 'px';
 	},
 
+	/* Canvas API functions (for transform) */
+	translate : function(left,top){
+		var child = this.canvas.firstChild;
+		this.x0 = left; /* (left<0?-left:0); */
+		this.y0 = top;  /* (top<0 ?-top :0); */
+	},
+
 	/* Canvas API functions (for path) */
 	moveTo : function(x,y){
 		this.cpath.push(this.PATH_MOVE,x+this.x0,y+this.y0);
@@ -140,6 +147,24 @@ Candle.addWrapper('sl:vector',{
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
 		cx+=this.x0; cy+=this.y0;
 		Candle.wrapper.vector.prototype.arc.call(this,cx,cy,r,startRad,endRad,antiClockWise);
+	},
+
+	/* extended functions */
+	setDashSize : function(obj, sizes){
+		obj.StrokeDashArray = sizes.join(",");
+	},
+
+	strokeLine : function(x1,y1,x2,y2){
+		x1+=this.x0; y1+=this.y0; x2+=this.x0; y2+=this.y0;
+		Candle.wrapper.vector.prototype.strokeLine.call(this,x1,y1,x2,y2);
+	},
+	strokeDashedLine : function(x1,y1,x2,y2,sizes){
+		x1+=this.x0; y1+=this.y0; x2+=this.x0; y2+=this.y0;
+		Candle.wrapper.vector.prototype.strokeDashedLine.call(this,x1,y1,x2,y2,sizes);
+	},
+	strokeCross : function(cx,cy,l){
+		cx+=this.x0; cy+=this.y0;
+		Candle.wrapper.vector.prototype.strokeCross.call(this,cx,cy,l);
 	},
 
 	/* Canvas API functions (for text) */
@@ -196,31 +221,6 @@ Candle.addWrapper('sl:vector',{
 
 		if(!already){ this.target.children.add(xaml);}
 		return xaml;
-	},
-
-	/* Canvas API functions (for transform) */
-	translate : function(left,top){
-		var child = this.canvas.firstChild;
-		this.x0 = left; /* (left<0?-left:0); */
-		this.y0 = top;  /* (top<0 ?-top :0); */
-	},
-
-	/* extended functions */
-	setDashSize : function(obj, sizes){
-		obj.StrokeDashArray = sizes.join(",");
-	},
-
-	strokeLine : function(x1,y1,x2,y2){
-		x1+=this.x0; y1+=this.y0; x2+=this.x0; y2+=this.y0;
-		Candle.wrapper.vector.prototype.strokeLine.call(this,x1,y1,x2,y2);
-	},
-	strokeDashedLine : function(x1,y1,x2,y2,sizes){
-		x1+=this.x0; y1+=this.y0; x2+=this.x0; y2+=this.y0;
-		Candle.wrapper.vector.prototype.strokeDashedLine.call(this,x1,y1,x2,y2,sizes);
-	},
-	strokeCross : function(cx,cy,l){
-		cx+=this.x0; cy+=this.y0;
-		Candle.wrapper.vector.prototype.strokeCross.call(this,cx,cy,l);
 	},
 
 	/* internal functions */

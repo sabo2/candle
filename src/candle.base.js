@@ -139,6 +139,9 @@ Candle.addWrapper('vector:wrapperbase',{
 	},
 	changeChildSize : function(child,width,height){},
 
+	/* Canvas API functions (for transform) */
+	translate : function(left,top){},
+
 	/* Canvas API functions (for path) */
 	beginPath : function(){
 		this.cpath = [];
@@ -203,45 +206,6 @@ Candle.addWrapper('vector:wrapperbase',{
 		this.addVectorElement(true,true);
 		this.cpath = stack;
 	},
-
-	/* Canvas API functions (for text) */
-	fillText : function(text,x,y){
-		var already = (!!this.vid && !!this.elements[this.vid]);
-		if(!text || this.fillStyle==="none"){
-			if(already){ this.hidekey(this.vid); this.vid = '';}
-			return;
-		}
-
-		var el = this.fillText_main(text,x,y);
-
-		if(!already){
-			if(!!this.vid){ this.elements[this.vid] = el; this.vid='';}
-		}
-	},
-	fillText_main : function(text,x,y){},
-
-	/* Canvas API functions (for image) */
-	drawImage : function(image,sx,sy,sw,sh,dx,dy,dw,dh){
-		var already = (!!this.vid && !!this.elements[this.vid]);
-		if(!image){
-			if(already){ this.hidekey(this.vid); this.vid = '';}
-			return;
-		}
-
-		if(sw===(void 0)){ sw=image.width; sh=image.height;}
-		if(dx===(void 0)){ dx=sx; sx=0; dy=sy; sy=0; dw=sw; dh=sh;}
-
-		var el = this.drawImage_main(image,sx,sy,sw,sh,dx,dy,dw,dh);
-
-		if(!already){
-			this.target.children.add(el);
-			if(!!this.vid){ this.elements[this.vid] = el; this.vid='';}
-		}
-	},
-	drawImage_main : function(image,sx,sy,sw,sh,dx,dy,dw,dh){},
-
-	/* Canvas API functions (for transform) */
-	translate : function(left,top){},
 
 	/* extended functions */
 	setLinePath : function(){
@@ -312,6 +276,42 @@ Candle.addWrapper('vector:wrapperbase',{
 		this.cpath = stack;
 	},
 
+	/* Canvas API functions (for text) */
+	fillText : function(text,x,y){
+		var already = (!!this.vid && !!this.elements[this.vid]);
+		if(!text || this.fillStyle==="none"){
+			if(already){ this.hidekey(this.vid); this.vid = '';}
+			return;
+		}
+
+		var el = this.fillText_main(text,x,y);
+
+		if(!already){
+			if(!!this.vid){ this.elements[this.vid] = el; this.vid='';}
+		}
+	},
+	fillText_main : function(text,x,y){},
+
+	/* Canvas API functions (for image) */
+	drawImage : function(image,sx,sy,sw,sh,dx,dy,dw,dh){
+		var already = (!!this.vid && !!this.elements[this.vid]);
+		if(!image){
+			if(already){ this.hidekey(this.vid); this.vid = '';}
+			return;
+		}
+
+		if(sw===(void 0)){ sw=image.width; sh=image.height;}
+		if(dx===(void 0)){ dx=sx; sx=0; dy=sy; sy=0; dw=sw; dh=sh;}
+
+		var el = this.drawImage_main(image,sx,sy,sw,sh,dx,dy,dw,dh);
+
+		if(!already){
+			this.target.children.add(el);
+			if(!!this.vid){ this.elements[this.vid] = el; this.vid='';}
+		}
+	},
+	drawImage_main : function(image,sx,sy,sw,sh,dx,dy,dw,dh){},
+
 	/* internal functions */
 	addVectorElement : function(isfill,isstroke){
 		isfill   = isfill   && (this.fillStyle  !=="none");
@@ -324,5 +324,6 @@ Candle.addWrapper('vector:wrapperbase',{
 		var el = this.addVectorElement_main(isfill,isstroke);
 		if(!!this.vid){ this.elements[this.vid] = el; this.vid='';}
 		return el;
-	}
+	},
+	addVectorElement_main : function(isfill,isstroke){}
 });

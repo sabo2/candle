@@ -110,6 +110,19 @@ Candle.addWrapper('svg:vector',{
 		child.setAttribute('viewBox', [m[0],m[1],width,height].join(' '));
 	},
 
+	/* Canvas API functions (for transform) */
+	translate : function(left,top){
+		var child = this.canvas.firstChild;
+		var m = child.getAttribute('viewBox').split(/ /);
+		m[0]=-left, m[1]=-top;
+		child.setAttribute('viewBox', m.join(' '));
+	},
+
+	/* extended functions */
+	setDashSize : function(obj, sizes){
+		obj.setAttribute('stroke-dasharray', sizes.join(" "));
+	},
+
 	/* Canvas API functions (for text) */
 	fillText_main : function(text,x,y){
 		var already = (!!this.vid && !!this.elements[this.vid]);
@@ -162,19 +175,6 @@ Candle.addWrapper('svg:vector',{
 
 		if(!already){ this.target.appendChild(el);}
 		return el;
-	},
-
-	/* Canvas API functions (for transform) */
-	translate : function(left,top){
-		var child = this.canvas.firstChild;
-		var m = child.getAttribute('viewBox').split(/ /);
-		m[0]=-left, m[1]=-top;
-		child.setAttribute('viewBox', m.join(' '));
-	},
-
-	/* extended functions */
-	setDashSize : function(obj, sizes){
-		obj.setAttribute('stroke-dasharray', sizes.join(" "));
 	},
 
 	/* internal functions */
