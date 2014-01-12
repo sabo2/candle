@@ -70,16 +70,6 @@ Candle.addWrapper('svg:vector',{
 		this.afterInit();
 	},
 
-	initTarget : function(){
-		this.target = _doc.getElementById(this.canvasid);
-	},
-	clear : function(){
-		var top = this.canvas.firstChild, el = top.firstChild;
-		while(!!el){ top.removeChild(el); el=top.firstChild;}
-
-		this.resetElement();
-	},
-
 	/* layer functions */
 	setLayerEdge : function(){ /* nop */ },
 	createLayer : function(lid){
