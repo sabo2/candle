@@ -96,12 +96,8 @@ Candle.addWrapper('vml:vector',{
 
 		this.initElement();
 	},
-	hidekey : function(vid){
-		if(!!this.elements[vid]){
-			this.elements[vid].style.display = 'none';
-		}
-		return this;
-	},
+	show : function(el){ el.style.display = 'inline';},
+	hide : function(el){ el.style.display = 'none';},
 
 	/* additional functions (for initialize) */
 	initElement : function(){
@@ -242,62 +238,55 @@ Candle.addWrapper('vml:vector',{
 	},
 
 	/* Canvas API functions (for text) */
-	fillText_main : function(text,x,y){
-		var already = (!!this.vid && !!this.elements[this.vid]);
-		var ME = Candle.ME;
-		x=(x*Z-Z2)|0, y=(y*Z-Z2)|0;
-		ME.style.font = this.font; ME.innerHTML = text;
-		var top  = y - ((ME.offsetHeight * V_HEIGHT[this.textBaseline.toLowerCase()])*Z-Z2)|0;
-
-		var wid = (ME.offsetWidth*Z-Z2)|0;
-		var left = x - (wid * V_WIDTH[this.textAlign.toLowerCase()])|0;
-
-		var el;
-		if(!already){
+	fillText_main : function(el,text,x,y){
+		var newel = !el;
+		if(newel){
 			var ar = [
 				V_TAG_GROUP, V_ATT_COORDSIZE, V_TAGEND,
-					V_TAG_POLYLINE, V_ATT_POINTS, [left,top,left+wid,top].join(','), V_ATT_END,
-					V_DEF_ATT_POLYLINE, V_ATT_FILLCOLOR, Candle.parse(this.fillStyle), V_ATT_END, V_TAGEND,
+					V_TAG_POLYLINE, V_DEF_ATT_POLYLINE, V_TAGEND,
 						V_TAG_PATH_FOR_TEXTPATH,
-						
-						V_TAG_TEXTPATH, V_DEF_ATT_TEXTPATH, V_ATT_STRING, text, V_ATT_END,
-						V_ATT_STYLE, V_STYLE_FONT, this.font, V_STYLE_END,
-						V_STYLE_ALIGN, this.textAlign, V_STYLE_END, V_ATT_END, V_TAGEND_NULL,
+						V_TAG_TEXTPATH, V_DEF_ATT_TEXTPATH, V_TAGEND_NULL,
 					V_CLOSETAG_POLYLINE,
 				V_CLOSETAG_GROUP
 			];
-
 			this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
 			el = this.target.lastChild.lastChild;
 		}
-		else{
-			el = this.elements[this.vid];
-//			el.points = [left,top,left+wid,top].join(',');
-			el.style.display = 'inline';
-			el.fillcolor = Candle.parse(this.fillStyle);
-			el.lastChild.style.font = this.font;
-			el.lastChild.string = text;
-		}
+		else{ this.show(el);}
+
+		var ME = Candle.ME;
+		ME.style.font = this.font;
+		ME.innerHTML = text;
+		var wid = (ME.offsetWidth*Z-Z2)|0;
+		var left = ((x - ME.offsetWidth  * V_WIDTH [this.textAlign.toLowerCase()]   )*Z-Z2)|0;
+		var top  = ((y - ME.offsetHeight * V_HEIGHT[this.textBaseline.toLowerCase()])*Z-Z2)|0;
+		
+		el.points = [left,top,left+wid,top].join(',');
+		el.fillcolor = Candle.parse(this.fillStyle);
+		var child = el.lastChild;
+		child.style.font = this.font;
+		child.style['v-text-align'] = this.textAlign;
+		child.string = text;
+
 		return el;
 	},
 
 	/* Canvas API functions (for image) */
-	drawImage_main : function(image,sx,sy,sw,sh,dx,dy,dw,dh){
-		var el, already = (!!this.vid && !!this.elements[this.vid]);
-		if(!already){
-			var ar = [V_TAG_IMAGE, ' src="', image.src, V_ATT_END, V_ATT_COORDSIZE, V_TAGEND_NULL];
+	drawImage_main : function(el,image,sx,sy,sw,sh,dx,dy,dw,dh){
+		var newel = !el;
+		if(newel){
+			var ar = [V_TAG_IMAGE, V_ATT_COORDSIZE, V_TAGEND_NULL];
 			this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
 			el = this.target.lastChild;
 		}
-		else{
-			el = this.elements[this.vid];
-			el.src = image.src;
-		}
-		el.style.display = 'inline';
+		else{ this.show(el);}
+
+		el.src = image.src;
 		el.style.left = dx;
 		el.style.top  = dy;
 		el.style.width  = dw;
 		el.style.height = dh;
+		el.style.display = 'inline';
 		el.cropleft = sx/image.width;
 		el.croptop  = sy/image.height;
 		el.cropright  = (1-(sx+sw)/image.width);
@@ -307,27 +296,22 @@ Candle.addWrapper('vml:vector',{
 	},
 
 	/* internal functions */
-	addVectorElement_main : function(isfill,isstroke){
-		var el, already = (!!this.vid && !!this.elements[this.vid]);
-		var fillcolor = Candle.parse(this.fillStyle), strokecolor = Candle.parse(this.strokeStyle);
-		if(!already){
-			var path = this.cpath.join(' ');
-			path = [path, (!isfill ? V_PATH_NOFILL : ''), (!isstroke ? V_PATH_NOSTROKE : '')].join('');
-			var ar = [V_TAG_SHAPE, V_EL_UNSELECTABLE, V_ATT_COORDSIZE, V_ATT_PATH, path, V_ATT_END];
-			if(isfill)  { ar.push(V_ATT_FILLCOLOR, fillcolor, V_ATT_END);}
-			if(isstroke){ ar.push(V_ATT_STROKECOLOR, strokecolor, V_ATT_END);}
-			if(isstroke){ ar.push(V_ATT_STROKEWEIGHT, this.lineWidth, 'px', V_ATT_END);}
-			ar.push(V_TAGEND_NULL);
-			
+	addVectorElement_main : function(el,isfill,isstroke){
+		var newel = !el;
+		if(newel){
+			var ar = [V_TAG_SHAPE, V_EL_UNSELECTABLE, V_ATT_COORDSIZE, V_TAGEND_NULL];
 			this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
 			el = this.target.lastChild;
 		}
-		else{
-			el = this.elements[this.vid];
-			el.style.display = 'inline';
-			if(isfill)  { el.fillcolor   = fillcolor;}
-			if(isstroke){ el.strokecolor = strokecolor;}
-		}
+		else{ this.show(el);}
+
+		var path = [this.cpath.join(' '), (!isfill ? V_PATH_NOFILL : ''), (!isstroke ? V_PATH_NOSTROKE : '')].join(''),
+			fillcolor   = (isfill   ? Candle.parse(this.fillStyle)   : ''),
+			strokecolor = (isstroke ? Candle.parse(this.strokeStyle) : '');
+		el.path = path;
+		if(isfill)  { el.fillcolor   = fillcolor;}
+		if(isstroke){ el.strokecolor = strokecolor;}
+		if(isstroke){ el.strokeweight = [this.lineWidth, 'px'].join('');}
 
 		return el;
 	}

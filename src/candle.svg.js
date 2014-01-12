@@ -124,78 +124,71 @@ Candle.addWrapper('svg:vector',{
 	},
 
 	/* Canvas API functions (for text) */
-	fillText_main : function(text,x,y){
-		var already = (!!this.vid && !!this.elements[this.vid]);
-		var ME = Candle.ME;
-		ME.style.font = this.font; ME.innerHTML = text;
-		var top = y - (ME.offsetHeight * S_HEIGHT[this.textBaseline.toLowerCase()]);
+	fillText_main : function(el,text,x,y){
+		var newel = !el;
+		if(newel){ el = newEL('text');}
+		else{ this.show(el);}
 
-		if(!already){ el = newEL('text');}
-		else{
-			el = this.elements[this.vid];
-			el.removeAttribute('opacity');
-		}
+		var ME = Candle.ME;
+		ME.style.font = this.font;
+		ME.innerHTML = text;
+		var top = y - ME.offsetHeight * S_HEIGHT[this.textBaseline.toLowerCase()];
+		
 		el.setAttribute('x', x);
 		el.setAttribute('y', top);
 		el.setAttribute(S_ATT_FILL, Candle.parse(this.fillStyle));
 		el.setAttribute('text-anchor', S_ANCHOR[this.textAlign.toLowerCase()]);
 		el.style.font = this.font;
-		if(!already){
-			el.appendChild(_doc.createTextNode(text));
-			this.target.appendChild(el);
-		}
-		else{
-			el.replaceChild(_doc.createTextNode(text), el.firstChild);
-		}
+		var textnode = _doc.createTextNode(text);
+		if(newel){ el.appendChild(textnode);}
+		else     { el.replaceChild(textnode, el.firstChild);}
+
+		if(newel){ this.target.appendChild(el);}
 		return el;
 	},
 
 	/* Canvas API functions (for image) */
-	drawImage_main : function(image,sx,sy,sw,sh,dx,dy,dw,dh){
-		var el, img, already = (!!this.vid && !!this.elements[this.vid]);
-		if(!already){
+	drawImage_main : function(el,image,sx,sy,sw,sh,dx,dy,dw,dh){
+		var newel = !el;
+		if(newel){
 			el = newEL('svg');
-			img = newEL("image");
-			el.appendChild(img);
+			el.appendChild(newEL("image"));
 		}
-		else{
-			el = this.elements[this.vid];
-			el.removeAttribute('opacity');
-			img = el.firstChild;
-		}
+		else{ this.show(el);}
+
 		el.setAttribute("viewBox", [sx,sy,sw,sh].join(" "));
 		el.setAttribute("x", dx);
 		el.setAttribute("y", dy);
 		el.setAttribute("width",  dw);
 		el.setAttribute("height", dh);
-
+		var img = el.firstChild;
 		img.setAttributeNS(null, "width",  image.width);
 		img.setAttributeNS(null, "height", image.height);
 		img.setAttributeNS(XLINKNS, "xlink:href", image.src);
 
-		if(!already){ this.target.appendChild(el);}
+		if(newel){ this.target.appendChild(el);}
 		return el;
 	},
 
 	/* internal functions */
-	addVectorElement_main : function(isfill,isstroke){
-		var el, already = (!!this.vid && !!this.elements[this.vid]);
-		var fillcolor = Candle.parse(this.fillStyle), strokecolor = Candle.parse(this.strokeStyle);
-		if(!already){
+	addVectorElement_main : function(el,isfill,isstroke){
+		var newel = !el;
+		if(newel){
 			el = newEL('path');
-			el.setAttribute('d', this.cpath.join(' '));
-			el.setAttribute(S_ATT_FILL,   (isfill ? fillcolor : S_NONE));
-			el.setAttribute(S_ATT_STROKE, (isstroke ? strokecolor : S_NONE));
-			if(isstroke){ el.setAttribute(S_ATT_STROKEWIDTH, this.lineWidth, 'px');}
-			
-			this.target.appendChild(el);
+			el.setAttribute(S_ATT_FILL,   S_NONE);
+			el.setAttribute(S_ATT_STROKE, S_NONE);
 		}
-		else{
-			el = this.elements[this.vid];
-			el.removeAttribute('opacity');
-			el.setAttribute(S_ATT_FILL,   (isfill ? fillcolor : S_NONE));
-			el.setAttribute(S_ATT_STROKE, (isstroke ? strokecolor : S_NONE));
-		}
+		else{ this.show(el);}
+
+		var path = this.cpath.join(' '),
+			fillcolor   = (isfill   ? Candle.parse(this.fillStyle)   : S_NONE),
+			strokecolor = (isstroke ? Candle.parse(this.strokeStyle) : S_NONE);
+		el.setAttribute('d', path);
+		if(isfill)  { el.setAttribute(S_ATT_FILL,   fillcolor);}
+		if(isstroke){ el.setAttribute(S_ATT_STROKE, strokecolor);}
+		if(isstroke){ el.setAttribute(S_ATT_STROKEWIDTH, this.lineWidth);}
+
+		if(newel){ this.target.appendChild(el);}
 		return el;
 	}
 });

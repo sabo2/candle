@@ -50,18 +50,21 @@ Candle.addWrapper('vector:wrapperbase',{
 		return this;
 	},
 	hidekey : function(vid){
-		if(!!this.elements[vid]){
-			this.elements[vid].setAttribute('opacity',0);
-		}
+		var el = this.elements[vid];
+		if(!!el){ this.hide(el);}
 		return this;
 	},
 	release : function(vid){
-		if(!!this.elements[vid]){
-			this.target.removeChild(this.elements[vid]);
+		var el = this.elements[vid];
+		if(!!el){
+			this.delete(el);
 			delete this.elements[vid];
 		}
 		return this;
 	},
+	show : function(el){ el.removeAttribute('opacity');},
+	hide : function(el){ el.setAttribute('opacity',0);},
+	delete : function(el){ this.target.removeChild(el);},
 
 	/* additional functions (for initialize) */
 	initElement : function(){},
@@ -278,52 +281,43 @@ Candle.addWrapper('vector:wrapperbase',{
 
 	/* Canvas API functions (for text) */
 	fillText : function(text,x,y){
-		var already = (!!this.vid && !!this.elements[this.vid]);
-		if(!text || this.fillStyle==="none"){
-			if(already){ this.hidekey(this.vid); this.vid = '';}
-			return;
+		var el = (!!this.vid ? this.elements[this.vid] : null);
+		if(!!text && this.fillStyle!=="none"){
+			var el2 = this.fillText_main(el,text,x,y);
+			if(!el && !!this.vid){ this.elements[this.vid] = el2;}
 		}
-
-		var el = this.fillText_main(text,x,y);
-
-		if(!already){
-			if(!!this.vid){ this.elements[this.vid] = el; this.vid='';}
-		}
+		else if(!!el){ this.hide(el);}
+		this.vid = '';
 	},
 	fillText_main : function(text,x,y){},
 
 	/* Canvas API functions (for image) */
 	drawImage : function(image,sx,sy,sw,sh,dx,dy,dw,dh){
-		var already = (!!this.vid && !!this.elements[this.vid]);
-		if(!image){
-			if(already){ this.hidekey(this.vid); this.vid = '';}
-			return;
+		var el = (!!this.vid ? this.elements[this.vid] : null);
+		if(!!image){
+			if(sw===(void 0)){ sw=image.width; sh=image.height;}
+			if(dx===(void 0)){ dx=sx; sx=0; dy=sy; sy=0; dw=sw; dh=sh;}
+			
+			var el2 = this.drawImage_main(el,image,sx,sy,sw,sh,dx,dy,dw,dh);
+			if(!el && !!this.vid){ this.elements[this.vid] = el2;}
 		}
-
-		if(sw===(void 0)){ sw=image.width; sh=image.height;}
-		if(dx===(void 0)){ dx=sx; sx=0; dy=sy; sy=0; dw=sw; dh=sh;}
-
-		var el = this.drawImage_main(image,sx,sy,sw,sh,dx,dy,dw,dh);
-
-		if(!already){
-			this.target.children.add(el);
-			if(!!this.vid){ this.elements[this.vid] = el; this.vid='';}
-		}
+		else if(!!el){ this.hide(el);}
+		this.vid = '';
 	},
-	drawImage_main : function(image,sx,sy,sw,sh,dx,dy,dw,dh){},
+	drawImage_main : function(el,image,sx,sy,sw,sh,dx,dy,dw,dh){},
 
 	/* internal functions */
 	addVectorElement : function(isfill,isstroke){
 		isfill   = isfill   && (this.fillStyle  !=="none");
 		isstroke = isstroke && (this.strokeStyle!=="none");
-		if(!isfill && !isstroke){
-			var already = (!!this.vid && !!this.elements[this.vid]);
-			if(already){ this.hidekey(this.vid); this.vid = '';}
-			return null;
+		var el = (!!this.vid ? this.elements[this.vid] : null), el2 = null;
+		if(isfill || isstroke){
+			el2 = this.addVectorElement_main(el,isfill,isstroke);
+			if(!el && !!this.vid){ this.elements[this.vid] = el2;}
 		}
-		var el = this.addVectorElement_main(isfill,isstroke);
-		if(!!this.vid){ this.elements[this.vid] = el; this.vid='';}
-		return el;
+		else if(!!el){ this.hide(el);}
+		this.vid = '';
+		return el2;
 	},
-	addVectorElement_main : function(isfill,isstroke){}
+	addVectorElement_main : function(el,isfill,isstroke){}
 });

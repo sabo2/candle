@@ -47,19 +47,9 @@ Candle.addWrapper('sl:vector',{
 
 		this.initElement();
 	},
-	hidekey : function(vid){
-		if(!!this.elements[vid]){
-			this.elements[vid].Visibility = "Collapsed";
-		}
-		return this;
-	},
-	release : function(vid){
-		if(!!this.elements[vid]){
-			this.elements[vid].Visibility = "Collapsed";
-			delete this.elements[vid];
-		}
-		return this;
-	},
+	show : function(xaml){ xaml.Visibility = "Collapsed";},
+	hide : function(xaml){ xaml.Visibility = "Collapsed";},
+	delete : function(xaml){ xaml.Visibility = "Collapsed";},
 
 	/* additional functions (for initialize) */
 	initElement : function(){
@@ -168,50 +158,38 @@ Candle.addWrapper('sl:vector',{
 	},
 
 	/* Canvas API functions (for text) */
-	fillText_main : function(text,x,y){
-		var already = (!!this.vid && !!this.elements[this.vid]);
+	fillText_main : function(xaml,text,x,y){
+		var newel = !xaml;
+		if(newel){ xaml = this.content.createFromXaml('<TextBlock />');}
+		else{ this.show(xaml);}
+
 		var ME = Candle.ME;
 		ME.style.font = this.font;
-		var xaml;
-		if(!already){
-			var wid = parseInt(this.canvas.offsetWidth);
-			var left = x + this.x0 - wid * SL_WIDTH[this.textAlign.toLowerCase()];
-			var ar = [
-				'<TextBlock Canvas.Left="', left, '" Canvas.Top="',(y+this.y0),
-				'" Width="', wid, '" TextAlignment="', this.textAlign,
-				'" Foreground="black" />'
-			];
-			xaml = this.content.createFromXaml(ar.join(''));
-		}
-		else{
-			xaml = this.elements[this.vid];
-			xaml.Visibility = "Visible";
-		}
-
+		
 		xaml["Foreground"] = Candle.parse(this.fillStyle);
 		xaml["FontFamily"] = ME.style.fontFamily.replace(/\"/g,'\'');
 		xaml["FontSize"]   = parseInt(ME.style.fontSize);
+		xaml["TextAlignment"] = this.textAlign;
 		xaml["Text"] = text;
+		var wid = parseInt(this.canvas.offsetWidth);
 		var offset = xaml.ActualHeight * SL_HEIGHT[this.textBaseline.toLowerCase()];
-		xaml["Canvas.Top"] = y+this.y0 - (!isNaN(offset)?offset:0);
+		var left = x + this.x0 - wid * SL_WIDTH[this.textAlign.toLowerCase()];
+		var top  = y + this.y0 - (!isNaN(offset)?offset:0);
+		xaml["Width"]       = wid;
+		xaml["Canvas.Left"] = left;
+		xaml["Canvas.Top"]  = top;
 
 		if(!already){ this.target.children.add(xaml);}
 		return xaml;
 	},
 
 	/* Canvas API functions (for image) */
-	drawImage_main : function(image,sx,sy,sw,sh,dx,dy,dw,dh){
-		var xaml, already = (!!this.vid && !!this.elements[this.vid]);
-		if(!already){
-			var ar = ['<Image Source="', image.src, '" />'];
-			xaml = this.content.createFromXaml(ar.join(''));
-		}
-		else{
-			xaml = this.elements[this.vid];
-			xaml.Visibility = "Visible";
-			xaml["Source"] = image.src;
-		}
+	drawImage_main : function(xaml,image,sx,sy,sw,sh,dx,dy,dw,dh){
+		var newel = !xaml;
+		if(newel){ xaml = this.content.createFromXaml('<Image />');}
+		else{ this.show(xaml);}
 
+		xaml["Source"] = image.src;
 		xaml["Canvas.Left"] = dx-sx*(dw/sw)+this.x0;
 		xaml["Canvas.Top"]  = dy-sy*(dh/sh)+this.y0;
 		xaml["Width"]  = image.width*(dw/sw);
@@ -219,31 +197,25 @@ Candle.addWrapper('sl:vector',{
 		xaml.Clip = this.content.createFromXaml(
 			['<RectangleGeometry Rect="',sx*(dw/sw),',',sy*(dh/sh),',',dw,',',dh,'" />'].join(''));
 
-		if(!already){ this.target.children.add(xaml);}
+		if(newel){ this.target.children.add(xaml);}
 		return xaml;
 	},
 
 	/* internal functions */
-	addVectorElement_main : function(isfill,isstroke){
-		var xaml, already = (!!this.vid && !!this.elements[this.vid]);
-		var fillcolor = Candle.parse(this.fillStyle), strokecolor = Candle.parse(this.strokeStyle);
-		if(!already){
-			var ar = ['<Path', ' Data="', this.cpath.join(' ') ,'"'];
-			if(isfill)  { ar.push(' Fill="', fillcolor, '"');}
-			if(isstroke){ ar.push(' Stroke="', strokecolor, '"');}
-			if(isstroke){ ar.push(' StrokeThickness="', this.lineWidth, '"');}
-			ar.push(' />');
-			
-			var xaml = this.content.createFromXaml(ar.join(''));
-			this.target.children.add(xaml);
-		}
-		else{
-			el = this.elements[this.vid];
-			el.Visibility = "Visible";
-			if(isfill)  { el.fill   = fillcolor;}
-			if(isstroke){ el.stroke = strokecolor;}
-		}
+	addVectorElement_main : function(xaml,isfill,isstroke){
+		var newel = !xaml;
+		if(newel){ xaml = this.content.createFromXaml('<Path />');}
+		else{ this.show(xaml);}
 
+		var path = this.cpath.join(' '),
+			fillcolor   = (isfill   ? Candle.parse(this.fillStyle)   : ''),
+			strokecolor = (isstroke ? Candle.parse(this.strokeStyle) : '');
+		el.path = path;
+		if(isfill)  { el.fill   = fillcolor;}
+		if(isstroke){ el.stroke = strokecolor;}
+		if(isstroke){ el.StrokeThickness = this.lineWidth;}
+
+		if(newel){ this.target.children.add(xaml);}
 		return xaml;
 	}
 });
