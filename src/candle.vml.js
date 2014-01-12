@@ -59,6 +59,16 @@ var V_TAG_SHAPE    = '<v:shape',
 	Z  = 10,
 	Z2 = Z/2;
 
+function ePos(num){
+	num += (num>0?0.5:-0.5);
+	return (num*Z-Z2)|0;
+}
+function eLen(num){
+	return (num*Z)|0;
+}
+
+var Super = Candle.wrapper.vector.prototype;
+
 /* ----------------------- */
 /*   CSS, NameSpace設定    */
 /* ----------------------- */
@@ -84,7 +94,7 @@ Candle.addTypes('vml');
 Candle.addWrapper('vml:vector',{
 
 	initialize : function(idname){
-		Candle.wrapper.vector.prototype.initialize.call(this, idname);
+		Super.initialize.call(this, idname);
 
 		this.use = new Candle.TypeList('vml');
 
@@ -160,16 +170,16 @@ Candle.addWrapper('vml:vector',{
 
 	/* Canvas API functions (for path) */
 	moveTo : function(x,y){
-		this.cpath.push(this.PATH_MOVE,this.ePos(x,true),this.ePos(y,true));
+		this.cpath.push(this.PATH_MOVE,ePos(x),ePos(y));
 		this.lastpath = this.PATH_MOVE;
 	},
 	lineTo : function(x,y){
 		if(this.lastpath!==this.PATH_LINE){ this.cpath.push(this.PATH_LINE);}
-		this.cpath.push(this.ePos(x,true),this.ePos(y,true));
+		this.cpath.push(ePos(x),ePos(y));
 		this.lastpath = this.PATH_LINE;
 	},
 	rect : function(x,y,w,h){
-		x=this.ePos(x,true); y=this.ePos(y,true); w=this.eLen(w); h=this.eLen(h);
+		x=ePos(x); y=ePos(y); w=eLen(w); h=eLen(h);
 		this.cpath.push(this.PATH_MOVE,x,y,this.PATH_LINE,(x+w),y,(x+w),(y+h),x,(y+h),this.PATH_CLOSE);
 		this.lastpath = this.PATH_CLOSE;
 	},
@@ -180,11 +190,9 @@ Candle.addWrapper('vml:vector',{
 			sx = cx + r*Math.cos(startRad), sy = cy + r*Math.sin(startRad),
 			ex = cx + r*Math.cos(endRad),   ey = cy + r*Math.sin(endRad);
 		}
-		cx=(cx*Z-Z2)|0, cy=(cy*Z-Z2)|0, r=(r*Z)|0;
-		sx=(sx*Z-Z2)|0, sy=(sy*Z-Z2)|0, ex=(ex*Z-Z2)|0, ey=(ey*Z-Z2)|0;
 		var com = (antiClockWise ? 'at' : 'wa');
 		if(endRad-startRad>=_2PI){ sx+=1;}
-		this.cpath.push(com,(cx-r),(cy-r),(cx+r),(cy+r),sx,sy,ex,ey);
+		this.cpath.push(com,ePos(cx-r),ePos(cy-r),ePos(cx+r),ePos(cy+r),ePos(sx),ePos(sy),ePos(ex),ePos(ey));
 		this.lastpath = com;
 	},
 
@@ -193,7 +201,7 @@ Candle.addWrapper('vml:vector',{
 		this.cpath = [];
 		for(var i=0,len=array.length;i<len;i++){
 			this.cpath.push(i===0 ? this.PATH_MOVE : this.PATH_LINE);
-			this.cpath.push(this.ePos(array[i][0],true),this.ePos(array[i][1],true));
+			this.cpath.push(ePos(array[i][0]),ePos(array[i][1]));
 		}
 	},
 	setDashSize : function(obj, sizes){
@@ -205,26 +213,13 @@ Candle.addWrapper('vml:vector',{
 	},
 
 	strokeLine : function(x1,y1,x2,y2){
-		x1=this.ePos(x1,true); y1=this.ePos(y1,true); x2=this.ePos(x2,true); y2=this.ePos(y2,true);
-		Candle.wrapper.vector.prototype.strokeLine.call(this,x1,y1,x2,y2);
+		Super.strokeLine.call(this,ePos(x1),ePos(y1),ePos(x2),ePos(y2));
 	},
 	strokeDashedLine : function(x1,y1,x2,y2,sizes){
-		x1=this.ePos(x1,true); y1=this.ePos(y1,true); x2=this.ePos(x2,true); y2=this.ePos(y2,true);
-		Candle.wrapper.vector.prototype.strokeDashedLine.call(this,x1,y1,x2,y2,sizes);
+		Super.strokeDashedLine.call(this,ePos(x1),ePos(y1),ePos(x2),ePos(y2),sizes);
 	},
 	strokeCross : function(cx,cy,l){
-		cx=this.ePos(cx,true); cy=this.ePos(cy,true); l=this.eLen(l);
-		Candle.wrapper.vector.prototype.strokeCross.call(this,cx,cy,l);
-	},
-
-	/* internal functions */
-	ePos : function(num,stroke){
-		if(!stroke){ num = (num+(num>0?0.5:-0.5))|0;}
-		else       { num = ((num+(num>0?0.5:-0.5) - (this.lineWidth%2===1?0.5:0))|0);}
-		return (num*Z-Z2)|0;
-	},
-	eLen : function(num){
-		return (num*Z)|0;
+		Super.strokeCross.call(this,ePos(cx),ePos(cy),eLen(l));
 	},
 
 	/* Canvas API functions (for text) */

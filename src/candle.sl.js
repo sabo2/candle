@@ -20,6 +20,8 @@ var SL_PATH_MOVE   = ' M',
 	SL_WIDTH = { left:0, center:0.5, right:1 },
 	SL_HEIGHT = { top:0.2, hanging:0.2, middle:0.5, alphabetic:0.7, bottom:0.8 };
 
+var Super = Candle.wrapper.vector.prototype;
+
 /* ----------------------- */
 /*   VectorContextクラス   */
 /* ----------------------- */
@@ -28,7 +30,7 @@ Candle.addTypes('sl');
 Candle.addWrapper('sl:vector',{
 
 	initialize : function(idname){
-		Candle.wrapper.vector.prototype.initialize.call(this, idname);
+		Super.initialize.call(this, idname);
 
 		// changeOrigin用(Sinverlight用)
 		this.x0 = 0;
@@ -136,7 +138,7 @@ Candle.addWrapper('sl:vector',{
 	},
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
 		cx+=this.x0; cy+=this.y0;
-		Candle.wrapper.vector.prototype.arc.call(this,cx,cy,r,startRad,endRad,antiClockWise);
+		Super.arc.call(this,cx,cy,r,startRad,endRad,antiClockWise);
 	},
 
 	/* extended functions */
@@ -146,15 +148,15 @@ Candle.addWrapper('sl:vector',{
 
 	strokeLine : function(x1,y1,x2,y2){
 		x1+=this.x0; y1+=this.y0; x2+=this.x0; y2+=this.y0;
-		Candle.wrapper.vector.prototype.strokeLine.call(this,x1,y1,x2,y2);
+		Super.strokeLine.call(this,x1,y1,x2,y2);
 	},
 	strokeDashedLine : function(x1,y1,x2,y2,sizes){
 		x1+=this.x0; y1+=this.y0; x2+=this.x0; y2+=this.y0;
-		Candle.wrapper.vector.prototype.strokeDashedLine.call(this,x1,y1,x2,y2,sizes);
+		Super.strokeDashedLine.call(this,x1,y1,x2,y2,sizes);
 	},
 	strokeCross : function(cx,cy,l){
 		cx+=this.x0; cy+=this.y0;
-		Candle.wrapper.vector.prototype.strokeCross.call(this,cx,cy,l);
+		Super.strokeCross.call(this,cx,cy,l);
 	},
 
 	/* Canvas API functions (for text) */
