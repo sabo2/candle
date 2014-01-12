@@ -230,19 +230,7 @@ Candle.addWrapper('vml:vector',{
 	/* Canvas API functions (for text) */
 	fillText_main : function(el,text,x,y){
 		var newel = !el;
-		if(newel){
-			var ar = [
-				V_TAG_GROUP, V_ATT_COORDSIZE, V_TAGEND,
-					V_TAG_POLYLINE, V_DEF_ATT_POLYLINE, V_TAGEND,
-						V_TAG_PATH_FOR_TEXTPATH,
-						V_TAG_TEXTPATH, V_DEF_ATT_TEXTPATH, V_TAGEND_NULL,
-					V_CLOSETAG_POLYLINE,
-				V_CLOSETAG_GROUP
-			];
-			this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
-			el = this.target.lastChild.lastChild;
-		}
-		else{ this.show(el);}
+		if(!newel){ this.deleteElement(el);}
 
 		var ME = Candle.ME;
 		ME.style.font = this.font;
@@ -251,12 +239,20 @@ Candle.addWrapper('vml:vector',{
 		var left = ((x - ME.offsetWidth  * V_WIDTH [this.textAlign.toLowerCase()]   )*Z-Z2)|0;
 		var top  = ((y - ME.offsetHeight * V_HEIGHT[this.textBaseline.toLowerCase()])*Z-Z2)|0;
 		
-		el.points = [left,top,left+wid,top].join(',');
-		el.fillcolor = Candle.parse(this.fillStyle);
-		var child = el.lastChild;
-		child.style.font = this.font;
-		child.style['v-text-align'] = this.textAlign;
-		child.string = text;
+		var ar = [
+			V_TAG_GROUP, V_ATT_COORDSIZE, V_TAGEND,
+				V_TAG_POLYLINE, V_ATT_POINTS, [left,top,left+wid,top].join(','), V_ATT_END,
+				V_DEF_ATT_POLYLINE, V_ATT_FILLCOLOR, Candle.parse(this.fillStyle), V_ATT_END, V_TAGEND,
+					V_TAG_PATH_FOR_TEXTPATH,
+					
+					V_TAG_TEXTPATH, V_DEF_ATT_TEXTPATH, V_ATT_STRING, text, V_ATT_END,
+					V_ATT_STYLE, V_STYLE_FONT, this.font, V_STYLE_END,
+					V_STYLE_ALIGN, this.textAlign, V_STYLE_END, V_ATT_END, V_TAGEND_NULL,
+				V_CLOSETAG_POLYLINE,
+			V_CLOSETAG_GROUP
+		];
+		this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
+		el = this.target.lastChild;
 
 		return el;
 	},
@@ -301,7 +297,7 @@ Candle.addWrapper('vml:vector',{
 		el.path = path;
 		if(isfill)  { el.fillcolor   = fillcolor;}
 		if(isstroke){ el.strokecolor = strokecolor;}
-		if(isstroke){ el.strokeweight = [this.lineWidth, 'px'].join('');}
+		if(isstroke){ el.strokeweight = ''+this.lineWidth+'px';}
 
 		return el;
 	}

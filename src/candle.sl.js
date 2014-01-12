@@ -49,7 +49,7 @@ Candle.addWrapper('sl:vector',{
 	},
 	show : function(xaml){ xaml.Visibility = "Collapsed";},
 	hide : function(xaml){ xaml.Visibility = "Collapsed";},
-	delete : function(xaml){ xaml.Visibility = "Collapsed";},
+	deleteElement : function(xaml){ xaml.Visibility = "Collapsed";},
 
 	/* additional functions (for initialize) */
 	initElement : function(){
@@ -166,16 +166,17 @@ Candle.addWrapper('sl:vector',{
 		var ME = Candle.ME;
 		ME.style.font = this.font;
 		
-		xaml["Foreground"] = Candle.parse(this.fillStyle);
-		xaml["FontFamily"] = ME.style.fontFamily.replace(/\"/g,'\'');
-		xaml["FontSize"]   = parseInt(ME.style.fontSize);
-		xaml["TextAlignment"] = this.textAlign;
-		xaml["Text"] = text;
+		xaml.Foreground = Candle.parse(this.fillStyle);
+		xaml.FontFamily = ME.style.fontFamily.replace(/\"/g,'\'');
+		xaml.FontSize   = parseInt(ME.style.fontSize);
+		xaml.TextAlignment = this.textAlign;
+		xaml.Text = text;
+		
 		var wid = parseInt(this.canvas.offsetWidth);
 		var offset = xaml.ActualHeight * SL_HEIGHT[this.textBaseline.toLowerCase()];
 		var left = x + this.x0 - wid * SL_WIDTH[this.textAlign.toLowerCase()];
 		var top  = y + this.y0 - (!isNaN(offset)?offset:0);
-		xaml["Width"]       = wid;
+		xaml.Width = wid;
 		xaml["Canvas.Left"] = left;
 		xaml["Canvas.Top"]  = top;
 
@@ -189,13 +190,13 @@ Candle.addWrapper('sl:vector',{
 		if(newel){ xaml = this.content.createFromXaml('<Image />');}
 		else{ this.show(xaml);}
 
-		xaml["Source"] = image.src;
+		xaml.Source = image.src;
 		xaml["Canvas.Left"] = dx-sx*(dw/sw)+this.x0;
 		xaml["Canvas.Top"]  = dy-sy*(dh/sh)+this.y0;
-		xaml["Width"]  = image.width*(dw/sw);
-		xaml["Height"] = image.height*(dh/sh);
+		xaml.Width  = image.width*(dw/sw);
+		xaml.Height = image.height*(dh/sh);
 		xaml.Clip = this.content.createFromXaml(
-			['<RectangleGeometry Rect="',sx*(dw/sw),',',sy*(dh/sh),',',dw,',',dh,'" />'].join(''));
+			'<RectangleGeometry Rect="'+[sx*(dw/sw),sy*(dh/sh),dw,dh].join(',')+'" />');
 
 		if(newel){ this.target.children.add(xaml);}
 		return xaml;
@@ -210,10 +211,10 @@ Candle.addWrapper('sl:vector',{
 		var path = this.cpath.join(' '),
 			fillcolor   = (isfill   ? Candle.parse(this.fillStyle)   : ''),
 			strokecolor = (isstroke ? Candle.parse(this.strokeStyle) : '');
-		el.path = path;
-		if(isfill)  { el.fill   = fillcolor;}
-		if(isstroke){ el.stroke = strokecolor;}
-		if(isstroke){ el.StrokeThickness = this.lineWidth;}
+		xaml.Data = path;
+		if(isfill)  { xaml.fill   = fillcolor;}
+		if(isstroke){ xaml.stroke = strokecolor;}
+		if(isstroke){ xaml.strokeThickness = this.lineWidth;}
 
 		if(newel){ this.target.children.add(xaml);}
 		return xaml;

@@ -57,14 +57,14 @@ Candle.addWrapper('vector:wrapperbase',{
 	release : function(vid){
 		var el = this.elements[vid];
 		if(!!el){
-			this.delete(el);
+			this.deleteElement(el);
 			delete this.elements[vid];
 		}
 		return this;
 	},
 	show : function(el){ el.removeAttribute('opacity');},
 	hide : function(el){ el.setAttribute('opacity',0);},
-	delete : function(el){ this.target.removeChild(el);},
+	deleteElement : function(el){ this.target.removeChild(el);},
 
 	/* additional functions (for initialize) */
 	initElement : function(){},
@@ -287,8 +287,8 @@ Candle.addWrapper('vector:wrapperbase',{
 	fillText : function(text,x,y){
 		var el = (!!this.vid ? this.elements[this.vid] : null);
 		if(!!text && this.fillStyle!=="none"){
-			var el2 = this.fillText_main(el,text,x,y);
-			if(!el && !!this.vid){ this.elements[this.vid] = el2;}
+			el = this.fillText_main(el,text,x,y);
+			if(!!this.vid){ this.elements[this.vid] = el;}
 		}
 		else if(!!el){ this.hide(el);}
 		this.vid = '';
