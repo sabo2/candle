@@ -71,8 +71,18 @@ Candle.addWrapper('canvas:wrapperbase',{
 			parent.style.border = "solid 1px silver";
 		}
 		parent.getContext = function(type){ return self;};
-		parent.toDataURL = function(type){ return (!!type?child.toDataURL(type):child.toDataURL());};
-		parent.toBlob = function(){ return child.toBlob(); };
+		parent.toDataURL = function(type){
+			return (!!type?child.toDataURL(type):child.toDataURL());
+		};
+		parent.toBlob = function(){
+			try{ return child.toBlob();}catch(e){}
+			/* Webkit, BlinkにtoBlobがない... */
+			child.toDataURL().match(/data:(.*);base64,(.*)/);
+			var bin = window.atob(RegExp.$2), len=bin.length;
+			var buf = new Uint8Array(len);
+			for(var i=0;i<len;i++){ buf[i]=bin.charCodeAt(i);}
+			return new Blob([buf.buffer], {type:RegExp.$1});
+		};
 		child.toBlob = child.toBlob || child.msToBlob;
 
 		this.setLayer();

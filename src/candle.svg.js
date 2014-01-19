@@ -68,6 +68,13 @@ Candle.addWrapper('svg:vector',{
 
 		this.child = top;
 		this.afterInit();
+
+		this.canvas.toDataURL = function(type){
+			return "data:image/svg+xml;base64," + window.btoa(top.innerHTML);
+		};
+		this.canvas.toBlob = function(){
+			return new Blob([top.innerHTML], {type:'image/svg+xml'});
+		};
 	},
 
 	/* layer functions */
