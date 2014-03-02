@@ -58,7 +58,7 @@ Candle.addWrapper('svg:vector',{
 		top.setAttribute('xmlns', SVGNS);
 		top.setAttribute('xmlns:xlink', XLINKNS);
 		top.setAttribute('id', this.canvasid);
-		top.setAttribute('font-size', "10px");
+		top.setAttribute('font-size', "10");
 		top.setAttribute('font-family', "sans-serif");
 		top.setAttribute('width', rect.width);
 		top.setAttribute('height', rect.height);
@@ -129,7 +129,7 @@ Candle.addWrapper('svg:vector',{
 		el.setAttribute('y', top);
 		el.setAttribute(S_ATT_FILL, Candle.parse(this.fillStyle));
 		el.setAttribute('text-anchor', S_ANCHOR[this.textAlign.toLowerCase()]);
-		el.style.font = this.font;
+		el.setAttribute('font', this.font.replace(/([0-9]+)px/, RegExp.$1));
 		if(!already){
 			el.appendChild(_doc.createTextNode(text));
 			this.target.appendChild(el);
@@ -190,7 +190,7 @@ Candle.addWrapper('svg:vector',{
 		el.setAttribute('d', path);
 		el.setAttribute(S_ATT_FILL,   (isfill ? Candle.parse(this.fillStyle) : S_NONE));
 		el.setAttribute(S_ATT_STROKE, (isstroke ? Candle.parse(this.strokeStyle) : S_NONE));
-		if(isstroke) { el.setAttribute(S_ATT_STROKEWIDTH, this.lineWidth, 'px');}
+		if(isstroke) { el.setAttribute(S_ATT_STROKEWIDTH, this.lineWidth);}
 
 		this.target.appendChild(el);
 		this.lastElement = el;
