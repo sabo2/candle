@@ -26,7 +26,7 @@ var S_PATH_MOVE   = ' M',
 	S_NONE = 'none',
 
 	S_ANCHOR = { left:'start', center:'middle', right:'end'},
-	S_HEIGHT = { top:-0.7, hanging:-0.66, middle:-0.3, alphabetic:0, bottom:0.1 };
+	S_HEIGHT = { top:-0.7, hanging:-0.6, middle:-0.25, alphabetic:0, bottom:0.1 };
 
 /* ----------------- */
 /*   SVG用ラッパー   */
