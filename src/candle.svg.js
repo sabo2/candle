@@ -129,7 +129,16 @@ Candle.addWrapper('svg:vector',{
 		el.setAttribute('y', top);
 		el.setAttribute(S_ATT_FILL, Candle.parse(this.fillStyle));
 		el.setAttribute('text-anchor', S_ANCHOR[this.textAlign.toLowerCase()]);
-		el.setAttribute('font', this.font.replace(/([0-9]+)px/, RegExp.$1));
+		if(this.font.match(/(.+\s)?([0-9]+)px (.+)$/)){
+			var style = RegExp.$1, size = RegExp.$2, family = RegExp.$3;
+			el.setAttribute('font-size', size);
+			if(!family.match(/^sans\-serif$/i)){ el.setAttribute('font-family', family);}
+			if(style.match(/(italic|oblique)/)){ el.setAttribute('font-style', RegExp.$1);}
+			if(style.match(/(bold|bolder|lighter|[1-9]00)/)){ el.setAttribute('font-weight', RegExp.$1);}
+		}
+		else{
+			el.setAttribute('font', this.font);
+		}
 		if(!already){
 			el.appendChild(_doc.createTextNode(text));
 			this.target.appendChild(el);
