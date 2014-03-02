@@ -51,28 +51,28 @@ Candle.addWrapper('svg:vector',{
 
 	/* additional functions (for initialize) */
 	initElement : function(){
-		this.canvas = _doc.getElementById(this.idname);
+		var parent = this.canvas = _doc.getElementById(this.idname);
 
 		var rect = Candle.getRectSize(this.canvas);
-		var top = _doc.createElementNS(SVGNS,'svg');
-		top.setAttribute('xmlns', SVGNS);
-		top.setAttribute('xmlns:xlink', XLINKNS);
-		top.setAttribute('id', this.canvasid);
-		top.setAttribute('font-size', "10");
-		top.setAttribute('font-family', "sans-serif");
-		top.setAttribute('width', rect.width);
-		top.setAttribute('height', rect.height);
-		top.setAttribute('viewBox', [0,0,rect.width,rect.height].join(' '));
-		this.canvas.appendChild(top);
+		var root = _doc.createElementNS(SVGNS,'svg');
+		root.setAttribute('xmlns', SVGNS);
+		root.setAttribute('xmlns:xlink', XLINKNS);
+		root.setAttribute('id', this.canvasid);
+		root.setAttribute('font-size', "10");
+		root.setAttribute('font-family', "sans-serif");
+		root.setAttribute('width', rect.width);
+		root.setAttribute('height', rect.height);
+		root.setAttribute('viewBox', [0,0,rect.width,rect.height].join(' '));
+		parent.appendChild(root);
 
-		this.child = top;
+		this.child = root;
 		this.afterInit();
 
-		this.canvas.toDataURL = function(type){
-			return "data:image/svg+xml;base64," + window.btoa(top.innerHTML);
+		parent.toDataURL = function(type){
+			return "data:image/svg+xml;base64," + window.btoa(root.outerHTML || new XMLSerializer().serializeToString(root));
 		};
-		this.canvas.toBlob = function(){
-			return new Blob([top.innerHTML], {type:'image/svg+xml'});
+		parent.toBlob = function(){
+			return new Blob([root.outerHTML || new XMLSerializer().serializeToString(root)], {type:'image/svg+xml'});
 		};
 	},
 
@@ -80,8 +80,8 @@ Candle.addWrapper('svg:vector',{
 		this.target = _doc.getElementById(this.canvasid);
 	},
 	clear : function(){
-		var top = this.canvas.firstChild, el = top.firstChild;
-		while(!!el){ top.removeChild(el); el=top.firstChild;}
+		var root = this.canvas.firstChild, el = root.firstChild;
+		while(!!el){ root.removeChild(el); el = root.firstChild;}
 
 		this.resetElement();
 	},
