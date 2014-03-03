@@ -132,9 +132,15 @@ Candle.addWrapper('svg:vector',{
 		if(this.font.match(/(.+\s)?([0-9]+)px (.+)$/)){
 			var style = RegExp.$1, size = RegExp.$2, family = RegExp.$3;
 			el.setAttribute('font-size', size);
+			
 			if(!family.match(/^sans\-serif$/i)){ el.setAttribute('font-family', family);}
+			else{ el.removeAttribute('font-family');}
+			
 			if(style.match(/(italic|oblique)/)){ el.setAttribute('font-style', RegExp.$1);}
+			else{ el.removeAttribute('font-style');}
+			
 			if(style.match(/(bold|bolder|lighter|[1-9]00)/)){ el.setAttribute('font-weight', RegExp.$1);}
+			else{ el.removeAttribute('font-weight');}
 		}
 		else{
 			el.setAttribute('font', this.font);
