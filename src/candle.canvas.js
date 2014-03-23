@@ -10,10 +10,13 @@ if(!document.createElement('canvas').getContext){ return;}
 /* -------------------------- */
 /*   canvasブラウザ依存対策   */
 /* -------------------------- */
-var p = CanvasRenderingContext2D.prototype;
-if(!p.setLineDash){
-	if     ('mozDash' in p)       { p.setLineDash = function(sizes){ this.mozDash=sizes;};}
-	else if('webkitLineDash' in p){ p.setLineDash = function(sizes){ this.webkitLineDash=sizes;};}
+if(window.CanvasRenderingContext2D){
+	var p = CanvasRenderingContext2D.prototype;
+	console.log(3);
+	if(!p.setLineDash){
+		if     ('mozDash' in p)       { p.setLineDash = function(sizes){ this.mozDash=sizes;};}
+		else if('webkitLineDash' in p){ p.setLineDash = function(sizes){ this.webkitLineDash=sizes;};}
+	}
 }
 
 /* -------------------- */
