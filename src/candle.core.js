@@ -92,15 +92,6 @@ var Candle = {
 		}
 		return _color[rgbstr];
 	},
-	parsecolorrev : function(colorstr){
-		if(colorstr.match(/\#([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])/)){
-			var m0 = parseInt(RegExp.$1,16).toString();
-			var m1 = parseInt(RegExp.$2,16).toString();
-			var m2 = parseInt(RegExp.$3,16).toString();
-			return ["rgb(",m0,',',m1,',',m2,")"].join('');
-		}
-		return colorstr;
-	},
 
 	/* DOM datas */
 	getRectSize : function(el){
