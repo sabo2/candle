@@ -1,53 +1,36 @@
-var component = ['core', 'base', 'svg', 'canvas', 'vml'];
-var banner_min = [
-  "/*! @license candle.js v<%= pkg.version %>"+
-  " (c) 2011-<%= grunt.template.today('yyyy') %> <%= pkg.author %>, MIT license",
-  " *   https://bitbucket.org/sabo2/candle */",
-  ""
-].join("\n");
-var banner_full = [
-  "/*!",
-  " * @license",
-  " * ",
-  " * candle.js v<%= pkg.version %>",
-  " *  https://bitbucket.org/sabo2/candle",
-  " * ",
-  " * This script is referencing following library.",
-  " *  uuCanvas.js (version 1.0)",
-  " *  http://code.google.com/p/uupaa-js-spinoff/",
-  " * ",
-  " * Copyright 2011-<%= grunt.template.today('yyyy') %> <%= pkg.author %>",
-  " * ",
-  " * This script is released under the MIT license. Please see below.",
-  " *  http://www.opensource.org/licenses/mit-license.php",
-  " * ",
-  " * Date: <%= grunt.template.today('yyyy-mm-dd') %>",
-  " */",
-  "",
-  ""
- ].join("\n")
 
 module.exports = function(grunt){
+  var pkg = grunt.file.readJSON('package.json'), deps = pkg.devDependencies;
+  for(var plugin in deps){ if(plugin.match(/^grunt\-/)){ grunt.loadNpmTasks(plugin);}}
+  
+  var fs = require('fs');
+  var banner_min  = fs.readFileSync('./src/common/banner_min.js',  'utf-8');
+  var banner_full = fs.readFileSync('./src/common/banner_full.js', 'utf-8');
+  
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
-    clean: ["dist/*"],
+    clean: ["dist/*", 'candle-*.zip', 'candle-*.tar.gz'],
 
     concat: {
       options: {
-        banner: banner_full
+        banner: banner_full,
+        process: true
       },
       candle: {
         files: [
-          { src: [], dest: 'dist/candle.concat.js' }
+          { src: require('./src/candle.js').files, dest: 'dist/candle.concat.js' }
         ]
       }
     },
 
     copy: {
+      options: {
+        process: function(content, srcpath){ return grunt.template.process(content);}
+      },
       debug: {
         files: [
-          { expand: true, cwd: "src", src: ["*.js"], dest: "dist" }
+          { expand: true, cwd: "src", src: ["**/*.js"], dest: "dist" }
         ]
       }
     },
@@ -79,28 +62,20 @@ module.exports = function(grunt){
           { src: 'dist/candle.concat.js', dest: 'dist/candle.js' }
         ]
       }
+    },
+
+    shell: {
+      release: {
+        command: [
+          "tar cvzf candle-<%= pkg.version %>.tar.gz --exclude *.concat.js dist/*",
+          "zip -9r candle-<%= pkg.version %>.zip dist/* -x *.concat.js"
+        ].join('; ')
+      }
     }
   });
   
-  function mod2file(mod){
-    return "src/candle." + mod + ".js";
-  }
-  function wrap(array){
-    array.unshift("src/intro.js");
-    array.push   ("src/outro.js");
-    return array;
-  }
-  
-  var prop = "concat.candle.files.0.src";
-  grunt.config.set(prop, wrap(component.map(mod2file)));
-  
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-text-replace');
-  
-  grunt.registerTask('default', ['clean', 'copy:debug', 'replace:debug']);
-  grunt.registerTask('release', ['clean', 'concat', 'replace:candle', 'uglify']);
+  grunt.registerTask('default', ['clean', 'copy:debug']);
+  grunt.registerTask('release', ['clean', 'concat', 'uglify']);
+  grunt.registerTask('zipfile', ['shell:release']);
 };
 

@@ -21,7 +21,7 @@ var _hex = (function(){
 /*   Candleオブジェクト   */
 /* ---------------------- */
 var Candle = {
-	version: "<deploy-version>",
+	version: "<%= pkg.version %>",
 	
 	/* wrapper classes */
 	wrapper : {},
