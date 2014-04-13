@@ -197,7 +197,6 @@ _doc.createElement('candle');
 
 // CSS設定 
 Candle.createCSS();
-Candle.addCSS('candle','display:block;');
 
 // extern
 window.Candle = Candle;

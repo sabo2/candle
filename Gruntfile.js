@@ -1,4 +1,4 @@
-var component = ['core', 'base', 'svg', 'canvas', 'sl', 'vml'];
+var component = ['core', 'base', 'svg', 'canvas', 'vml'];
 var banner_min = [
   "/*! @license candle.js v<%= pkg.version %>"+
   " (c) 2011-<%= grunt.template.today('yyyy') %> <%= pkg.author %>, MIT license",

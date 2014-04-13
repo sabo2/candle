@@ -10,10 +10,12 @@ if(!document.createElement('canvas').getContext){ return;}
 /* -------------------------- */
 /*   canvasブラウザ依存対策   */
 /* -------------------------- */
-var p = CanvasRenderingContext2D.prototype;
-if(!p.setLineDash){
-	if     ('mozDash' in p)       { p.setLineDash = function(sizes){ this.mozDash=sizes;};}
-	else if('webkitLineDash' in p){ p.setLineDash = function(sizes){ this.webkitLineDash=sizes;};}
+if(window.CanvasRenderingContext2D){
+	var p = CanvasRenderingContext2D.prototype;
+	if(!p.setLineDash){
+		if     ('mozDash' in p)       { p.setLineDash = function(sizes){ this.mozDash=sizes;};}
+		else if('webkitLineDash' in p){ p.setLineDash = function(sizes){ this.webkitLineDash=sizes;};}
+	}
 }
 
 /* -------------------- */
@@ -42,20 +44,19 @@ Candle.addWrapper('canvas:wrapperbase',{
 
 	/* extend functions (initialize) */
 	initElement : function(){
-		this.canvas = _doc.getElementById(this.idname);
+		var parent = this.canvas = _doc.getElementById(this.idname);
 
-		var rect = Candle.getRectSize(this.canvas);
-		var top = _doc.createElement('canvas');
-		top.id = this.canvasid;
+		var rect = Candle.getRectSize(parent);
+		var root = _doc.createElement('canvas');
+		root.id = this.canvasid;
 
-		top.width  = rect.width;
-		top.height = rect.height;
-		top.style.position = 'relative';
-		top.style.width  = rect.width + 'px';
-		top.style.height = rect.height + 'px';
-		this.canvas.appendChild(top);
+		root.width  = rect.width;
+		root.height = rect.height;
+		root.style.width  = rect.width + 'px';
+		root.style.height = rect.height + 'px';
+		parent.appendChild(root);
 
-		this.child = top;
+		this.child = root;
 		this.afterInit();
 	},
 	afterInit : function(){
@@ -63,8 +64,6 @@ Candle.addWrapper('canvas:wrapperbase',{
 		var child  = this.child;
 
 		var self = this;
-		parent.style.display  = 'block';
-		parent.style.position = 'relative';
 		parent.style.overflow = 'hidden';
 		if(Candle.debugmode){
 			parent.style.backgroundColor = "#efefef";

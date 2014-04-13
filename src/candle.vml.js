@@ -111,20 +111,21 @@ Candle.addWrapper('vml:vector',{
 
 	/* additional functions (for initialize) */
 	initElement : function(){
-		this.canvas = _doc.getElementById(this.idname);
+		var parent = this.canvas = _doc.getElementById(this.idname);
+		parent.style.display  = 'block';
+		parent.style.position = 'relative';
 
 		var rect = Candle.getRectSize(this.canvas);
-		var top = _doc.createElement('div');
-		top.id = this.canvasid;
+		var root = _doc.createElement('div');
+		root.id = this.canvasid;
+		root.style.position = 'absolute';
+		root.style.left   = '-2px';
+		root.style.top    = '-2px';
+		root.style.width  = rect.width + 'px';
+		root.style.height = rect.height + 'px';
+		this.canvas.appendChild(root);
 
-		top.style.position = 'absolute';
-		top.style.left   = '-2px';
-		top.style.top    = '-2px';
-		top.style.width  = rect.width + 'px';
-		top.style.height = rect.height + 'px';
-		this.canvas.appendChild(top);
-
-		this.child = top;
+		this.child = root;
 		this.afterInit();
 	},
 

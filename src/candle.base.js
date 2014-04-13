@@ -74,8 +74,6 @@ Candle.addWrapper('vector:wrapperbase',{
 		var rect   = Candle.getRectSize(parent);
 
 		var self = this;
-		parent.style.display  = 'block';
-		parent.style.position = 'relative';
 		parent.style.overflow = 'hidden';
 		if(Candle.debugmode){
 			parent.style.backgroundColor = "#efefef";

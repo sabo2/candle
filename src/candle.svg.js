@@ -28,7 +28,7 @@ var S_PATH_MOVE   = ' M',
 	S_NONE = 'none',
 
 	S_ANCHOR = { left:'start', center:'middle', right:'end'},
-	S_HEIGHT = { top:-0.7, hanging:-0.66, middle:-0.3, alphabetic:0, bottom:0.1 };
+	S_HEIGHT = { top:-0.7, hanging:-0.6, middle:-0.25, alphabetic:0, bottom:0.1 };
 
 /* ----------------- */
 /*   SVG用ラッパー   */
@@ -53,28 +53,38 @@ Candle.addWrapper('svg:vector',{
 
 	/* additional functions (for initialize) */
 	initElement : function(){
-		this.canvas = _doc.getElementById(this.idname);
+		var parent = this.canvas = _doc.getElementById(this.idname);
 
 		var rect = Candle.getRectSize(this.canvas);
-		var top = newEL('svg');
-		top.setAttribute('xmlns', SVGNS);
-		top.setAttribute('id', this.canvasid);
-		top.setAttribute('font-size', "10px");
-		top.setAttribute('font-family', "sans-serif");
-		top.setAttribute('width', rect.width);
-		top.setAttribute('height', rect.height);
-		top.setAttribute('viewBox', [0,0,rect.width,rect.height].join(' '));
-		this.canvas.appendChild(top);
+		var root = newEL('svg');
+		root.setAttribute('xmlns', SVGNS);
+		root.setAttribute('id', this.canvasid);
+		root.setAttribute('font-size', "10px");
+		root.setAttribute('font-family', "sans-serif");
+		root.setAttribute('width', rect.width);
+		root.setAttribute('height', rect.height);
+		root.setAttribute('viewBox', [0,0,rect.width,rect.height].join(' '));
+		parent.appendChild(root);
 
-		this.child = top;
+		this.child = root;
 		this.afterInit();
 
-		this.canvas.toDataURL = function(type){
-			return "data:image/svg+xml;base64," + window.btoa(top.innerHTML);
+		parent.toDataURL = function(type){
+			return "data:image/svg+xml;base64," + window.btoa(root.outerHTML || new XMLSerializer().serializeToString(root));
 		};
-		this.canvas.toBlob = function(){
-			return new Blob([top.innerHTML], {type:'image/svg+xml'});
+		parent.toBlob = function(){
+			return new Blob([root.outerHTML || new XMLSerializer().serializeToString(root)], {type:'image/svg+xml'});
 		};
+	},
+
+	initTarget : function(){
+		this.target = _doc.getElementById(this.canvasid);
+	},
+	clear : function(){
+		var root = this.canvas.firstChild, el = root.firstChild;
+		while(!!el){ root.removeChild(el); el = root.firstChild;}
+
+		this.resetElement();
 	},
 
 	/* layer functions */
@@ -135,7 +145,24 @@ Candle.addWrapper('svg:vector',{
 		el.setAttribute('y', top);
 		el.setAttribute(S_ATT_FILL, Candle.parse(this.fillStyle));
 		el.setAttribute('text-anchor', S_ANCHOR[this.textAlign.toLowerCase()]);
-		el.style.font = this.font;
+
+		if(this.font.match(/(.+\s)?([0-9]+)px (.+)$/)){
+			var style = RegExp.$1, size = RegExp.$2, family = RegExp.$3;
+			el.setAttribute('font-size', size);
+			
+			if(!family.match(/^sans\-serif$/i)){ el.setAttribute('font-family', family);}
+			else{ el.removeAttribute('font-family');}
+			
+			if(style.match(/(italic|oblique)/)){ el.setAttribute('font-style', RegExp.$1);}
+			else{ el.removeAttribute('font-style');}
+			
+			if(style.match(/(bold|bolder|lighter|[1-9]00)/)){ el.setAttribute('font-weight', RegExp.$1);}
+			else{ el.removeAttribute('font-weight');}
+		}
+		else{
+			el.setAttribute('font', this.font);
+		}
+
 		var textnode = _doc.createTextNode(text);
 		if(newel){ el.appendChild(textnode);}
 		else     { el.replaceChild(textnode, el.firstChild);}
