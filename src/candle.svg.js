@@ -5,8 +5,8 @@
 /* ------------------- */
 /*   SVG描画可能条件   */
 /* ------------------- */
-var SVGNS   = "http://www.w3.org/2000/svg",
-	XLINKNS = "http://www.w3.org/1999/xlink";
+var SVGNS   = Candle.SVGNS   = "http://www.w3.org/2000/svg",
+	XLINKNS = Candle.XLINKNS = "http://www.w3.org/1999/xlink";
 if(!document.createElementNS || !document.createElementNS(SVGNS, 'svg').suspendRedraw){ return;}
 
 /* ------------------------------------------- */
@@ -26,7 +26,26 @@ var S_PATH_MOVE   = ' M',
 	S_NONE = 'none',
 
 	S_ANCHOR = { left:'start', center:'middle', right:'end'},
-	S_HEIGHT = { top:-0.7, hanging:-0.6, middle:-0.25, alphabetic:0, bottom:0.1 };
+	S_HEIGHT;
+
+var UA = navigator.userAgent;
+if(UA.match(/Chrome/)){
+	S_HEIGHT = { 'candle-top':-0.52, top:-0.58, hanging:-0.45, middle:-0.25, alphabetic:0, bottom:0.08 };
+}
+else if(UA.match(/AppleWebKit/)){
+	S_HEIGHT = { 'candle-top':-0.6,  top:-0.82, hanging:-0.82, middle:-0.25, alphabetic:0, bottom:0.18 };
+}
+else if(UA.match(/Trident/)){
+	S_HEIGHT = { 'candle-top':-0.5,  top:-0.72, hanging:-0.72, middle:-0.25, alphabetic:0, bottom:0.25 };
+}
+else /* if(UA.match(/Gecko/)) */{
+	if(UA.match(/Win/)){
+		S_HEIGHT = { 'candle-top':-0.65, top:-0.8,  hanging:-0.8,  middle:-0.3,  alphabetic:0, bottom:0.2  };
+	}
+	else{
+		S_HEIGHT = { 'candle-top':-0.5,  top:-0.6,  hanging:-0.6,  middle:-0.25, alphabetic:0, bottom:0.08 };
+	}
+}
 
 /* ----------------- */
 /*   SVG用ラッパー   */

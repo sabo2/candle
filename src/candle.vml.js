@@ -54,7 +54,7 @@ var V_TAG_SHAPE    = '<v:shape',
 	V_PATH_NOFILL   = ' nf',
 
 	V_WIDTH = { left:0, center:0.5, right:1 },
-	V_HEIGHT = { top:-0.7, hanging:-0.66, middle:-0.3, alphabetic:0, bottom:0.1 },
+	V_HEIGHT = { 'candle-top':-0.25, top:-0.4, hanging:-0.4, middle:0, alphabetic:0.22, bottom:0.4 },
 
 	Z  = 10,
 	Z2 = Z/2;

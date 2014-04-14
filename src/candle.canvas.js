@@ -18,6 +18,22 @@ if(window.CanvasRenderingContext2D){
 	}
 }
 
+var CTOP_OFFSET = 0, UA = navigator.userAgent;
+if(UA.match(/Chrome|Trident/)){
+	CTOP_OFFSET = -0.5;
+}
+else if(UA.match(/AppleWebKit/)){
+	CTOP_OFFSET = -0.6;
+}
+else /* if(UA.match(/Gecko/)) */{
+	if(UA.match(/Win/)){
+		CTOP_OFFSET = -0.65;
+	}
+	else{
+		CTOP_OFFSET = -0.5;
+	}
+}
+
 /* -------------------- */
 /*   Canvas用ラッパー   */
 /* -------------------- */
@@ -203,6 +219,13 @@ Candle.addWrapper('canvas:wrapperbase',{
 	/* Canvas API functions (for text) */
 	fillText : function(text,x,y){
 		this.setProperties();
+		if(this.textBaseline==="candle-top"){
+			var ME = Candle.ME;
+			ME.style.font = this.font;
+			ME.innerHTML = text;
+			y -= ME.offsetHeight*CTOP_OFFSET;
+			this.context.textBaseline = "alphabetic";
+		}
 		this.context.fillText(text,x,y);
 	},
 
