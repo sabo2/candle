@@ -62,8 +62,8 @@ Candle.addWrapper('vector:wrapperbase',{
 		}
 		return this;
 	},
-	show : function(el){ el.removeAttribute('opacity');},
-	hide : function(el){ el.setAttribute('opacity',0);},
+	show : function(el){ el.setAttribute('display', 'none');},
+	hide : function(el){ el.removeAttribute('display');},
 	deleteElement : function(el){ this.target.removeChild(el);},
 
 	/* additional functions (for initialize) */
