@@ -45,6 +45,11 @@ Candle.addWrapper('wrapperbase',{
 		this.setEdgeStyle();
 	},
 
+	/* Canvas API functions (rect) */
+	fillRectCenter   : function(cx,cy,bw,bh){ this.fillRect  (cx-bw,cy-bh,2*bw,2*bh);},
+	strokeRectCenter : function(cx,cy,bw,bh){ this.strokeRect(cx-bw,cy-bh,2*bw,2*bh);},
+	shapeRectCenter  : function(cx,cy,bw,bh){ this.shapeRect (cx-bw,cy-bh,2*bw,2*bh);},
+
 	/* VectorID Functions */
 	vshow : function(){},
 	vhide : function(){},
