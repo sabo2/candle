@@ -95,9 +95,6 @@ Candle.addWrapper('svg:vector',{
 		};
 	},
 
-	initTarget : function(){
-		this.target = _doc.getElementById(this.canvasid);
-	},
 	clear : function(){
 		var root = this.canvas.firstChild, el = root.firstChild;
 		while(!!el){ root.removeChild(el); el = root.firstChild;}

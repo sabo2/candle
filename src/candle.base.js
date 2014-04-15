@@ -60,6 +60,8 @@ Candle.addWrapper('vector:wrapperbase',{
 		this.lastElement = null;
 
 		// variables for internal
+		this.zidx = 1;
+		this.zidx_array = {};
 		this.target = null;	// エレメントの追加対象となるオブジェクト
 
 		// 描画中path
@@ -94,7 +96,9 @@ Candle.addWrapper('vector:wrapperbase',{
 		Candle.readyflag[this.idname] = true;
 	},
 
-	initTarget : function(){},
+	initTarget : function(){
+		this.target = _doc.getElementById(this.canvasid) || null;
+	},
 	clear : function(){
 		this.resetElement();
 	},
@@ -102,16 +106,24 @@ Candle.addWrapper('vector:wrapperbase',{
 		this.vid = '';
 		this.elements = [];
 		this.lastElement = null;
+		this.zidx = 1;
+		this.zidx_array = {};
 		this.initTarget();
 	},
 
 	/* layer functions */
 	setLayer : function(layerid){
+		this.vid = '';
 		this.initTarget();
 		if(!!layerid){
 			var lid = [this.canvasid,"layer",layerid].join('_');
 			var layer = _doc.getElementById(lid);
 			if(!layer){ layer = this.createLayer(lid);}
+
+			if(!this.zidx_array[layerid]){
+				this.zidx++;
+				this.zidx_array[layerid] = layer.style.zIndex = this.zidx;
+			}
 			this.target = layer;
 		}
 		Candle.wrapper.wrapperbase.prototype.setLayer.call(this, layerid);
