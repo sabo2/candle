@@ -113,9 +113,6 @@ Candle.addWrapper('svg:vector',{
 		this.target.appendChild(layer);
 		return layer;
 	},
-	getLayerById : function(id){
-		return _doc.getElementById(id);
-	},
 
 	/* property functions */
 	setRendering : function(render){

@@ -113,15 +113,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 	},
 
 	/* layer functions */
-	setLayer : function(layerid){
-		this.currentLayerId = (!!layerid ? layerid : '_empty');
-		if(this.isedgearray[this.currentLayerId] !== void 0)
-			{ this.isedge = this.isedgearray[this.currentLayerId];}
-		else
-			{ this.isedge = this.isedgearray['_empty'];}
-		this.setEdgeStyle(layerid);
-	},
-	setEdgeStyle : function(layerid){
+	setEdgeStyle : function(){
 		var s = this.canvas.style;
 		if('imageRendering' in s){
 			s.imageRendering = '';
@@ -135,19 +127,11 @@ Candle.addWrapper('canvas:wrapperbase',{
 	},
 
 	/* property functions */
-	setRendering : function(render){
-		this.isedgearray[this.currentLayerId] = (render==='crispEdges');
-		this.isedge = this.isedgearray[this.currentLayerId];
-		this.setEdgeStyle(this.currentLayerId);
-	},
 	setUnselectable : function(unsel){
-		if(unsel===(void 0)){ unsel = true;}else{ unsel = !!unsel;}
+		unsel = ((unsel===(void 0)) ? true : !!unsel);
 		var s = this.canvas.style;
 		s.MozUserSelect = s.WebkitUserSelect = s.userSelect = (unsel ? 'none' : 'text');
 	},
-
-	getContextElement : function(){ return this.child;},
-	getLayerElement   : function(){ return this.child;},
 
 	changeSize : function(width,height){
 		var parent = this.canvas;

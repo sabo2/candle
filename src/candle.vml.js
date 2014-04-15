@@ -138,17 +138,10 @@ Candle.addWrapper('vml:vector',{
 		this.target.appendChild(layer);
 		return layer;
 	},
-	getLayerById : function(id){
-		return _doc.getElementById(id);
-	},
 
 	/* property functions */
-	setRendering : function(render){
-		this.isedgearray[this.currentLayerId] = (render==='crispEdges');
-		this.isedge = this.isedgearray[this.currentLayerId];
-	},
 	setUnselectable : function(unsel){
-		if(unsel===(void 0)){ unsel = true;}else{ unsel = !!unsel;}
+		unsel = ((unsel===(void 0)) ? true : !!unsel);
 		V_EL_UNSELECTABLE = (unsel ? ' unselectable="on"' : '');
 		this.canvas.unselectable = (unsel ? 'on' : '');
 		this.child.unselectable  = (unsel ? 'on' : '');

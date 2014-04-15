@@ -23,6 +23,26 @@ Candle.addWrapper('wrapperbase',{
 		this.currentLayerId = '_empty';
 		this.isedgearray    = {_empty:false};
 		this.isedge         = false;
+	},
+
+	/* layer functions */
+	setLayer : function(layerid){
+		this.currentLayerId = (!!layerid ? layerid : '_empty');
+		this.setLayerEdge();
+		this.setEdgeStyle();
+	},
+	setLayerEdge : function(){
+		if(this.isedgearray[this.currentLayerId] !== void 0)
+			{ this.isedge = this.isedgearray[this.currentLayerId];}
+		else
+			{ this.isedge = this.isedgearray['_empty'];}
+	},
+	setEdgeStyle : function(){},
+
+	/* property functions */
+	setRendering : function(render){
+		this.isedge = this.isedgearray[this.currentLayerId] = (render==='crispEdges');
+		this.setEdgeStyle();
 	}
 });
 
@@ -90,29 +110,16 @@ Candle.addWrapper('vector:wrapperbase',{
 		this.initTarget();
 		if(!!layerid){
 			var lid = [this.canvasid,"layer",layerid].join('_');
-			var layer = this.getLayerById(lid);
+			var layer = _doc.getElementById(lid);
 			if(!layer){ layer = this.createLayer(lid);}
 			this.target = layer;
 		}
-		this.currentLayerId = (!!layerid ? layerid : '_empty');
-		this.setLayerEdge();
+		Candle.wrapper.wrapperbase.prototype.setLayer.call(this, layerid);
 	},
-
-	setLayerEdge : function(){
-		if(this.isedgearray[this.currentLayerId] !== void 0)
-			{ this.isedge = this.isedgearray[this.currentLayerId];}
-		else
-			{ this.isedge = this.isedgearray['_empty'];}
-	},
-	getLayerById : function(){},
 	createLayer : function(lid){ return null;},
 
 	/* property functions */
-	setRendering : function(render){},
 	setUnselectable : function(unsel){},
-
-	getContextElement : function(){ return this.child;},
-	getLayerElement   : function(){ return this.target;},
 
 	changeSize : function(width,height){
 		this.canvas.style.width  = width + 'px';
