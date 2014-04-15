@@ -43,7 +43,12 @@ Candle.addWrapper('wrapperbase',{
 	setRendering : function(render){
 		this.isedge = this.isedgearray[this.currentLayerId] = (render==='crispEdges');
 		this.setEdgeStyle();
-	}
+	},
+
+	/* VectorID Functions */
+	vshow : function(){},
+	vhide : function(){},
+	vdel  : function(){}
 });
 
 /* ----------------------- */
@@ -285,5 +290,30 @@ Candle.addWrapper('vector:wrapperbase',{
 	},
 
 	/* internal functions */
-	addVectorElement : function(isfill,isstroke){}
+	addVectorElement : function(isfill,isstroke){},
+
+	/* VectorID Functions */
+	vshow : function(vids){
+		if(typeof vids === 'string'){ vids = [vids];}
+		for(var i=0,len=vids.length;i<len;i++){
+			if(!!this.elements[vids[i]]){ this.show(vids[i]);}
+		}
+	},
+	vhide : function(vids){
+		if(typeof vids === 'string'){ vids = [vids];}
+		for(var i=0,len=vids.length;i<len;i++){
+			if(!!this.elements[vids[i]]){ this.hide(vids[i]);}
+		}
+	},
+	vdel  : function(vids){
+		if(typeof vids === 'string'){ vids = [vids];}
+		for(var i=0;i<vids.length;i++){
+			if(!!this.elements[vids[i]]){
+				this.target.removeChild(this.elements[vids[i]]);
+				delete this.elements[vids[i]];
+			}
+		}
+	},
+	show : function(vid){},
+	hide : function(vid){}
 });

@@ -308,6 +308,14 @@ Candle.addWrapper('vml:vector',{
 		this.lastElement = this.target.lastChild;
 
 		if(!!this.vid){ this.elements[this.vid] = this.lastElement; this.vid='';}
+	},
+
+	/* VectorID Functions */
+	show : function(vid){
+		this.elements[vid].style.display = 'inline';
+	},
+	hide : function(vid){
+		this.elements[vid].style.display = 'none';
 	}
 });
 

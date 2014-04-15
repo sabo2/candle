@@ -224,6 +224,14 @@ Candle.addWrapper('svg:vector',{
 		this.lastElement = el;
 
 		if(!!this.vid){ this.elements[this.vid] = this.lastElement; this.vid='';}
+	},
+
+	/* VectorID Functions */
+	show : function(vid){
+		this.elements[vid].removeAttribute('display');
+	},
+	hide : function(vid){
+		this.elements[vid].setAttribute('display','none');
 	}
 });
 
