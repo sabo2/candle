@@ -54,7 +54,7 @@ Candle.addTypes('svg');
 
 Candle.addWrapper('svg:vector',{
 
-	initialize : function(idname){
+	initialize : function(parent){
 		this.use = new Candle.TypeList('svg');
 
 		// define const
@@ -63,7 +63,7 @@ Candle.addWrapper('svg:vector',{
 		this.PATH_CLOSE = S_PATH_CLOSE;
 		this.PATH_ARCTO = S_PATH_ARCTO;
 
-		Candle.wrapper.vector.prototype.initialize.call(this, idname);
+		Candle.wrapper.vector.prototype.initialize.call(this, parent);
 	},
 
 	/* additional functions (for initialize) */

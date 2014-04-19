@@ -6,8 +6,6 @@
 <script type="text/javascript" src="../dist/candle.js"></script>
 <script type="text/javascript">
 
-Candle.debugmode = true;
-
 function onload_func(){
 	Candle.start('vml_base', '', vml_draw);
 	Candle.start('vml_base2', 'vml', vml_draw2);
@@ -123,6 +121,9 @@ function vml_draw3(g){
 	g.shape();
 }
 </script>
+<style type="text/css">
+	div { background-color:#efefef; border:solid 1px gray; }
+</style>
 </head>
 <body onload="javascript:onload_func();">
 <h1 id="h1title">test 1</h1>

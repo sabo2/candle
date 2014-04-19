@@ -41,7 +41,7 @@ Candle.addTypes('canvas');
 
 Candle.addWrapper('canvas:wrapperbase',{
 
-	initialize : function(idname){
+	initialize : function(parent){
 		// variables for internal
 		this.context  = null;	// 本来のCanvasRenderingContext2Dオブジェクト
 
@@ -50,7 +50,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 		this.x0 = 0;
 		this.y0 = 0;
 
-		Candle.wrapper.wrapperbase.prototype.initialize.call(this, idname);
+		Candle.wrapper.wrapperbase.prototype.initialize.call(this, parent);
 	},
 
 	/* extend functions (initialize) */

@@ -83,7 +83,7 @@ Candle.addTypes('vml');
 
 Candle.addWrapper('vml:vector',{
 
-	initialize : function(idname){
+	initialize : function(parent){
 		this.use = new Candle.TypeList('vml');
 
 		// define const
@@ -92,12 +92,12 @@ Candle.addWrapper('vml:vector',{
 		this.PATH_CLOSE = V_PATH_CLOSE;
 		this.PATH_ARCTO = V_PATH_ARCTO;
 
-		Candle.wrapper.vector.prototype.initialize.call(this, idname);
+		Candle.wrapper.vector.prototype.initialize.call(this, parent);
 	},
 
 	/* additional functions (for initialize) */
 	setParent : function(){
-		var parent = this.canvas = _doc.getElementById(this.idname);
+		var parent = this.canvas;
 		parent.style.overflow = 'hidden';
 		parent.style.display  = 'block';
 		parent.style.position = 'relative';

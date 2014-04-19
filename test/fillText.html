@@ -7,9 +7,10 @@
 Candle.select('vml');
 
 function onload_func(){
-	if(!Candle.isready('can')){ setTimeout(arguments.callee,50); return;}
+	var can = document.getElementById('can');
+	if(!can.candleEnable){ setTimeout(arguments.callee,50); return;}
 
-	var ctx = document.getElementById('can').getContext("2d");
+	var ctx = can.getContext("2d");
 	ctx.lineWidth = '1';
 	ctx.strokeStyle = "silver";
 	ctx.strokeLine(0,100,200,100);
@@ -27,7 +28,7 @@ function onload_func(){
 </script>
 </head>
 <body onload="javascript:onload_func();">
-<candle id="can" style="border:solid 1px silver;width:200px;height:200px;"></candle>
+<candle id="can" style="border:solid 1px silver;width:200px;height:200px;display:inline-block;"></candle>
 <br>
 <!--
 <svg shape-rendering="crispEdges" style="border:solid 1px silver;width:200px;height:200px;">

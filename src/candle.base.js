@@ -4,7 +4,7 @@
 /*  WrapperBaseクラス  */
 /* ------------------- */
 Candle.addWrapper('wrapperbase',{
-	initialize : function(idname){
+	initialize : function(parent){
 		// canvasに存在するプロパティ＆デフォルト値
 		this.fillStyle    = 'black';
 		this.strokeStyle  = 'black';
@@ -12,10 +12,9 @@ Candle.addWrapper('wrapperbase',{
 		this.font         = '14px system';
 		this.textAlign    = 'center';
 		this.textBaseline = 'middle';
-		this.canvas = null;		// 親エレメントとなるdivエレメント
+		this.canvas = parent;	// 親エレメントとなるdivエレメント
 
 		// variables for internal
-		this.idname   = idname;
 		this.canvasid = Candle.getcanvasid();
 		this.child    = null;	// 親エレメントの直下にあるエレメント
 
@@ -31,12 +30,12 @@ Candle.addWrapper('wrapperbase',{
 
 		var self = this;
 		this.canvas.getContext = function(type){ return self;};
+		this.canvas.candleEnable = true;
 	},
 
 	/* Initialize functions */
 	setParent : function(){
-		var parent = this.canvas = _doc.getElementById(this.idname);
-		parent.style.overflow = 'hidden';
+		this.canvas.style.overflow = 'hidden';
 	},
 	initElement : function(){},
 	initFunction : function(){
@@ -84,7 +83,7 @@ Candle.addWrapper('wrapperbase',{
 /* ----------------------- */
 Candle.addWrapper('vector:wrapperbase',{
 
-	initialize : function(idname){
+	initialize : function(parent){
 		// 外部から変更される追加プロパティ
 		this.vid      = '';
 		this.elements = [];
@@ -99,7 +98,7 @@ Candle.addWrapper('vector:wrapperbase',{
 		this.cpath    = [];
 		this.lastpath = '';
 
-		Candle.wrapper.wrapperbase.prototype.initialize.call(this, idname);
+		Candle.wrapper.wrapperbase.prototype.initialize.call(this, parent);
 	},
 
 	/* additional functions (for initialize) */

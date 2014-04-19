@@ -117,20 +117,20 @@ var Candle = {
 
 	initAllElements : function(){
 		var elements = _doc.getElementsByTagName('candle');
-		for(var i=0;i<elements.length;i++){ this.start(elements[i].id);}
+		for(var i=0;i<elements.length;i++){ this.start(elements[i]);}
 	},
-	start : function(idname, type, initCallBack){
+	start : function(element, type, initCallBack){
 		initCallBack = initCallBack || function(){};
 		if(!this.ME){ this.initME();}
 
+		if(typeof element === "string"){ element = document.getElementById(element);}
 		var context;
-		if(this.readyflag[idname]!==true){
+		if(!element.candleEnable){
 			var choice = type;
 			if(!this.enable[choice]){ choice=this.current;}
 			if(!this.enable[choice]){ return;}
 
-			context = new this.wrapper[choice](idname);
-			this.readyflag[idname] = true;
+			context = new this.wrapper[choice](element);
 		}
 		else{
 			context = el.parentNode.getContext('2d');
@@ -138,9 +138,6 @@ var Candle = {
 
 		initCallBack(context);
 	},
-
-	readyflag : {},
-	isready : function(idname){ return !!this.readyflag[idname];},
 
 	/* initialize functions */
 	onload : function(){
