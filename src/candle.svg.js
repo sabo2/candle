@@ -55,8 +55,6 @@ Candle.addTypes('svg');
 Candle.addWrapper('svg:vector',{
 
 	initialize : function(idname){
-		Candle.wrapper.vector.prototype.initialize.call(this, idname);
-
 		this.use = new Candle.TypeList('svg');
 
 		// define const
@@ -65,15 +63,13 @@ Candle.addWrapper('svg:vector',{
 		this.PATH_CLOSE = S_PATH_CLOSE;
 		this.PATH_ARCTO = S_PATH_ARCTO;
 
-		this.initElement();
+		Candle.wrapper.vector.prototype.initialize.call(this, idname);
 	},
 
 	/* additional functions (for initialize) */
 	initElement : function(){
-		var parent = this.canvas = _doc.getElementById(this.idname);
-
 		var rect = Candle.getRectSize(this.canvas);
-		var root = _doc.createElementNS(SVGNS,'svg');
+		var root = this.child = _doc.createElementNS(SVGNS,'svg');
 		root.setAttribute('xmlns', SVGNS);
 		root.setAttribute('xmlns:xlink', XLINKNS);
 		root.setAttribute('id', this.canvasid);
@@ -82,16 +78,19 @@ Candle.addWrapper('svg:vector',{
 		root.setAttribute('width', rect.width);
 		root.setAttribute('height', rect.height);
 		root.setAttribute('viewBox', [0,0,rect.width,rect.height].join(' '));
-		parent.appendChild(root);
-
-		this.child = root;
-		this.afterInit();
-
-		parent.toDataURL = function(type){
-			return "data:image/svg+xml;base64," + window.btoa(root.outerHTML || new XMLSerializer().serializeToString(root));
+		this.canvas.appendChild(root);
+	},
+	initFunction : function(){
+		function getOuterHTML(el){ return el.outerHTML || new XMLSerializer().serializeToString(el);}
+		
+		var root = this.child;
+		this.canvas.toDataURL = function(type){
+			return "data:image/svg+xml;base64," + window.btoa(getOuterHTML(root));
 		};
-		parent.toBlob = function(){
-			return new Blob([root.outerHTML || new XMLSerializer().serializeToString(root)], {type:'image/svg+xml'});
+		this.canvas.toBlob = function(f, type){
+			var blob = new Blob([getOuterHTML(root)], {type:'image/svg+xml'});
+			if(!!f){ f(blob);}
+			return blob;
 		};
 	},
 

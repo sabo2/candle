@@ -115,48 +115,32 @@ var Candle = {
 		return "_candle_canvas_"+this._counter;
 	},
 
-	_initializing : 0,
 	initAllElements : function(){
 		var elements = _doc.getElementsByTagName('candle');
 		for(var i=0;i<elements.length;i++){ this.start(elements[i].id);}
 	},
 	start : function(idname, type, initCallBack){
-		var el = _doc.getElementById(this.EL_ID_HEADER + idname);
-		if(!!el){
-			if(this.readyflag[idname]===true){
-				initCallBack(el.parentNode.getContext('2d'));
-			}
-			return;
-		}
+		initCallBack = initCallBack || function(){};
 		if(!this.ME){ this.initME();}
 
-		var choice = type;
-		if(!this.enable[choice]){ choice=this.current;}
-		if(!this.enable[choice]){ return;}
+		var context;
+		if(this.readyflag[idname]!==true){
+			var choice = type;
+			if(!this.enable[choice]){ choice=this.current;}
+			if(!this.enable[choice]){ return;}
 
-		this._initializing++;
-		this.readyflag[idname] = false;
-		var context = new this.wrapper[choice](idname), self = this;
-
-		if(!!context && !!initCallBack){
-			if(self.isready(idname)){ initCallBack(context);}
-			else{
-				setTimeout(function(){
-					if(!self.isready(idname)){
-						setTimeout(arguments.callee,20);
-						return;
-					}
-					initCallBack(context);
-				},20);
-			}
+			context = new this.wrapper[choice](idname);
+			this.readyflag[idname] = true;
 		}
+		else{
+			context = el.parentNode.getContext('2d');
+		}
+
+		initCallBack(context);
 	},
 
 	readyflag : {},
 	isready : function(idname){ return !!this.readyflag[idname];},
-	allready : function(){ return (this._initializing===0);},
-
-	debugmode : false,
 
 	/* initialize functions */
 	onload : function(){

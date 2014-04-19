@@ -23,6 +23,29 @@ Candle.addWrapper('wrapperbase',{
 		this.currentLayerId = '_empty';
 		this.isedgearray    = {_empty:false};
 		this.isedge         = false;
+
+		this.setParent();
+		this.initElement();
+		this.initFunction();
+		this.initLayer();
+
+		var self = this;
+		this.canvas.getContext = function(type){ return self;};
+	},
+
+	/* Initialize functions */
+	setParent : function(){
+		var parent = this.canvas = _doc.getElementById(this.idname);
+		parent.style.overflow = 'hidden';
+	},
+	initElement : function(){},
+	initFunction : function(){
+		/* 未サポート用 */
+		this.canvas.toDataURL = function(type)   { return null;};
+		this.canvas.toBlob    = function(f, type){ return null;};
+	},
+	initLayer : function(){
+		this.setLayer();
 	},
 
 	/* layer functions */
@@ -62,8 +85,6 @@ Candle.addWrapper('wrapperbase',{
 Candle.addWrapper('vector:wrapperbase',{
 
 	initialize : function(idname){
-		Candle.wrapper.wrapperbase.prototype.initialize.call(this, idname);
-
 		// 外部から変更される追加プロパティ
 		this.vid      = '';
 		this.elements = [];
@@ -77,37 +98,17 @@ Candle.addWrapper('vector:wrapperbase',{
 		// 描画中path
 		this.cpath    = [];
 		this.lastpath = '';
+
+		Candle.wrapper.wrapperbase.prototype.initialize.call(this, idname);
 	},
 
 	/* additional functions (for initialize) */
-	initElement : function(){},
-	afterInit : function(){
-		var parent = this.canvas;
-		var child  = this.child;
-		var rect   = Candle.getRectSize(parent);
-
-		var self = this;
-		parent.style.overflow = 'hidden';
-		if(Candle.debugmode){
-			parent.style.backgroundColor = "#efefef";
-			parent.style.border = "solid 1px silver";
-		}
-		parent.getContext = function(type){ return self;};
-		parent.toDataURL = function(type){ return null; /* 未サポート */ };
-		parent.toBlob = function(){ return null; /* 未サポート */ };
-
-		this.target = this.child;
-		this.rect(0,0,rect.width,rect.height);
-		this.addVectorElement(false,false);
-
+	initLayer : function(){
 		this.setLayer();
 
-		Candle._initializing--;
-		Candle.readyflag[this.idname] = true;
-	},
-
-	initTarget : function(){
-		this.target = _doc.getElementById(this.canvasid) || null;
+		var rect = Candle.getRectSize(this.canvas);
+		this.rect(0,0,rect.width,rect.height);
+		this.addVectorElement(false,false);
 	},
 	clear : function(){
 		this.resetElement();
@@ -118,13 +119,12 @@ Candle.addWrapper('vector:wrapperbase',{
 		this.lastElement = null;
 		this.zidx = 1;
 		this.zidx_array = {};
-		this.initTarget();
+		this.setLayer();
 	},
 
 	/* layer functions */
 	setLayer : function(layerid){
 		this.vid = '';
-		this.initTarget();
 		if(!!layerid){
 			var lid = [this.canvasid,"layer",layerid].join('_');
 			var layer = _doc.getElementById(lid);
@@ -135,6 +135,9 @@ Candle.addWrapper('vector:wrapperbase',{
 				this.zidx_array[layerid] = layer.style.zIndex = this.zidx;
 			}
 			this.target = layer;
+		}
+		else{
+			this.target = this.child;
 		}
 		Candle.wrapper.wrapperbase.prototype.setLayer.call(this, layerid);
 	},

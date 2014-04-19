@@ -42,8 +42,6 @@ Candle.addTypes('canvas');
 Candle.addWrapper('canvas:wrapperbase',{
 
 	initialize : function(idname){
-		Candle.wrapper.wrapperbase.prototype.initialize.call(this, idname);
-
 		// variables for internal
 		this.context  = null;	// 本来のCanvasRenderingContext2Dオブジェクト
 
@@ -52,56 +50,39 @@ Candle.addWrapper('canvas:wrapperbase',{
 		this.x0 = 0;
 		this.y0 = 0;
 
-		this.initElement();
+		Candle.wrapper.wrapperbase.prototype.initialize.call(this, idname);
 	},
 
 	/* extend functions (initialize) */
 	initElement : function(){
-		var parent = this.canvas = _doc.getElementById(this.idname);
-
-		var rect = Candle.getRectSize(parent);
-		var root = _doc.createElement('canvas');
+		var rect = Candle.getRectSize(this.canvas);
+		var root = this.child = _doc.createElement('canvas');
 		root.id = this.canvasid;
-
 		root.width  = rect.width;
 		root.height = rect.height;
 		root.style.width  = rect.width + 'px';
 		root.style.height = rect.height + 'px';
-		parent.appendChild(root);
+		this.canvas.appendChild(root);
 
-		this.child = root;
-		this.afterInit();
+		this.context = root.getContext('2d');
 	},
-	afterInit : function(){
-		var parent = this.canvas;
-		var child  = this.child;
-
-		var self = this;
-		parent.style.overflow = 'hidden';
-		if(Candle.debugmode){
-			parent.style.backgroundColor = "#efefef";
-			parent.style.border = "solid 1px silver";
-		}
-		parent.getContext = function(type){ return self;};
-		parent.toDataURL = function(type){
-			return (!!type?child.toDataURL(type):child.toDataURL());
+	initFunction : function(){
+		var root = this.child;
+		this.canvas.toDataURL = function(type){
+			return root.toDataURL(type || void 0);
 		};
-		parent.toBlob = function(){
-			try{ return child.toBlob();}catch(e){}
+		this.canvas.toBlob = function(f, type){
+			try{ return root.toBlob(f, type);}catch(e){}
 			/* Webkit, BlinkにtoBlobがない... */
-			child.toDataURL().match(/data:(.*);base64,(.*)/);
+			root.toDataURL(type || void 0).match(/data:(.*);base64,(.*)/);
 			var bin = window.atob(RegExp.$2), len=bin.length;
 			var buf = new Uint8Array(len);
 			for(var i=0;i<len;i++){ buf[i]=bin.charCodeAt(i);}
-			return new Blob([buf.buffer], {type:RegExp.$1});
+			var blob = new Blob([buf.buffer], {type:RegExp.$1});
+			if(!!f){ f(blob);}
+			return blob;
 		};
-		child.toBlob = child.toBlob || child.msToBlob;
-
-		this.setLayer();
-		this.context = this.child.getContext('2d');
-
-		Candle._initializing--;
-		Candle.readyflag[this.idname] = true;
+		root.toBlob = root.toBlob || root.msToBlob;
 	},
 
 	clear : function(){
