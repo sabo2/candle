@@ -130,7 +130,7 @@ Candle.addWrapper('vml:vector',{
 		layer.style.position = 'absolute';
 		layer.style.left   = '0px';
 		layer.style.top    = '0px';
-		this.target.appendChild(layer);
+		this.child.appendChild(layer);
 		return layer;
 	},
 

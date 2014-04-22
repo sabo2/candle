@@ -106,7 +106,7 @@ Candle.addWrapper('svg:vector',{
 	createLayer : function(lid){
 		var layer = _doc.createElementNS(SVGNS,'g');
 		layer.setAttribute('id', lid);
-		this.target.appendChild(layer);
+		this.child.appendChild(layer);
 		return layer;
 	},
 
