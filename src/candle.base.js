@@ -86,7 +86,7 @@ Candle.addWrapper('vector:wrapperbase',{
 	initialize : function(parent){
 		// 外部から変更される追加プロパティ
 		this.vid      = '';
-		this.elements = [];
+		this.elements = {};
 		this.lastElement = null;
 
 		// variables for internal
@@ -114,7 +114,7 @@ Candle.addWrapper('vector:wrapperbase',{
 	},
 	resetElement : function(){
 		this.vid = '';
-		this.elements = [];
+		this.elements = {};
 		this.lastElement = null;
 		this.zidx = 1;
 		this.zidx_array = {};
