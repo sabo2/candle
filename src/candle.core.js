@@ -112,7 +112,7 @@ var Candle = {
 	_counter : -1,
 	getcanvasid : function(){
 		this._counter++;
-		return "_candle_canvas_"+this._counter;
+		return "_candle_"+this._counter;
 	},
 
 	initAllElements : function(){

@@ -128,6 +128,58 @@ Candle.addWrapper('svg:vector',{
 		child.setAttribute('viewBox', [m[0],m[1],width,height].join(' '));
 	},
 
+	/* SVG Special functions */
+	getDefsElement : function(){
+		// defs要素がなかったら作成する
+		var defs = document.querySelector('defs');
+		if(!defs){
+			defs = document.createElementNS(SVGNS, 'defs');
+			this.child.insertBefore(defs, (this.child.firstChild || null));
+		}
+		return defs;
+	},
+	getImageElement : function(image){
+		/* defsにimage要素がある場合はそれを参照する */
+		var defs = this.getDefsElement();
+		var imgel = null, imgs = defs.querySelectorAll("image");
+		for(var i=0;i<imgs.length;i++){
+			if(imgs[i].getAttributeNS(XLINKNS, "href")===image.src){ imgel = imgs[i]; break;}
+		}
+		/* defsにimage要素がない場合はdefsにimage要素を追加して返す */
+		if(!imgel){
+			imgel = _doc.createElementNS(SVGNS, 'image');
+			imgel.setAttribute('id', [this.canvasid, "img", imgs.length].join('_'));
+			imgel.setAttribute("width",  image.width);
+			imgel.setAttribute("height", image.height);
+			imgel.setAttributeNS(XLINKNS, "xlink:href", image.src);
+			
+			defs.appendChild(imgel);
+		}
+		return imgel;
+	},
+	getImageSymbol : function(image,sx,sy,sw,sh){
+		/* defsにimage・viewBoxが共通のsymbol要素がある場合はそれを参照する */
+		var defs = this.getDefsElement();
+		var viewbox = [sx,sy,sw,sh].join(" ");
+		var symbol = null, syms = defs.querySelectorAll("symbol");
+		for(var i=0;i<syms.length;i++){
+			if(syms[i].getAttribute("viewBox")===viewbox){ symbol = syms[i]; break;}
+		}
+		/* defsにimage・viewBoxが共通のsymbol要素がない場合はdefsにsymbol要素を追加して返す */
+		if(!symbol){
+			symbol = document.createElementNS(SVGNS, 'symbol');
+			symbol.setAttribute("id", [this.canvasid, "symimg", syms.length].join('_'));
+			symbol.setAttribute("viewBox", viewbox);
+			
+			var use = document.createElementNS(SVGNS, 'use');
+			use.setAttributeNS(XLINKNS, "xlink:href", "#"+this.getImageElement(image).getAttribute("id"));
+			symbol.appendChild(use);
+			
+			defs.appendChild(symbol);
+		}
+		return symbol;
+	},
+
 	/* Canvas API functions (for text) */
 	fillText : function(text,x,y){
 		var already = (!!this.vid && !!this.elements[this.vid]);
@@ -171,23 +223,21 @@ Candle.addWrapper('svg:vector',{
 
 	/* Canvas API functions (for image) */
 	drawImage : function(image,sx,sy,sw,sh,dx,dy,dw,dh){
-		if(sw===(void 0)){ sw=image.width; sh=image.height;}
-		if(dx===(void 0)){ dx=sx; sx=0; dy=sy; sy=0; dw=sw; dh=sh;}
 		var already = (!!this.vid && !!this.elements[this.vid]);
 
-		var el = (already ? this.elements[this.vid] : _doc.createElementNS(SVGNS, "svg"));
-		el.setAttribute("viewBox", [sx,sy,sw,sh].join(" "));
+		if(sw===(void 0)){ sw=image.width; sh=image.height;}
+		if(dx===(void 0)){ dx=sx; sx=0; dy=sy; sy=0; dw=sw; dh=sh;}
+		var refid = this.getImageSymbol(image,sx,sy,sw,sh).getAttribute("id");
+
+		/* viewBoxはgetImageSymbol()で設定済み */
+		var el = (already ? this.elements[this.vid] : _doc.createElementNS(SVGNS, "use"));
 		el.setAttribute("x", dx);
 		el.setAttribute("y", dy);
 		el.setAttribute("width",  dw);
 		el.setAttribute("height", dh);
+		el.setAttributeNS(XLINKNS, "xlink:href", "#"+refid);
 
-		var img = (already ? el.firstChild : _doc.createElementNS(SVGNS, "image"));
-		img.setAttributeNS(null, "width",  image.width);
-		img.setAttributeNS(null, "height", image.height);
-		img.setAttributeNS(XLINKNS, "xlink:href", image.src);
 		if(!already){
-			el.appendChild(img);
 			this.target.appendChild(el);
 			this.lastElement = el;
 		}
@@ -197,10 +247,9 @@ Candle.addWrapper('svg:vector',{
 
 	/* Canvas API functions (for transform) */
 	translate : function(left,top){
-		var child = this.canvas.firstChild;
-		var m = child.getAttribute('viewBox').split(/ /);
+		var m = this.child.getAttribute('viewBox').split(/ /);
 		m[0]=-left, m[1]=-top;
-		child.setAttribute('viewBox', m.join(' '));
+		this.child.setAttribute('viewBox', m.join(' '));
 	},
 
 	/* extended functions */
