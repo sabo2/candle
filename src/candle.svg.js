@@ -209,13 +209,11 @@ Candle.addWrapper('svg:vector',{
 		else{
 			el.setAttribute('font', this.font);
 		}
+		if(el.textContent!==text){ el.textContent = text;}
+		
 		if(!already){
-			el.appendChild(_doc.createTextNode(text));
 			this.target.appendChild(el);
 			this.lastElement = el;
-		}
-		else{
-			el.replaceChild(_doc.createTextNode(text), el.firstChild);
 		}
 
 		if(!already && !!this.vid){ this.elements[this.vid] = this.lastElement; this.vid='';}
