@@ -191,7 +191,7 @@ Candle.addWrapper('svg:vector',{
 		var el = (already ? this.elements[this.vid] : _doc.createElementNS(SVGNS,'text'));
 		el.setAttribute('x', x);
 		el.setAttribute('y', top);
-		el.setAttribute(S_ATT_FILL, Candle.parse(this.fillStyle));
+		el.setAttribute(S_ATT_FILL, this.fillStyle);
 		el.setAttribute('text-anchor', S_ANCHOR[this.textAlign.toLowerCase()]);
 		if(this.font.match(/(.+\s)?([0-9]+)px (.+)$/)){
 			var style = RegExp.$1, size = RegExp.$2, family = RegExp.$3;
@@ -262,8 +262,8 @@ Candle.addWrapper('svg:vector',{
 
 		var el = _doc.createElementNS(SVGNS,'path');
 		el.setAttribute('d', path);
-		el.setAttribute(S_ATT_FILL,   (isfill ? Candle.parse(this.fillStyle) : S_NONE));
-		el.setAttribute(S_ATT_STROKE, (isstroke ? Candle.parse(this.strokeStyle) : S_NONE));
+		el.setAttribute(S_ATT_FILL,   (isfill   ? this.fillStyle   : S_NONE));
+		el.setAttribute(S_ATT_STROKE, (isstroke ? this.strokeStyle : S_NONE));
 		if(isstroke) { el.setAttribute(S_ATT_STROKEWIDTH, this.lineWidth);}
 
 		this.target.appendChild(el);
