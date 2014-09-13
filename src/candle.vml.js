@@ -204,7 +204,7 @@ Candle.addWrapper('vml:vector',{
 			];
 
 			this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
-			this.lastElement = this.target.lastChild.lastChild;
+			this.lastElement = this.target.lastChild;
 		}
 		else{
 			var el = this.elements[this.vid];
