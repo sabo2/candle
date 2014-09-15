@@ -1,6 +1,6 @@
 {
   "name": "candle",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "This is a support script for pzpr.js",
   "main": "candle.js",
   "keywords": [
@@ -13,10 +13,10 @@
   "license": "MIT",
   "devDependencies": {
     "grunt": "~0.4.2",
-    "grunt-contrib-uglify": "~0.2.7",
+    "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-concat": "~0.3.0",
-    "grunt-text-replace": "~0.3.11",
     "grunt-contrib-copy": "~0.5.0",
-    "grunt-contrib-clean": "~0.5.0"
+    "grunt-contrib-uglify": "~0.2.7",
+    "grunt-shell": "^1.1.1"
   }
 }
