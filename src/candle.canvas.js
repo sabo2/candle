@@ -254,14 +254,28 @@ Candle.addWrapper('canvas:wrapperbase',{
 			function(x1,y1,x2,y2,sizes){
 				if((sizes.length%2)===1){ sizes = sizes.concat(sizes);}
 				var length = Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
-				var distance=0, phase=0, tilt=(y2-y1)/(x2-x1), tilts=tilt*tilt+1;
-				var c = self.context;
+				var distance=0, phase=0, tilt=null, tilts=null;
+				if(x1!==x2){
+					tilt  = (y2-y1)/(x2-x1);
+					tilts = tilt*tilt+1;
+				}
+				
 				self.setProperties();
+				
+				var c = self.context;
 				c.beginPath();
 				c.moveTo(x1, y1);
 				while(distance<length){
-					var a = Math.sqrt(distance*distance/tilts);
-					var px = x1+a, py = y1+tilt*a;
+					var px, py;
+					if(tilt!==null){
+						var a = Math.sqrt(distance*distance/tilts);
+						px = x1+a;
+						py = y1+tilt*a;
+					}
+					else{
+						px = x1;
+						py = y1+distance;
+					}
 					if((phase&1)===0){ c.moveTo(px, py);}
 					else             { c.lineTo(px, py);}
 					distance += sizes[phase];
