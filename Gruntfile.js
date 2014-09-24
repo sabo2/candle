@@ -8,9 +8,9 @@ module.exports = function(grunt){
   var banner_full = fs.readFileSync('./src/common/banner_full.js', 'utf-8');
   
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
+    pkg: pkg,
 
-    clean: ["dist/*", 'candle-*.zip', 'candle-*.tar.gz'],
+    clean: ['dist/*', 'candle-*.tar.gz'],
 
     concat: {
       options: {
@@ -35,23 +35,6 @@ module.exports = function(grunt){
       }
     },
 
-    replace: {
-      debug: {
-        src: 'dist/candle.core.js',
-        overwrite: true,
-        replacements: [
-          { from: "<deploy-version>", to: "<%= pkg.version %>"}
-        ]
-      },
-      candle: {
-        src: 'dist/candle.concat.js',
-        overwrite: true,
-        replacements: [
-          { from: "<deploy-version>", to: "<%= pkg.version %>"}
-        ]
-      }
-    },
-
     uglify: {
       options: {
         banner: banner_min,
@@ -67,8 +50,10 @@ module.exports = function(grunt){
     shell: {
       release: {
         command: [
-          "tar cvzf candle-<%= pkg.version %>.tar.gz --exclude *.concat.js dist/*",
-          "zip -9r candle-<%= pkg.version %>.zip dist/* -x *.concat.js"
+          "cd dist",
+          "tar cvzf candle-<%= pkg.version %>.tar.gz --exclude \".DS_Store\" *",
+          "mv candle-<%= pkg.version %>.* ..",
+          "cd .."
         ].join('; ')
       }
     }

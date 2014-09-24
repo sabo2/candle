@@ -6,8 +6,6 @@
 <script type="text/javascript" src="../dist/candle.js"></script>
 <script type="text/javascript">
 
-Candle.debugmode = true;
-
 function onload_func(){
 	console.log(Candle.version);
 	Candle.start('svg_auto', 'svg', function(g){ vml_draw(g,'auto');});
@@ -42,7 +40,7 @@ function vml_draw(g, rendering){
 </script>
 <style>
 	div.container { float:left; margin-right:8pt;}
-	div.canvas    { display:inline-block;}
+	div.canvas    { display:inline-block; background-color:#efefef; border:solid 1px gray;}
 </style>
 </head>
 <body onload="javascript:onload_func();">

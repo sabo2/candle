@@ -18,6 +18,22 @@ if(window.CanvasRenderingContext2D){
 	}
 }
 
+var CTOP_OFFSET = 0, UA = navigator.userAgent;
+if(UA.match(/Chrome|Trident/)){
+	CTOP_OFFSET = -0.5;
+}
+else if(UA.match(/AppleWebKit/)){
+	CTOP_OFFSET = -0.6;
+}
+else /* if(UA.match(/Gecko/)) */{
+	if(UA.match(/Win/)){
+		CTOP_OFFSET = -0.65;
+	}
+	else{
+		CTOP_OFFSET = -0.5;
+	}
+}
+
 /* -------------------- */
 /*   Canvas用ラッパー   */
 /* -------------------- */
@@ -25,9 +41,7 @@ Candle.addTypes('canvas');
 
 Candle.addWrapper('canvas:wrapperbase',{
 
-	initialize : function(idname){
-		Candle.wrapper.wrapperbase.prototype.initialize.call(this, idname);
-
+	initialize : function(parent){
 		// variables for internal
 		this.context  = null;	// 本来のCanvasRenderingContext2Dオブジェクト
 
@@ -36,7 +50,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 		this.x0 = 0;
 		this.y0 = 0;
 
-		this.initElement();
+		Candle.wrapper.wrapperbase.prototype.initialize.call(this, parent);
 	},
 	setkey : function(vid){ return this;},
 	hidekey : function(vid){ return this;},
@@ -44,51 +58,34 @@ Candle.addWrapper('canvas:wrapperbase',{
 
 	/* extend functions (initialize) */
 	initElement : function(){
-		var parent = this.canvas = _doc.getElementById(this.idname);
-
-		var rect = Candle.getRectSize(parent);
-		var root = _doc.createElement('canvas');
+		var rect = Candle.getRectSize(this.canvas);
+		var root = this.child = _doc.createElement('canvas');
 		root.id = this.canvasid;
-
 		root.width  = rect.width;
 		root.height = rect.height;
 		root.style.width  = rect.width + 'px';
 		root.style.height = rect.height + 'px';
-		parent.appendChild(root);
+		this.canvas.appendChild(root);
 
-		this.child = root;
-		this.afterInit();
+		this.context = root.getContext('2d');
 	},
-	afterInit : function(){
-		var parent = this.canvas;
-		var child  = this.child;
-
-		var self = this;
-		parent.style.overflow = 'hidden';
-		if(Candle.debugmode){
-			parent.style.backgroundColor = "#efefef";
-			parent.style.border = "solid 1px silver";
-		}
-		parent.getContext = function(type){ return self;};
-		parent.toDataURL = function(type){
-			return (!!type?child.toDataURL(type):child.toDataURL());
+	initFunction : function(){
+		var root = this.child;
+		this.canvas.toDataURL = function(type){
+			return root.toDataURL(type || void 0);
 		};
-		parent.toBlob = function(){
-			try{ return child.toBlob();}catch(e){}
+		this.canvas.toBlob = function(f, type){
+			try{ return root.toBlob(f, type);}catch(e){}
 			/* Webkit, BlinkにtoBlobがない... */
-			child.toDataURL().match(/data:(.*);base64,(.*)/);
+			root.toDataURL(type || void 0).match(/data:(.*);base64,(.*)/);
 			var bin = window.atob(RegExp.$2), len=bin.length;
 			var buf = new Uint8Array(len);
 			for(var i=0;i<len;i++){ buf[i]=bin.charCodeAt(i);}
-			return new Blob([buf.buffer], {type:RegExp.$1});
+			var blob = new Blob([buf.buffer], {type:RegExp.$1});
+			if(!!f){ f(blob);}
+			return blob;
 		};
-		child.toBlob = child.toBlob || child.msToBlob;
-
-		this.setLayer();
-		this.context = this.child.getContext('2d');
-
-		Candle._initializing--;
-		Candle.readyflag[this.idname] = true;
+		root.toBlob = root.toBlob || root.msToBlob;
 	},
 
 	clear : function(){
@@ -100,15 +97,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 	},
 
 	/* layer functions */
-	setLayer : function(layerid){
-		this.currentLayerId = (!!layerid ? layerid : '_empty');
-		if(this.isedgearray[this.currentLayerId] !== void 0)
-			{ this.isedge = this.isedgearray[this.currentLayerId];}
-		else
-			{ this.isedge = this.isedgearray['_empty'];}
-		this.setEdgeStyle(layerid);
-	},
-	setEdgeStyle : function(layerid){
+	setEdgeStyle : function(){
 		var s = this.canvas.style;
 		if('imageRendering' in s){
 			s.imageRendering = '';
@@ -122,19 +111,11 @@ Candle.addWrapper('canvas:wrapperbase',{
 	},
 
 	/* property functions */
-	setRendering : function(render){
-		this.isedgearray[this.currentLayerId] = (render==='crispEdges');
-		this.isedge = this.isedgearray[this.currentLayerId];
-		this.setEdgeStyle(this.currentLayerId);
-	},
 	setUnselectable : function(unsel){
-		if(unsel===(void 0)){ unsel = true;}else{ unsel = !!unsel;}
+		unsel = ((unsel===(void 0)) ? true : !!unsel);
 		var s = this.canvas.style;
 		s.MozUserSelect = s.WebkitUserSelect = s.userSelect = (unsel ? 'none' : 'text');
 	},
-
-	getContextElement : function(){ return this.child;},
-	getLayerElement   : function(){ return this.child;},
 
 	changeSize : function(width,height){
 		var parent = this.canvas;
@@ -223,6 +204,13 @@ Candle.addWrapper('canvas:wrapperbase',{
 	/* Canvas API functions (for text) */
 	fillText : function(text,x,y){
 		if(!!text && this.setProperties(true,false)){
+			if(this.textBaseline==="candle-top"){
+				var ME = Candle.ME;
+				ME.style.font = this.font;
+				ME.innerHTML = text;
+				y -= ME.offsetHeight*CTOP_OFFSET;
+				this.context.textBaseline = "alphabetic";
+			}
 			this.context.fillText(text,x,y);
 		}
 	},
@@ -273,7 +261,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 		}
 	},
 	strokeDashedLine : function(x1,y1,x2,y2,sizes){
-		var self = this, c = this.context;
+		var self = this;
 		this.strokeDashedLine = ((!!this.context.setLineDash) ?
 			function(x1,y1,x2,y2,sizes){
 				var c = self.context;
@@ -290,14 +278,27 @@ Candle.addWrapper('canvas:wrapperbase',{
 			function(x1,y1,x2,y2,sizes){
 				if((sizes.length%2)===1){ sizes = sizes.concat(sizes);}
 				var length = Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
-				var distance=0, phase=0, tilt=(y2-y1)/(x2-x1), tilts=tilt*tilt+1;
+				var distance=0, phase=0, tilt=null, tilts=null;
+				if(x1!==x2){
+					tilt  = (y2-y1)/(x2-x1);
+					tilts = tilt*tilt+1;
+				}
+				
 				if(self.setProperties(false,true)){
 					var c = self.context;
 					c.beginPath();
 					c.moveTo(x1, y1);
 					while(distance<length){
-						var a = Math.sqrt(distance*distance/tilts);
-						var px = x1+a, py = y1+tilt*a;
+						var px, py;
+						if(tilt!==null){
+							var a = Math.sqrt(distance*distance/tilts);
+							px = x1+a;
+							py = y1+tilt*a;
+						}
+						else{
+							px = x1;
+							py = y1+distance;
+						}
 						if((phase&1)===0){ c.moveTo(px, py);}
 						else             { c.lineTo(px, py);}
 						distance += sizes[phase];

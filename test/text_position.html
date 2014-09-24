@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="../dist/candle.js"></script>
+<script type="text/javascript">
+
+Candle.select('vml');
+
+function onload_func(){
+	Candle.start('can1', 'svg',    draw);
+	Candle.start('can2', 'canvas', draw);
+
+	Candle.start('can3', 'svg',    draw2);
+	Candle.start('can4', 'canvas', draw2);
+}
+function draw(ctx){
+	ctx.lineWidth = '1';
+	ctx.strokeStyle = "silver";
+	ctx.strokeLine(0,100,200,100);
+	ctx.strokeLine(100,0,100,200);
+
+	ctx.fillStyle = "blue";
+	ctx.font = "32px Sans-Serif";
+	ctx.textAlign = "center";
+	ctx.textBaseline = "middle";
+	ctx.fillText("CCC",100,100);
+
+	ctx.fillStyle = "green";
+	ctx.textAlign = "left";
+	ctx.textBaseline = "candle-top";
+	ctx.fillText("TL",0,0);
+
+	ctx.textAlign = "right";
+	ctx.textBaseline = "candle-top";
+	ctx.fillText("RT",200,0);
+
+	ctx.textAlign = "left";
+	ctx.textBaseline = "alphabetic";
+	ctx.fillText("BL",0,200);
+
+	ctx.textAlign = "right";
+	ctx.textBaseline = "alphabetic";
+	ctx.fillText("RB",200,200);
+}
+function draw2(ctx){
+	ctx.lineWidth = '1';
+	ctx.strokeStyle = "silver";
+	ctx.strokeLine(0,100,200,100);
+
+	ctx.fillStyle = "red";
+	ctx.font = "32px Sans-Serif";
+
+	ctx.textAlign = "center";
+	ctx.textBaseline = "top";
+	ctx.fillText("X",20,100);
+	ctx.textBaseline = "hanging";
+	ctx.fillText("X",60,100);
+	ctx.textBaseline = "middle";
+	ctx.fillText("X",100,100);
+	ctx.textBaseline = "alphabetic";
+	ctx.fillText("X",140,100);
+	ctx.textBaseline = "bottom";
+	ctx.fillText("X",180,100);
+}
+</script>
+</head>
+<body onload="javascript:onload_func();">
+<div id="can1" style="border:solid 1px silver;width:200px;height:200px;float:left;margin-right:16px;"></div>
+<div id="can2" style="border:solid 1px silver;width:200px;height:200px;"></div>
+<br>
+<div id="can3" style="border:solid 1px silver;width:200px;height:200px;float:left;margin-right:16px;"></div>
+<div id="can4" style="border:solid 1px silver;width:200px;height:200px;"></div>
+</body>
+</html>

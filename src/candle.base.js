@@ -4,7 +4,7 @@
 /*  WrapperBaseクラス  */
 /* ------------------- */
 Candle.addWrapper('wrapperbase',{
-	initialize : function(idname){
+	initialize : function(parent){
 		// canvasに存在するプロパティ＆デフォルト値
 		this.fillStyle    = 'black';
 		this.strokeStyle  = 'black';
@@ -12,10 +12,9 @@ Candle.addWrapper('wrapperbase',{
 		this.font         = '14px system';
 		this.textAlign    = 'center';
 		this.textBaseline = 'middle';
-		this.canvas = null;		// 親エレメントとなるdivエレメント
+		this.canvas = parent;	// 親エレメントとなるdivエレメント
 
 		// variables for internal
-		this.idname   = idname;
 		this.canvasid = Candle.getcanvasid();
 		this.child    = null;	// 親エレメントの直下にあるエレメント
 
@@ -23,7 +22,60 @@ Candle.addWrapper('wrapperbase',{
 		this.currentLayerId = '_empty';
 		this.isedgearray    = {_empty:false};
 		this.isedge         = false;
-	}
+
+		this.setParent();
+		this.initElement();
+		this.initFunction();
+		this.initLayer();
+
+		var self = this;
+		this.canvas.getContext = function(type){ return self;};
+		this.canvas.candleEnable = true;
+	},
+
+	/* Initialize functions */
+	setParent : function(){
+		this.canvas.style.overflow = 'hidden';
+	},
+	initElement : function(){},
+	initFunction : function(){
+		/* 未サポート用 */
+		this.canvas.toDataURL = function(type)   { return null;};
+		this.canvas.toBlob    = function(f, type){ return null;};
+	},
+	initLayer : function(){
+		this.setLayer();
+	},
+
+	/* layer functions */
+	setLayer : function(layerid){
+		this.currentLayerId = (!!layerid ? layerid : '_empty');
+		this.setLayerEdge();
+		this.setEdgeStyle();
+	},
+	setLayerEdge : function(){
+		if(this.isedgearray[this.currentLayerId] !== void 0)
+			{ this.isedge = this.isedgearray[this.currentLayerId];}
+		else
+			{ this.isedge = this.isedgearray['_empty'];}
+	},
+	setEdgeStyle : function(){},
+
+	/* property functions */
+	setRendering : function(render){
+		this.isedge = this.isedgearray[this.currentLayerId] = (render==='crispEdges');
+		this.setEdgeStyle();
+	},
+
+	/* Canvas API functions (rect) */
+	fillRectCenter   : function(cx,cy,bw,bh){ this.fillRect  (cx-bw,cy-bh,2*bw,2*bh);},
+	strokeRectCenter : function(cx,cy,bw,bh){ this.strokeRect(cx-bw,cy-bh,2*bw,2*bh);},
+	shapeRectCenter  : function(cx,cy,bw,bh){ this.shapeRect (cx-bw,cy-bh,2*bw,2*bh);},
+
+	/* VectorID Functions */
+	vshow : function(){},
+	vhide : function(){},
+	vdel  : function(){}
 });
 
 /* ----------------------- */
@@ -31,19 +83,21 @@ Candle.addWrapper('wrapperbase',{
 /* ----------------------- */
 Candle.addWrapper('vector:wrapperbase',{
 
-	initialize : function(idname){
-		Candle.wrapper.wrapperbase.prototype.initialize.call(this, idname);
-
+	initialize : function(parent){
 		// 外部から変更される追加プロパティ
 		this.vid      = '';
-		this.elements = [];
+		this.elements = {};
 
 		// variables for internal
+		this.zidx = 1;
+		this.zidx_array = {};
 		this.target = null;	// エレメントの追加対象となるオブジェクト
 
 		// 描画中path
 		this.cpath    = [];
 		this.lastpath = '';
+
+		Candle.wrapper.wrapperbase.prototype.initialize.call(this, parent);
 	},
 	setkey : function(vid){
 		this.vid = vid;
@@ -67,30 +121,12 @@ Candle.addWrapper('vector:wrapperbase',{
 	deleteElement : function(el){ this.target.removeChild(el);},
 
 	/* additional functions (for initialize) */
-	initElement : function(){},
-	afterInit : function(){
-		var parent = this.canvas;
-		var child  = this.child;
-		var rect   = Candle.getRectSize(parent);
-
-		var self = this;
-		parent.style.overflow = 'hidden';
-		if(Candle.debugmode){
-			parent.style.backgroundColor = "#efefef";
-			parent.style.border = "solid 1px silver";
-		}
-		parent.getContext = function(type){ return self;};
-		parent.toDataURL = function(type){ return null; /* 未サポート */ };
-		parent.toBlob = function(){ return null; /* 未サポート */ };
-
-		this.target = this.child;
-		this.rect(0,0,rect.width,rect.height);
-		this.addVectorElement(false,false);
-
+	initLayer : function(){
 		this.setLayer();
 
-		Candle._initializing--;
-		Candle.readyflag[this.idname] = true;
+		var rect = Candle.getRectSize(this.canvas);
+		this.rect(0,0,rect.width,rect.height);
+		this.addVectorElement(false,false);
 	},
 
 	initTarget : function(){
@@ -103,38 +139,36 @@ Candle.addWrapper('vector:wrapperbase',{
 	},
 	resetElement : function(){
 		this.vid = '';
-		this.elements = [];
+		this.elements = {};
 		this.initTarget();
+		this.zidx = 1;
+		this.zidx_array = {};
+		this.setLayer();
 	},
 
 	/* layer functions */
 	setLayer : function(layerid){
-		this.initTarget();
+		this.vid = '';
 		if(!!layerid){
 			var lid = [this.canvasid,"layer",layerid].join('_');
-			var layer = this.getLayerById(lid);
+			var layer = _doc.getElementById(lid);
 			if(!layer){ layer = this.createLayer(lid);}
+
+			if(!this.zidx_array[layerid]){
+				this.zidx++;
+				this.zidx_array[layerid] = layer.style.zIndex = this.zidx;
+			}
 			this.target = layer;
 		}
-		this.currentLayerId = (!!layerid ? layerid : '_empty');
-		this.setLayerEdge();
+		else{
+			this.target = this.child;
+		}
+		Candle.wrapper.wrapperbase.prototype.setLayer.call(this, layerid);
 	},
-
-	setLayerEdge : function(){
-		if(this.isedgearray[this.currentLayerId] !== void 0)
-			{ this.isedge = this.isedgearray[this.currentLayerId];}
-		else
-			{ this.isedge = this.isedgearray['_empty'];}
-	},
-	getLayerById : function(){},
 	createLayer : function(lid){ return null;},
 
 	/* property functions */
-	setRendering : function(render){},
 	setUnselectable : function(unsel){},
-
-	getContextElement : function(){ return this.child;},
-	getLayerElement   : function(){ return this.target;},
 
 	changeSize : function(width,height){
 		this.canvas.style.width  = width + 'px';
@@ -321,5 +355,28 @@ Candle.addWrapper('vector:wrapperbase',{
 		this.vid = '';
 		return el2;
 	},
-	addVectorElement_main : function(el,isfill,isstroke){}
+	addVectorElement_main : function(el,isfill,isstroke){},
+
+	/* VectorID Functions */
+	vshow : function(vids){
+		if(typeof vids === 'string'){ vids = [vids];}
+		for(var i=0,len=vids.length;i<len;i++){
+			if(!!this.elements[vids[i]]){ this.show(vids[i]);}
+		}
+	},
+	vhide : function(vids){
+		if(typeof vids === 'string'){ vids = [vids];}
+		for(var i=0,len=vids.length;i<len;i++){
+			if(!!this.elements[vids[i]]){ this.hide(vids[i]);}
+		}
+	},
+	vdel  : function(vids){
+		if(typeof vids === 'string'){ vids = [vids];}
+		for(var i=0;i<vids.length;i++){
+			if(!!this.elements[vids[i]]){
+				this.target.removeChild(this.elements[vids[i]]);
+				delete this.elements[vids[i]];
+			}
+		}
+	}
 });

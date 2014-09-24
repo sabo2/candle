@@ -5,8 +5,8 @@
 /* ------------------- */
 /*   SVG描画可能条件   */
 /* ------------------- */
-var SVGNS   = "http://www.w3.org/2000/svg",
-	XLINKNS = "http://www.w3.org/1999/xlink";
+var SVGNS   = Candle.SVGNS   = "http://www.w3.org/2000/svg",
+	XLINKNS = Candle.XLINKNS = "http://www.w3.org/1999/xlink";
 if(!document.createElementNS || !document.createElementNS(SVGNS, 'svg').suspendRedraw){ return;}
 
 function newEL(tag){ return _doc.createElementNS(SVGNS, tag);}
@@ -28,7 +28,26 @@ var S_PATH_MOVE   = ' M',
 	S_NONE = 'none',
 
 	S_ANCHOR = { left:'start', center:'middle', right:'end'},
-	S_HEIGHT = { top:-0.7, hanging:-0.6, middle:-0.25, alphabetic:0, bottom:0.1 };
+	S_HEIGHT;
+
+var UA = navigator.userAgent;
+if(UA.match(/Chrome/)){
+	S_HEIGHT = { 'candle-top':-0.52, top:-0.58, hanging:-0.45, middle:-0.25, alphabetic:0, bottom:0.08 };
+}
+else if(UA.match(/AppleWebKit/)){
+	S_HEIGHT = { 'candle-top':-0.6,  top:-0.82, hanging:-0.82, middle:-0.25, alphabetic:0, bottom:0.18 };
+}
+else if(UA.match(/Trident/)){
+	S_HEIGHT = { 'candle-top':-0.5,  top:-0.72, hanging:-0.72, middle:-0.25, alphabetic:0, bottom:0.25 };
+}
+else /* if(UA.match(/Gecko/)) */{
+	if(UA.match(/Win/)){
+		S_HEIGHT = { 'candle-top':-0.65, top:-0.8,  hanging:-0.8,  middle:-0.3,  alphabetic:0, bottom:0.2  };
+	}
+	else{
+		S_HEIGHT = { 'candle-top':-0.5,  top:-0.6,  hanging:-0.6,  middle:-0.25, alphabetic:0, bottom:0.08 };
+	}
+}
 
 /* ----------------- */
 /*   SVG用ラッパー   */
@@ -37,9 +56,7 @@ Candle.addTypes('svg');
 
 Candle.addWrapper('svg:vector',{
 
-	initialize : function(idname){
-		Candle.wrapper.vector.prototype.initialize.call(this, idname);
-
+	initialize : function(parent){
 		this.use = new Candle.TypeList('svg');
 
 		// define const
@@ -48,38 +65,37 @@ Candle.addWrapper('svg:vector',{
 		this.PATH_CLOSE = S_PATH_CLOSE;
 		this.PATH_ARCTO = S_PATH_ARCTO;
 
-		this.initElement();
+		Candle.wrapper.vector.prototype.initialize.call(this, parent);
 	},
 
 	/* additional functions (for initialize) */
 	initElement : function(){
-		var parent = this.canvas = _doc.getElementById(this.idname);
-
 		var rect = Candle.getRectSize(this.canvas);
-		var root = newEL('svg');
+		var root = this.child = _doc.createElementNS(SVGNS,'svg');
 		root.setAttribute('xmlns', SVGNS);
+		root.setAttribute('xmlns:xlink', XLINKNS);
 		root.setAttribute('id', this.canvasid);
 		root.setAttribute('font-size', "10px");
 		root.setAttribute('font-family', "sans-serif");
 		root.setAttribute('width', rect.width);
 		root.setAttribute('height', rect.height);
 		root.setAttribute('viewBox', [0,0,rect.width,rect.height].join(' '));
-		parent.appendChild(root);
-
-		this.child = root;
-		this.afterInit();
-
-		parent.toDataURL = function(type){
-			return "data:image/svg+xml;base64," + window.btoa(root.outerHTML || new XMLSerializer().serializeToString(root));
+		this.canvas.appendChild(root);
+	},
+	initFunction : function(){
+		function getOuterHTML(el){ return el.outerHTML || new XMLSerializer().serializeToString(el);}
+		
+		var root = this.child;
+		this.canvas.toDataURL = function(type){
+			return "data:image/svg+xml;base64," + window.btoa(getOuterHTML(root));
 		};
-		parent.toBlob = function(){
-			return new Blob([root.outerHTML || new XMLSerializer().serializeToString(root)], {type:'image/svg+xml'});
+		this.canvas.toBlob = function(f, type){
+			var blob = new Blob([getOuterHTML(root)], {type:'image/svg+xml'});
+			if(!!f){ f(blob);}
+			return blob;
 		};
 	},
 
-	initTarget : function(){
-		this.target = _doc.getElementById(this.canvasid);
-	},
 	clear : function(){
 		var root = this.canvas.firstChild, el = root.firstChild;
 		while(!!el){ root.removeChild(el); el = root.firstChild;}
@@ -92,11 +108,8 @@ Candle.addWrapper('svg:vector',{
 	createLayer : function(lid){
 		var layer = newEL('g');
 		layer.setAttribute('id', lid);
-		this.target.appendChild(layer);
+		this.child.appendChild(layer);
 		return layer;
-	},
-	getLayerById : function(id){
-		return _doc.getElementById(id);
 	},
 
 	/* property functions */
@@ -119,15 +132,66 @@ Candle.addWrapper('svg:vector',{
 
 	/* Canvas API functions (for transform) */
 	translate : function(left,top){
-		var child = this.canvas.firstChild;
-		var m = child.getAttribute('viewBox').split(/ /);
+		var m = this.child.getAttribute('viewBox').split(/ /);
 		m[0]=-left, m[1]=-top;
-		child.setAttribute('viewBox', m.join(' '));
+		this.child.setAttribute('viewBox', m.join(' '));
 	},
 
 	/* extended functions */
 	setDashSize : function(obj, sizes){
 		obj.setAttribute('stroke-dasharray', sizes.join(" "));
+	},
+
+	/* SVG Special functions */
+	getDefsElement : function(){
+		// defs要素がなかったら作成する
+		var defs = document.querySelector('defs');
+		if(!defs){
+			defs = document.createElementNS(SVGNS, 'defs');
+			this.child.insertBefore(defs, (this.child.firstChild || null));
+		}
+		return defs;
+	},
+	getImageElement : function(image){
+		/* defsにimage要素がある場合はそれを参照する */
+		var defs = this.getDefsElement();
+		var imgel = null, imgs = defs.querySelectorAll("image");
+		for(var i=0;i<imgs.length;i++){
+			if(imgs[i].getAttributeNS(XLINKNS, "href")===image.src){ imgel = imgs[i]; break;}
+		}
+		/* defsにimage要素がない場合はdefsにimage要素を追加して返す */
+		if(!imgel){
+			imgel = newEL('image');
+			imgel.setAttribute('id', [this.canvasid, "img", imgs.length].join('_'));
+			imgel.setAttribute("width",  image.width);
+			imgel.setAttribute("height", image.height);
+			imgel.setAttributeNS(XLINKNS, "xlink:href", image.src);
+			
+			defs.appendChild(imgel);
+		}
+		return imgel;
+	},
+	getImageSymbol : function(image,sx,sy,sw,sh){
+		/* defsにimage・viewBoxが共通のsymbol要素がある場合はそれを参照する */
+		var defs = this.getDefsElement();
+		var viewbox = [sx,sy,sw,sh].join(" ");
+		var symbol = null, syms = defs.querySelectorAll("symbol");
+		for(var i=0;i<syms.length;i++){
+			if(syms[i].getAttribute("viewBox")===viewbox){ symbol = syms[i]; break;}
+		}
+		/* defsにimage・viewBoxが共通のsymbol要素がない場合はdefsにsymbol要素を追加して返す */
+		if(!symbol){
+			symbol = document.createElementNS(SVGNS, 'symbol');
+			symbol.setAttribute("id", [this.canvasid, "symimg", syms.length].join('_'));
+			symbol.setAttribute("viewBox", viewbox);
+			
+			var use = document.createElementNS(SVGNS, 'use');
+			use.setAttributeNS(XLINKNS, "xlink:href", "#"+this.getImageElement(image).getAttribute("id"));
+			symbol.appendChild(use);
+			
+			defs.appendChild(symbol);
+		}
+		return symbol;
 	},
 
 	/* Canvas API functions (for text) */
@@ -143,7 +207,7 @@ Candle.addWrapper('svg:vector',{
 		
 		el.setAttribute('x', x);
 		el.setAttribute('y', top);
-		el.setAttribute(S_ATT_FILL, Candle.parse(this.fillStyle));
+		el.setAttribute(S_ATT_FILL, this.fillStyle);
 		el.setAttribute('text-anchor', S_ANCHOR[this.textAlign.toLowerCase()]);
 
 		if(this.font.match(/(.+\s)?([0-9]+)px (.+)$/)){
@@ -162,10 +226,7 @@ Candle.addWrapper('svg:vector',{
 		else{
 			el.setAttribute('font', this.font);
 		}
-
-		var textnode = _doc.createTextNode(text);
-		if(newel){ el.appendChild(textnode);}
-		else     { el.replaceChild(textnode, el.firstChild);}
+		if(el.textContent!==text){ el.textContent = text;}
 
 		if(newel){ this.target.appendChild(el);}
 		return el;
@@ -179,16 +240,15 @@ Candle.addWrapper('svg:vector',{
 			el.appendChild(newEL("image"));
 		}
 		else{ this.show(el);}
+		var refid = this.getImageSymbol(image,sx,sy,sw,sh).getAttribute("id");
 
-		el.setAttribute("viewBox", [sx,sy,sw,sh].join(" "));
+		/* viewBoxはgetImageSymbol()で設定済み */
+		var el = (already ? this.elements[this.vid] : _doc.createElementNS(SVGNS, "use"));
 		el.setAttribute("x", dx);
 		el.setAttribute("y", dy);
 		el.setAttribute("width",  dw);
 		el.setAttribute("height", dh);
-		var img = el.firstChild;
-		img.setAttributeNS(null, "width",  image.width);
-		img.setAttributeNS(null, "height", image.height);
-		img.setAttributeNS(XLINKNS, "xlink:href", image.src);
+		el.setAttributeNS(XLINKNS, "xlink:href", "#"+refid);
 
 		if(newel){ this.target.appendChild(el);}
 		return el;
@@ -205,8 +265,8 @@ Candle.addWrapper('svg:vector',{
 		else{ this.show(el);}
 
 		var path = this.cpath.join(' '),
-			fillcolor   = (isfill   ? Candle.parse(this.fillStyle)   : S_NONE),
-			strokecolor = (isstroke ? Candle.parse(this.strokeStyle) : S_NONE);
+			fillcolor   = (isfill   ? this.fillStyle   : S_NONE),
+			strokecolor = (isstroke ? this.strokeStyle : S_NONE);
 		el.setAttribute('d', path);
 		if(isfill)  { el.setAttribute(S_ATT_FILL,   fillcolor);}
 		if(isstroke){ el.setAttribute(S_ATT_STROKE, strokecolor);}

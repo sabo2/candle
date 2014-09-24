@@ -54,7 +54,7 @@ var V_TAG_SHAPE    = '<v:shape',
 	V_PATH_NOFILL   = ' nf',
 
 	V_WIDTH = { left:0, center:0.5, right:1 },
-	V_HEIGHT = { top:-0.7, hanging:-0.66, middle:-0.3, alphabetic:0, bottom:0.1 },
+	V_HEIGHT = { 'candle-top':-0.25, top:-0.4, hanging:-0.4, middle:0, alphabetic:0.22, bottom:0.4 },
 
 	Z  = 10,
 	Z2 = Z/2;
@@ -93,9 +93,7 @@ Candle.addTypes('vml');
 
 Candle.addWrapper('vml:vector',{
 
-	initialize : function(idname){
-		Super.initialize.call(this, idname);
-
+	initialize : function(parent){
 		this.use = new Candle.TypeList('vml');
 
 		// define const
@@ -104,19 +102,22 @@ Candle.addWrapper('vml:vector',{
 		this.PATH_CLOSE = V_PATH_CLOSE;
 		this.PATH_ARCTO = V_PATH_ARCTO;
 
-		this.initElement();
+		Super.initialize.call(this, parent);
 	},
 	show : function(el){ el.style.display = 'inline';},
 	hide : function(el){ el.style.display = 'none';},
 
 	/* additional functions (for initialize) */
-	initElement : function(){
-		var parent = this.canvas = _doc.getElementById(this.idname);
+	setParent : function(){
+		var parent = this.canvas;
+		parent.style.overflow = 'hidden';
 		parent.style.display  = 'block';
 		parent.style.position = 'relative';
-
+		return parent;
+	},
+	initElement : function(){
 		var rect = Candle.getRectSize(this.canvas);
-		var root = _doc.createElement('div');
+		var root = this.child = _doc.createElement('div');
 		root.id = this.canvasid;
 		root.style.position = 'absolute';
 		root.style.left   = '-2px';
@@ -124,9 +125,6 @@ Candle.addWrapper('vml:vector',{
 		root.style.width  = rect.width + 'px';
 		root.style.height = rect.height + 'px';
 		this.canvas.appendChild(root);
-
-		this.child = root;
-		this.afterInit();
 	},
 
 	/* layer functions */
@@ -137,20 +135,13 @@ Candle.addWrapper('vml:vector',{
 		layer.style.position = 'absolute';
 		layer.style.left   = '0px';
 		layer.style.top    = '0px';
-		this.target.appendChild(layer);
+		this.child.appendChild(layer);
 		return layer;
-	},
-	getLayerById : function(id){
-		return _doc.getElementById(id);
 	},
 
 	/* property functions */
-	setRendering : function(render){
-		this.isedgearray[this.currentLayerId] = (render==='crispEdges');
-		this.isedge = this.isedgearray[this.currentLayerId];
-	},
 	setUnselectable : function(unsel){
-		if(unsel===(void 0)){ unsel = true;}else{ unsel = !!unsel;}
+		unsel = ((unsel===(void 0)) ? true : !!unsel);
 		V_EL_UNSELECTABLE = (unsel ? ' unselectable="on"' : '');
 		this.canvas.unselectable = (unsel ? 'on' : '');
 		this.child.unselectable  = (unsel ? 'on' : '');

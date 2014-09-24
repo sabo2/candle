@@ -21,7 +21,7 @@ var _hex = (function(){
 /*   Candleオブジェクト   */
 /* ---------------------- */
 var Candle = {
-	version: "<%= pkg.version %>",
+	version : '<%= pkg.version %>',
 	
 	/* wrapper classes */
 	wrapper : {},
@@ -103,51 +103,32 @@ var Candle = {
 	_counter : -1,
 	getcanvasid : function(){
 		this._counter++;
-		return "_candle_canvas_"+this._counter;
+		return "_candle_"+this._counter;
 	},
 
-	_initializing : 0,
 	initAllElements : function(){
 		var elements = _doc.getElementsByTagName('candle');
-		for(var i=0;i<elements.length;i++){ this.start(elements[i].id);}
+		for(var i=0;i<elements.length;i++){ this.start(elements[i]);}
 	},
-	start : function(idname, type, initCallBack){
-		var el = _doc.getElementById(this.EL_ID_HEADER + idname);
-		if(!!el){
-			if(this.readyflag[idname]===true){
-				initCallBack(el.parentNode.getContext('2d'));
-			}
-			return;
-		}
+	start : function(element, type, initCallBack){
+		initCallBack = initCallBack || function(){};
 		if(!this.ME){ this.initME();}
 
-		var choice = type;
-		if(!this.enable[choice]){ choice=this.current;}
-		if(!this.enable[choice]){ return;}
+		if(typeof element === "string"){ element = document.getElementById(element);}
+		var context;
+		if(!element.candleEnable){
+			var choice = type;
+			if(!this.enable[choice]){ choice=this.current;}
+			if(!this.enable[choice]){ return;}
 
-		this._initializing++;
-		this.readyflag[idname] = false;
-		var context = new this.wrapper[choice](idname), self = this;
-
-		if(!!context && !!initCallBack){
-			if(self.isready(idname)){ initCallBack(context);}
-			else{
-				setTimeout(function(){
-					if(!self.isready(idname)){
-						setTimeout(arguments.callee,20);
-						return;
-					}
-					initCallBack(context);
-				},20);
-			}
+			context = new this.wrapper[choice](element);
 		}
+		else{
+			context = el.parentNode.getContext('2d');
+		}
+
+		initCallBack(context);
 	},
-
-	readyflag : {},
-	isready : function(idname){ return !!this.readyflag[idname];},
-	allready : function(){ return (this._initializing===0);},
-
-	debugmode : false,
 
 	/* initialize functions */
 	onload : function(){
