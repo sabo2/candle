@@ -105,8 +105,6 @@ Candle.addWrapper('vml:vector',{
 
 		Super.initialize.call(this, parent);
 	},
-	show : function(el){ el.style.display = 'inline';},
-	hide : function(el){ el.style.display = 'none';},
 
 	/* additional functions (for initialize) */
 	setParent : function(){
@@ -288,7 +286,11 @@ Candle.addWrapper('vml:vector',{
 		if(isstroke){ el.strokeweight = ''+this.lineWidth+'px';}
 
 		return el;
-	}
+	},
+
+	/* VectorID Functions */
+	show : function(el){ el.style.display = 'inline';},
+	hide : function(el){ el.style.display = 'none';}
 });
 
 })();

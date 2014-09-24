@@ -100,26 +100,6 @@ Candle.addWrapper('vector:wrapperbase',{
 
 		Candle.wrapper.wrapperbase.prototype.initialize.call(this, parent);
 	},
-	setkey : function(vid){
-		this.vid = vid;
-		return this;
-	},
-	hidekey : function(vid){
-		var el = this.elements[vid];
-		if(!!el){ this.hide(el);}
-		return this;
-	},
-	release : function(vid){
-		var el = this.elements[vid];
-		if(!!el){
-			this.deleteElement(el);
-			delete this.elements[vid];
-		}
-		return this;
-	},
-	show : function(el){ el.setAttribute('display', 'none');},
-	hide : function(el){ el.removeAttribute('display');},
-	deleteElement : function(el){ this.target.removeChild(el);},
 
 	/* additional functions (for initialize) */
 	initLayer : function(){
@@ -362,22 +342,28 @@ Candle.addWrapper('vector:wrapperbase',{
 	vshow : function(vids){
 		if(typeof vids === 'string'){ vids = [vids];}
 		for(var i=0,len=vids.length;i<len;i++){
-			if(!!this.elements[vids[i]]){ this.show(vids[i]);}
+			var el = this.elements[vids[i]];
+			if(!!el){ this.show(el);}
 		}
 	},
 	vhide : function(vids){
 		if(typeof vids === 'string'){ vids = [vids];}
 		for(var i=0,len=vids.length;i<len;i++){
-			if(!!this.elements[vids[i]]){ this.hide(vids[i]);}
+			var el = this.elements[vids[i]];
+			if(!!el){ this.hide(el);}
 		}
 	},
 	vdel  : function(vids){
 		if(typeof vids === 'string'){ vids = [vids];}
 		for(var i=0;i<vids.length;i++){
-			if(!!this.elements[vids[i]]){
-				this.target.removeChild(this.elements[vids[i]]);
+			var el = this.elements[vids[i]];
+			if(!!el){
+				this.target.removeChild(el);
 				delete this.elements[vids[i]];
 			}
 		}
-	}
+	},
+	show : function(el){ el.removeAttribute('display');},
+	hide : function(el){ el.setAttribute('display', 'none');},
+	deleteElement : function(el){ this.target.removeChild(el);}
 });
