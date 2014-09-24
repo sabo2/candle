@@ -135,8 +135,8 @@ Candle.addWrapper('canvas:wrapperbase',{
 
 	/* 内部用関数 */
 	setProperties : function(isfill,isstroke){
-		isfill   = isfill   && (this.fillStyle  !=="none");
-		isstroke = isstroke && (this.strokeStyle!=="none");
+		isfill   = isfill   && !!this.fillStyle   && (this.fillStyle  !=="none");
+		isstroke = isstroke && !!this.strokeStyle && (this.strokeStyle!=="none");
 		var c = this.context;
 		if(isfill)  { c.fillStyle   = this.fillStyle;}
 		if(isstroke){ c.strokeStyle = this.strokeStyle;}
@@ -178,8 +178,8 @@ Candle.addWrapper('canvas:wrapperbase',{
 	shape : function(){
 		if(this.setProperties(true,true)){
 			var c = this.context;
-			if(this.fillStyle  !=="none"){ c.fill();}
-			if(this.strokeStyle!=="none"){ c.stroke();}
+			if(!!this.fillStyle   && this.fillStyle  !=="none"){ c.fill();}
+			if(!!this.strokeStyle && this.strokeStyle!=="none"){ c.stroke();}
 		}
 	},
 
@@ -197,8 +197,8 @@ Candle.addWrapper('canvas:wrapperbase',{
 	shapeRect : function(x,y,w,h){
 		if(this.setProperties(true,true)){
 			var c = this.context;
-			if(this.fillStyle  !=="none"){ c.fillRect(x,y,w,h);}
-			if(this.strokeStyle!=="none"){ c.strokeRect(x,y,w,h);}
+			if(!!this.fillStyle   && this.fillStyle  !=="none"){ c.fillRect(x,y,w,h);}
+			if(!!this.strokeStyle && this.strokeStyle!=="none"){ c.strokeRect(x,y,w,h);}
 		}
 	},
 
@@ -345,8 +345,8 @@ Candle.addWrapper('canvas:wrapperbase',{
 			var c = this.context;
 			c.beginPath();
 			c.arc(cx,cy,r,0,_2PI,false);
-			if(this.fillStyle  !=="none"){ c.fill();}
-			if(this.strokeStyle!=="none"){ c.stroke();}
+			if(!!this.fillStyle   && this.fillStyle  !=="none"){ c.fill();}
+			if(!!this.strokeStyle && this.strokeStyle!=="none"){ c.stroke();}
 		}
 	}
 });

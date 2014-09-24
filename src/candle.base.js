@@ -299,7 +299,7 @@ Candle.addWrapper('vector:wrapperbase',{
 	/* Canvas API functions (for text) */
 	fillText : function(text,x,y){
 		var el = (!!this.vid ? this.elements[this.vid] : null);
-		if(!!text && this.fillStyle!=="none"){
+		if(!!text && !!this.fillStyle && this.fillStyle!=="none"){
 			el = this.fillText_main(el,text,x,y);
 			if(!!this.vid){ this.elements[this.vid] = el;}
 		}
@@ -325,8 +325,8 @@ Candle.addWrapper('vector:wrapperbase',{
 
 	/* internal functions */
 	addVectorElement : function(isfill,isstroke){
-		isfill   = isfill   && (this.fillStyle  !=="none");
-		isstroke = isstroke && (this.strokeStyle!=="none");
+		isfill   = isfill   && !!this.fillStyle   && (this.fillStyle  !=="none");
+		isstroke = isstroke && !!this.strokeStyle && (this.strokeStyle!=="none");
 		var el = (!!this.vid ? this.elements[this.vid] : null), el2 = null;
 		if(isfill || isstroke){
 			el2 = this.addVectorElement_main(el,isfill,isstroke);
