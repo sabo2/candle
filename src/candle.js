@@ -1,3 +1,4 @@
+/* jshint node:true, evil:true */
 (function(){
 	var component = [
 		"candle.core",
@@ -33,7 +34,6 @@
 		component.unshift("common/intro");
 		component.push   ("common/outro");
 
-		var dir = "src/";
-		exports.files = component.map(function(mod){ return dir+mod+".js";});
+		exports.files = component.map(function(mod){ return "src/"+mod+".js";});
 	}
 })();

@@ -1,4 +1,5 @@
 // candle.core.js
+/* exported Candle, _doc, _2PI */
 
 /* ------------- */
 /*   variables   */
@@ -34,11 +35,12 @@ var Candle = {
 		}
 
 		var NewClass = function(){ if(!!this.initialize){ this.initialize.apply(this,arguments);}};
+		var name;
 		if(!!basename && !!this.wrapper[basename]){
 			var BaseClass = this.wrapper[basename];
-			for(var name in BaseClass.prototype){ NewClass.prototype[name] = BaseClass.prototype[name];}
+			for(name in BaseClass.prototype){ NewClass.prototype[name] = BaseClass.prototype[name];}
 		}
-		for(var name in proto){ NewClass.prototype[name] = proto[name];}
+		for(name in proto){ NewClass.prototype[name] = proto[name];}
 		NewClass.prototype.constructor = NewClass;
 		var rel = {body:NewClass, name:classname, base:basename};
 		this.wrapper[rel.name] = rel.body;
@@ -124,7 +126,7 @@ var Candle = {
 			context = new this.wrapper[choice](element);
 		}
 		else{
-			context = el.parentNode.getContext('2d');
+			context = element.parentNode.getContext('2d');
 		}
 
 		initCallBack(context);

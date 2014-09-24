@@ -1,4 +1,5 @@
 // candle.svg.js
+/* global Candle:false, _doc:false */
 
 (function(){
 
@@ -19,7 +20,7 @@ var S_PATH_MOVE   = ' M',
 	S_PATH_ARCTO  = ' A',
 	S_PATH_CLOSE  = ' z',
 
-	S_ATT_ID          = 'id',
+//	S_ATT_ID          = 'id',
 	S_ATT_FILL        = 'fill',
 	S_ATT_STROKE      = 'stroke',
 	S_ATT_STROKEWIDTH = 'stroke-width',
@@ -133,7 +134,7 @@ Candle.addWrapper('svg:vector',{
 	/* Canvas API functions (for transform) */
 	translate : function(left,top){
 		var m = this.child.getAttribute('viewBox').split(/ /);
-		m[0]=-left, m[1]=-top;
+		m[0]=-left; m[1]=-top;
 		this.child.setAttribute('viewBox', m.join(' '));
 	},
 
@@ -235,15 +236,11 @@ Candle.addWrapper('svg:vector',{
 	/* Canvas API functions (for image) */
 	drawImage_main : function(el,image,sx,sy,sw,sh,dx,dy,dw,dh){
 		var newel = !el;
-		if(newel){
-			el = newEL('svg');
-			el.appendChild(newEL("image"));
-		}
+		if(newel){ el = newEL('use');}
 		else{ this.show(el);}
 		var refid = this.getImageSymbol(image,sx,sy,sw,sh).getAttribute("id");
 
 		/* viewBoxはgetImageSymbol()で設定済み */
-		var el = (already ? this.elements[this.vid] : _doc.createElementNS(SVGNS, "use"));
 		el.setAttribute("x", dx);
 		el.setAttribute("y", dy);
 		el.setAttribute("width",  dw);

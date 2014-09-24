@@ -1,4 +1,5 @@
 // candle.base.js
+/* global Candle:false, _doc:false, _2PI:false */
  
 /* ------------------- */
 /*  WrapperBaseクラス  */
@@ -206,14 +207,14 @@ Candle.addWrapper('vector:wrapperbase',{
 	},
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
 		var sx,sy,ex,ey;
-		if(endRad-startRad>=_2PI){ sx=cx+r, sy=cy, ex=cx+r, ey=cy;}
+		if(endRad-startRad>=_2PI){ sx=cx+r; sy=cy; ex=cx+r; ey=cy;}
 		else{
-			sx = cx + r*Math.cos(startRad), sy = cy + r*Math.sin(startRad),
-			ex = cx + r*Math.cos(endRad),   ey = cy + r*Math.sin(endRad);
+			sx = cx + r*Math.cos(startRad); sy = cy + r*Math.sin(startRad);
+			ex = cx + r*Math.cos(endRad);   ey = cy + r*Math.sin(endRad);
 		}
 		if(endRad-startRad>=_2PI){ sy+=0.125;}
 		var unknownflag = (startRad>endRad)^(Math.abs(endRad-startRad)>Math.PI);
-		var islong = ((antiClockWise^unknownflag)?1:0), sweep = ((islong==0^unknownflag)?1:0);
+		var islong = ((antiClockWise^unknownflag)?1:0), sweep = ((islong===0^unknownflag)?1:0);
 		this.cpath.push(this.PATH_MOVE,sx,sy,this.PATH_ARCTO,r,r,0,islong,sweep,ex,ey);
 		this.lastpath = this.PATH_ARCTO;
 	},

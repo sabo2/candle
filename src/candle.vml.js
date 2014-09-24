@@ -1,4 +1,5 @@
 // candle.vml.js
+/* global Candle:false, _doc:false, _2PI:false */
  
 (function(){
 
@@ -20,28 +21,28 @@ var V_TAG_SHAPE    = '<v:shape',
 //	V_EL_UNSELECTABLE = ' unselectable="on"',
 	V_TAGEND      = '>',
 	V_TAGEND_NULL = ' />',
-	V_CLOSETAG_SHAPE    = '</v:shape>',
+//	V_CLOSETAG_SHAPE    = '</v:shape>',
 	V_CLOSETAG_GROUP    = '</v:group>',
-	V_CLOSETAG_IMAGE    = '</v:image>',
-	V_CLOSETAG_TEXTPATH = '</v:textpath>',
+//	V_CLOSETAG_IMAGE    = '</v:image>',
+//	V_CLOSETAG_TEXTPATH = '</v:textpath>',
 	V_CLOSETAG_POLYLINE = '</v:polyline>',
 
-	V_ATT_ID     = ' id="',
-	V_ATT_PATH   = ' path="',
+//	V_ATT_ID     = ' id="',
+//	V_ATT_PATH   = ' path="',
 	V_ATT_POINTS = ' points="',
 	V_ATT_STYLE  = ' style="',
 	V_ATT_STRING = ' string="',
 	V_ATT_COORDSIZE    = ' coordsize="100,100"',
 	V_ATT_FILLCOLOR    = ' fillcolor="',
-	V_ATT_STROKECOLOR  = ' strokecolor="',
-	V_ATT_STROKEWEIGHT = ' strokeweight="',
+//	V_ATT_STROKECOLOR  = ' strokecolor="',
+//	V_ATT_STROKEWEIGHT = ' strokeweight="',
 	V_ATT_END = '"',
-	V_ATT_STYLE_TEXTBOX = ' style="white-space:nowrap;cursor:default;font:10px sans-serif;"',
+//	V_ATT_STYLE_TEXTBOX = ' style="white-space:nowrap;cursor:default;font:10px sans-serif;"',
 	V_DEF_ATT_POLYLINE  = ' stroked="f" filled="t"',
 	V_DEF_ATT_TEXTPATH  = ' on="t" xscale="t"',
 
-	V_STYLE_LEFT  = 'left:',
-	V_STYLE_TOP   = 'top:',
+//	V_STYLE_LEFT  = 'left:',
+//	V_STYLE_TOP   = 'top:',
 	V_STYLE_FONT  = 'font:',
 	V_STYLE_ALIGN = 'v-text-align:',
 	V_STYLE_END   = ';',
@@ -177,10 +178,10 @@ Candle.addWrapper('vml:vector',{
 	},
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
 		var sx,sy,ex,ey;
-		if(endRad-startRad>=_2PI){ sx=cx+r, sy=cy, ex=cx+r, ey=cy;}
+		if(endRad-startRad>=_2PI){ sx=cx+r; sy=cy; ex=cx+r; ey=cy;}
 		else{
-			sx = cx + r*Math.cos(startRad), sy = cy + r*Math.sin(startRad),
-			ex = cx + r*Math.cos(endRad),   ey = cy + r*Math.sin(endRad);
+			sx = cx + r*Math.cos(startRad); sy = cy + r*Math.sin(startRad);
+			ex = cx + r*Math.cos(endRad);   ey = cy + r*Math.sin(endRad);
 		}
 		var com = (antiClockWise ? 'at' : 'wa');
 		if(endRad-startRad>=_2PI){ sx+=1;}

@@ -1,4 +1,4 @@
-
+/* jshint node:true */
 module.exports = function(grunt){
   var pkg = grunt.file.readJSON('package.json'), deps = pkg.devDependencies;
   for(var plugin in deps){ if(plugin.match(/^grunt\-/)){ grunt.loadNpmTasks(plugin);}}
@@ -38,7 +38,7 @@ module.exports = function(grunt){
     uglify: {
       options: {
         banner: banner_min,
-        report: 'min',
+        report: 'min'
       },
       candle: {
         files: [
@@ -55,6 +55,18 @@ module.exports = function(grunt){
           "mv candle-<%= pkg.version %>.* ..",
           "cd .."
         ].join('; ')
+      }
+    },
+
+    jshint: {
+      options: {
+        jshintrc: true
+      },
+      all: {
+        src: [
+          'Gruntfile.js',
+          'src/*.js'
+        ]
       }
     }
   });

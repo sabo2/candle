@@ -1,4 +1,5 @@
 // candle.canvas.js
+/* global Candle:false, _doc:false, _2PI:false */
  
 (function(){
 
@@ -123,7 +124,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 		parent.style.height = height + 'px';
 
 		var child = this.child;
-		var left = parseInt(child.style.left), top = parseInt(child.style.top);
+		var left = parseInt(child.style.left), top = parseInt(child.style.top); // jshint ignore:line
 		width += (left<0?-left:0);
 		height += (top<0?-top:0);
 		child.style.width  = width + 'px';
@@ -261,11 +262,10 @@ Candle.addWrapper('canvas:wrapperbase',{
 		}
 	},
 	strokeDashedLine : function(x1,y1,x2,y2,sizes){
-		var self = this;
 		this.strokeDashedLine = ((!!this.context.setLineDash) ?
 			function(x1,y1,x2,y2,sizes){
-				var c = self.context;
-				if(self.setProperties(false,true)){
+				var c = this.context;
+				if(this.setProperties(false,true)){
 					c.beginPath();
 					c.moveTo(x1,y1);
 					c.lineTo(x2,y2);
@@ -284,8 +284,8 @@ Candle.addWrapper('canvas:wrapperbase',{
 					tilts = tilt*tilt+1;
 				}
 				
-				if(self.setProperties(false,true)){
-					var c = self.context;
+				if(this.setProperties(false,true)){
+					var c = this.context;
 					c.beginPath();
 					c.moveTo(x1, y1);
 					while(distance<length){
@@ -312,7 +312,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 		this.strokeDashedLine(x1,y1,x2,y2,sizes);
 	},
 	strokeCross : function(cx,cy,l){
-		if(self.setProperties(false,true)){
+		if(this.setProperties(false,true)){
 			var c = this.context;
 			c.beginPath();
 			c.moveTo(cx-l,cy-l);
@@ -325,7 +325,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 
 	/* extended functions (circle) */
 	fillCircle : function(cx,cy,r){
-		if(self.setProperties(true,false)){
+		if(this.setProperties(true,false)){
 			var c = this.context;
 			c.beginPath();
 			c.arc(cx,cy,r,0,_2PI,false);
@@ -333,7 +333,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 		}
 	},
 	strokeCircle : function(cx,cy,r){
-		if(self.setProperties(false,true)){
+		if(this.setProperties(false,true)){
 			var c = this.context;
 			c.beginPath();
 			c.arc(cx,cy,r,0,_2PI,false);
@@ -341,7 +341,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 		}
 	},
 	shapeCircle : function(cx,cy,r){
-		if(self.setProperties(true,true)){
+		if(this.setProperties(true,true)){
 			var c = this.context;
 			c.beginPath();
 			c.arc(cx,cy,r,0,_2PI,false);
