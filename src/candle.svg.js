@@ -265,25 +265,20 @@ Candle.addWrapper('svg:vector',{
 		}
 		else{ this.show(el);}
 
-		var path = this.cpath.join(' '),
-			linewidth   = (isstroke ? this.linewidth   : null),
-			fillcolor   = (isfill   ? this.fillStyle   : S_NONE),
-			strokecolor = (isstroke ? this.strokeStyle : S_NONE);
-		if(el.getAttribute(S_ATT_PATH)       !==path)       { el.setAttribute(S_ATT_PATH, path);}
-		if(el.getAttribute(S_ATT_FILL)       !==fillcolor)  { el.setAttribute(S_ATT_FILL, fillcolor);}
-		if(el.getAttribute(S_ATT_STROKE)     !==strokecolor){ el.setAttribute(S_ATT_STROKE,      strokecolor);}
-		if(el.getAttribute(S_ATT_STROKEWIDTH)!==linewidth)  { el.setAttribute(S_ATT_STROKEWIDTH, linewidth);}
+		if(!this.freezepath || newel){
+			var path = this.cpath.join(' ');
+			var linewidth = (isstroke ? this.linewidth : null);
+			if(el.getAttribute(S_ATT_PATH)       !==path)     { el.setAttribute(S_ATT_PATH, path);}
+			if(el.getAttribute(S_ATT_STROKEWIDTH)!==linewidth){ el.setAttribute(S_ATT_STROKEWIDTH, linewidth);}
+		}
+		
+		var fillcolor   = (isfill   ? this.fillStyle   : S_NONE);
+		var strokecolor = (isstroke ? this.strokeStyle : S_NONE);
+		if(el.getAttribute(S_ATT_FILL)  !==fillcolor)  { el.setAttribute(S_ATT_FILL,   fillcolor);}
+		if(el.getAttribute(S_ATT_STROKE)!==strokecolor){ el.setAttribute(S_ATT_STROKE, strokecolor);}
 
 		if(newel){ this.target.appendChild(el);}
 		return el;
-	},
-
-	vnop : function(el, isfill, isstroke){
-		this.show(el);
-		var fillcolor   = (isfill   ? this.fillStyle   : "none");
-		var strokecolor = (isstroke ? this.strokeStyle : "none");
-		if(el.getAttribute("fill")  !==fillcolor)  { el.setAttribute("fill",   fillcolor);}
-		if(el.getAttribute("stroke")!==strokecolor){ el.setAttribute("stroke", strokecolor);}
 	}
 });
 

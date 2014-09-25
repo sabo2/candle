@@ -334,13 +334,8 @@ Candle.addWrapper('vector:wrapperbase',{
 		isstroke = isstroke && !!this.strokeStyle && (this.strokeStyle!=="none");
 		var el = (!!this.vid ? this.elements[this.vid] : null), el2 = null;
 		if(isfill || isstroke){
-			if(this.freezepath && !!el){
-				this.vnop(el,isfill,isstroke);
-			}
-			else{
-				el2 = this.addVectorElement_main(el,isfill,isstroke);
-				if(!el && !!this.vid){ this.elements[this.vid] = el2;}
-			}
+			el2 = this.addVectorElement_main(el,isfill,isstroke);
+			if(!el && !!this.vid){ this.elements[this.vid] = el2;}
 		}
 		else if(!!el){ this.hide(el);}
 		this.vid = '';
@@ -373,7 +368,6 @@ Candle.addWrapper('vector:wrapperbase',{
 			}
 		}
 	},
-	vnop : function(el, isfill, isstroke){},
 	
 	show : function(el){ el.removeAttribute('display');},
 	hide : function(el){ el.setAttribute('display', 'none');},

@@ -277,26 +277,22 @@ Candle.addWrapper('vml:vector',{
 		}
 		else{ this.show(el);}
 
-		var path = [this.cpath.join(' '), (!isfill ? V_PATH_NOFILL : ''), (!isstroke ? V_PATH_NOSTROKE : '')].join(''),
-			fillcolor   = (isfill   ? Candle.parse(this.fillStyle)   : ''),
-			strokecolor = (isstroke ? Candle.parse(this.strokeStyle) : ''),
-			linewidth   = ''+this.lineWidth+'px';
-		if(el.path        !== path)       { el.path = path;}
+		if(!this.freezepath || newel){
+			var path = [this.cpath.join(' '), (!isfill ? V_PATH_NOFILL : ''), (!isstroke ? V_PATH_NOSTROKE : '')].join('');
+			var linewidth = ''+this.lineWidth+'px';
+			if(el.path !== path){ el.path = path;}
+			if(isstroke && el.strokeweight !== linewidth){ el.strokeweight = linewidth;}
+		}
+		
+		var fillcolor   = (isfill   ? Candle.parse(this.fillStyle)   : "none");
+		var strokecolor = (isstroke ? Candle.parse(this.strokeStyle) : "none");
 		if(el.fillcolor   !== fillcolor)  { el.fillcolor   = fillcolor;}
 		if(el.strokecolor !== strokecolor){ el.strokecolor = strokecolor;}
-		if(isstroke && el.strokeweight !== linewidth){ el.strokeweight = linewidth;}
 
 		return el;
 	},
 
 	/* VectorID Functions */
-	vnop : function(el, isfill, isstroke){
-		this.show(el);
-		var fillcolor   = (isfill   ? Candle.parse(this.fillStyle)   : "none");
-		var strokecolor = (isstroke ? Candle.parse(this.strokeStyle) : "none");
-		if(el.fillcolor   !== fillcolor)  { el.fillcolor   = fillcolor;}
-		if(el.strokecolor !== strokecolor){ el.strokecolor = strokecolor;}
-	},
 	show : function(el){ el.style.display = 'inline';},
 	hide : function(el){ el.style.display = 'none';}
 });
