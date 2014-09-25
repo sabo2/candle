@@ -267,7 +267,7 @@ Candle.addWrapper('svg:vector',{
 
 		if(!this.freezepath || newel){
 			var path = this.cpath.join(' ');
-			var linewidth = (isstroke ? this.linewidth : null);
+			var linewidth = (isstroke ? this.lineWidth : null);
 			if(el.getAttribute(S_ATT_PATH)       !==path)     { el.setAttribute(S_ATT_PATH, path);}
 			if(el.getAttribute(S_ATT_STROKEWIDTH)!==linewidth){ el.setAttribute(S_ATT_STROKEWIDTH, linewidth);}
 		}

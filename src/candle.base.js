@@ -345,21 +345,24 @@ Candle.addWrapper('vector:wrapperbase',{
 
 	/* VectorID Functions */
 	vshow : function(vids){
-		if(typeof vids === 'string'){ vids = [vids];}
+		if(vids === void 0){ vids = [this.vid];}
+		else if(typeof vids === 'string'){ vids = [vids];}
 		for(var i=0,len=vids.length;i<len;i++){
 			var el = this.elements[vids[i]];
 			if(!!el){ this.show(el);}
 		}
 	},
 	vhide : function(vids){
-		if(typeof vids === 'string'){ vids = [vids];}
+		if(vids === void 0){ vids = [this.vid];}
+		else if(typeof vids === 'string'){ vids = [vids];}
 		for(var i=0,len=vids.length;i<len;i++){
 			var el = this.elements[vids[i]];
 			if(!!el){ this.hide(el);}
 		}
 	},
 	vdel  : function(vids){
-		if(typeof vids === 'string'){ vids = [vids];}
+		if(vids === void 0){ vids = [this.vid];}
+		else if(typeof vids === 'string'){ vids = [vids];}
 		for(var i=0;i<vids.length;i++){
 			var el = this.elements[vids[i]];
 			if(!!el){
