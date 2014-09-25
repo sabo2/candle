@@ -49,10 +49,13 @@ Candle.addWrapper('wrapperbase',{
 	},
 
 	/* layer functions */
-	setLayer : function(layerid){
+	setLayer : function(layerid, option){
 		this.currentLayerId = (!!layerid ? layerid : '_empty');
 		this.setLayerEdge();
 		this.setEdgeStyle();
+		
+		option = option || {};
+		if(option.rendering){ this.setRendering(option.rendering);}
 	},
 	setLayerEdge : function(){
 		if(this.isedgearray[this.currentLayerId] !== void 0)
@@ -97,6 +100,7 @@ Candle.addWrapper('vector:wrapperbase',{
 		// 描画中path
 		this.cpath    = [];
 		this.lastpath = '';
+		this.freezepath = false;
 
 		Candle.wrapper.wrapperbase.prototype.initialize.call(this, parent);
 	},
@@ -128,7 +132,7 @@ Candle.addWrapper('vector:wrapperbase',{
 	},
 
 	/* layer functions */
-	setLayer : function(layerid){
+	setLayer : function(layerid, option){
 		this.vid = '';
 		if(!!layerid){
 			var lid = [this.canvasid,"layer",layerid].join('_');
@@ -144,7 +148,8 @@ Candle.addWrapper('vector:wrapperbase',{
 		else{
 			this.target = this.child;
 		}
-		Candle.wrapper.wrapperbase.prototype.setLayer.call(this, layerid);
+		Candle.wrapper.wrapperbase.prototype.setLayer.call(this, layerid, option);
+		this.freezepath = (!!option && option.freeze);
 	},
 	createLayer : function(lid){ return null;},
 
@@ -329,8 +334,13 @@ Candle.addWrapper('vector:wrapperbase',{
 		isstroke = isstroke && !!this.strokeStyle && (this.strokeStyle!=="none");
 		var el = (!!this.vid ? this.elements[this.vid] : null), el2 = null;
 		if(isfill || isstroke){
-			el2 = this.addVectorElement_main(el,isfill,isstroke);
-			if(!el && !!this.vid){ this.elements[this.vid] = el2;}
+			if(this.freezepath && !!el){
+				this.vnop(el,isfill,isstroke);
+			}
+			else{
+				el2 = this.addVectorElement_main(el,isfill,isstroke);
+				if(!el && !!this.vid){ this.elements[this.vid] = el2;}
+			}
 		}
 		else if(!!el){ this.hide(el);}
 		this.vid = '';
@@ -363,6 +373,8 @@ Candle.addWrapper('vector:wrapperbase',{
 			}
 		}
 	},
+	vnop : function(el, isfill, isstroke){},
+	
 	show : function(el){ el.removeAttribute('display');},
 	hide : function(el){ el.setAttribute('display', 'none');},
 	deleteElement : function(el){ this.target.removeChild(el);}

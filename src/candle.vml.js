@@ -290,6 +290,13 @@ Candle.addWrapper('vml:vector',{
 	},
 
 	/* VectorID Functions */
+	vnop : function(el, isfill, isstroke){
+		this.show(el);
+		var fillcolor   = (isfill   ? Candle.parse(this.fillStyle)   : "none");
+		var strokecolor = (isstroke ? Candle.parse(this.strokeStyle) : "none");
+		if(el.fillcolor   !== fillcolor)  { el.fillcolor   = fillcolor;}
+		if(el.strokecolor !== strokecolor){ el.strokecolor = strokecolor;}
+	},
 	show : function(el){ el.style.display = 'inline';},
 	hide : function(el){ el.style.display = 'none';}
 });

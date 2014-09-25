@@ -276,6 +276,14 @@ Candle.addWrapper('svg:vector',{
 
 		if(newel){ this.target.appendChild(el);}
 		return el;
+	},
+
+	vnop : function(el, isfill, isstroke){
+		this.show(el);
+		var fillcolor   = (isfill   ? this.fillStyle   : "none");
+		var strokecolor = (isstroke ? this.strokeStyle : "none");
+		if(el.getAttribute("fill")  !==fillcolor)  { el.setAttribute("fill",   fillcolor);}
+		if(el.getAttribute("stroke")!==strokecolor){ el.setAttribute("stroke", strokecolor);}
 	}
 });
 
