@@ -279,11 +279,12 @@ Candle.addWrapper('vml:vector',{
 
 		var path = [this.cpath.join(' '), (!isfill ? V_PATH_NOFILL : ''), (!isstroke ? V_PATH_NOSTROKE : '')].join(''),
 			fillcolor   = (isfill   ? Candle.parse(this.fillStyle)   : ''),
-			strokecolor = (isstroke ? Candle.parse(this.strokeStyle) : '');
-		el.path = path;
-		if(isfill)  { el.fillcolor   = fillcolor;}
-		if(isstroke){ el.strokecolor = strokecolor;}
-		if(isstroke){ el.strokeweight = ''+this.lineWidth+'px';}
+			strokecolor = (isstroke ? Candle.parse(this.strokeStyle) : ''),
+			linewidth   = ''+this.lineWidth+'px';
+		if(el.path        !== path)       { el.path = path;}
+		if(el.fillcolor   !== fillcolor)  { el.fillcolor   = fillcolor;}
+		if(el.strokecolor !== strokecolor){ el.strokecolor = strokecolor;}
+		if(isstroke && el.strokeweight !== linewidth){ el.strokeweight = linewidth;}
 
 		return el;
 	},

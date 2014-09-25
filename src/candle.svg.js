@@ -21,6 +21,7 @@ var S_PATH_MOVE   = ' M',
 	S_PATH_CLOSE  = ' z',
 
 //	S_ATT_ID          = 'id',
+	S_ATT_PATH        = 'd',
 	S_ATT_FILL        = 'fill',
 	S_ATT_STROKE      = 'stroke',
 	S_ATT_STROKEWIDTH = 'stroke-width',
@@ -205,11 +206,12 @@ Candle.addWrapper('svg:vector',{
 		ME.style.font = this.font;
 		ME.innerHTML = text;
 		var top = y - ME.offsetHeight * S_HEIGHT[this.textBaseline.toLowerCase()];
-		
-		el.setAttribute('x', x);
-		el.setAttribute('y', top);
-		el.setAttribute(S_ATT_FILL, this.fillStyle);
-		el.setAttribute('text-anchor', S_ANCHOR[this.textAlign.toLowerCase()]);
+		var anchor = S_ANCHOR[this.textAlign.toLowerCase()];
+		 
+		if(el.getAttribute('x')!==x)  { el.setAttribute('x', x);}
+		if(el.getAttribute('y')!==top){ el.setAttribute('y', top);}
+		if(el.getAttribute(S_ATT_FILL)   !==this.fillStyle){ el.setAttribute(S_ATT_FILL, this.fillStyle);}
+		if(el.getAttribute('text-anchor')!==anchor)        { el.setAttribute('text-anchor', anchor);}
 
 		if(this.font.match(/(.+\s)?([0-9]+)px (.+)$/)){
 			var style = RegExp.$1, size = RegExp.$2, family = RegExp.$3;
@@ -241,11 +243,13 @@ Candle.addWrapper('svg:vector',{
 		var refid = this.getImageSymbol(image,sx,sy,sw,sh).getAttribute("id");
 
 		/* viewBoxはgetImageSymbol()で設定済み */
-		el.setAttribute("x", dx);
-		el.setAttribute("y", dy);
-		el.setAttribute("width",  dw);
-		el.setAttribute("height", dh);
-		el.setAttributeNS(XLINKNS, "xlink:href", "#"+refid);
+		if(el.getAttribute('x')!==dx){ el.setAttribute('x', dx);}
+		if(el.getAttribute('y')!==dy){ el.setAttribute('y', dy);}
+		if(el.getAttribute('width') !==dw){ el.setAttribute('width',  dw);}
+		if(el.getAttribute('height')!==dh){ el.setAttribute('height', dh);}
+		if(el.getAttributeNS("xlink:href")!=="#"+refid){
+			el.setAttributeNS(XLINKNS, "xlink:href", "#"+refid);
+		}
 
 		if(newel){ this.target.appendChild(el);}
 		return el;
@@ -262,12 +266,13 @@ Candle.addWrapper('svg:vector',{
 		else{ this.show(el);}
 
 		var path = this.cpath.join(' '),
+			linewidth   = (isstroke ? this.linewidth   : null),
 			fillcolor   = (isfill   ? this.fillStyle   : S_NONE),
 			strokecolor = (isstroke ? this.strokeStyle : S_NONE);
-		el.setAttribute('d', path);
-		if(isfill)  { el.setAttribute(S_ATT_FILL,   fillcolor);}
-		if(isstroke){ el.setAttribute(S_ATT_STROKE, strokecolor);}
-		if(isstroke){ el.setAttribute(S_ATT_STROKEWIDTH, this.lineWidth);}
+		if(el.getAttribute(S_ATT_PATH)       !==path)       { el.setAttribute(S_ATT_PATH, path);}
+		if(el.getAttribute(S_ATT_FILL)       !==fillcolor)  { el.setAttribute(S_ATT_FILL, fillcolor);}
+		if(el.getAttribute(S_ATT_STROKE)     !==strokecolor){ el.setAttribute(S_ATT_STROKE,      strokecolor);}
+		if(el.getAttribute(S_ATT_STROKEWIDTH)!==linewidth)  { el.setAttribute(S_ATT_STROKEWIDTH, linewidth);}
 
 		if(newel){ this.target.appendChild(el);}
 		return el;
