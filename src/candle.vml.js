@@ -181,8 +181,8 @@ Candle.addWrapper('vml:vector',{
 			sx = cx + r*Math.cos(startRad); sy = cy + r*Math.sin(startRad);
 			ex = cx + r*Math.cos(endRad);   ey = cy + r*Math.sin(endRad);
 		}
+		if(endRad-startRad>=_2PI){ sy+=0.125;}
 		var com = (antiClockWise ? 'at' : 'wa');
-		if(endRad-startRad>=_2PI){ sx+=1;}
 		this.cpath.push(com,ePos(cx-r),ePos(cy-r),ePos(cx+r),ePos(cy+r),ePos(sx),ePos(sy),ePos(ex),ePos(ey));
 		this.lastpath = com;
 	},
@@ -215,11 +215,12 @@ Candle.addWrapper('vml:vector',{
 	/* Canvas API functions (for text) */
 	fillText_main : function(el,text,x,y){
 		var newel = !el, _cache = (!!this.vid ? this._textcache[this.vid] || {} : {});
+		var fillcolor = Candle.parse(this.fillStyle);
+
 		if(!newel && (_cache.x!==x || _cache.y!==y || _cache.ta!==this.textAlign || _cache.tb!==this.textBaseline || _cache.font!==this.font)){
 			this.target.removeChild(el);
 			newel = true;
 		}
-		else{ this.show(el);}
 
 		if(newel){
 			var ME = Candle.ME;
@@ -232,7 +233,7 @@ Candle.addWrapper('vml:vector',{
 			var ar = [
 				V_TAG_GROUP, V_ATT_COORDSIZE, V_TAGEND,
 					V_TAG_POLYLINE, V_ATT_POINTS, [left,top,left+wid,top].join(','), V_ATT_END,
-					V_DEF_ATT_POLYLINE, V_ATT_FILLCOLOR, Candle.parse(this.fillStyle), V_ATT_END, V_TAGEND,
+					V_DEF_ATT_POLYLINE, V_ATT_FILLCOLOR, fillcolor, V_ATT_END, V_TAGEND,
 						V_TAG_PATH_FOR_TEXTPATH,
 						
 						V_TAG_TEXTPATH, V_DEF_ATT_TEXTPATH, V_ATT_STRING, text, V_ATT_END,
@@ -244,12 +245,15 @@ Candle.addWrapper('vml:vector',{
 			this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
 			el = this.target.lastChild;
 			
-			if(!!this.vid){ this._textcache[this.vid] = { x:x, y:y, font:this.font, ta:this.textAlign, tb:this.textBaseline };}
+			if(!!this.vid){
+				this._textcache[this.vid] = { x:x, y:y, font:this.font, ta:this.textAlign, tb:this.textBaseline };
+				this.elements[this.vid] = el;
+			}
 		}
 		else{
-			var fillcolor = Candle.parse(this.fillStyle);
-			if(el.fillcolor !== fillcolor){ el.fillcolor = fillcolor;}
-			if(el.lastChild.string!==text){ el.lastChild.string = text;}
+			this.show(el);
+			if(""+el.lastChild.fillcolor !== fillcolor){ el.lastChild.fillcolor = fillcolor;}
+			if(el.lastChild.lastChild.string!==text){ el.lastChild.lastChild.string = text;}
 		}
 
 		return el;
@@ -292,14 +296,14 @@ Candle.addWrapper('vml:vector',{
 		if(!this.freezepath || newel){
 			var path = [this.cpath.join(' '), (!isfill ? V_PATH_NOFILL : ''), (!isstroke ? V_PATH_NOSTROKE : '')].join('');
 			var linewidth = ''+this.lineWidth+'px';
-			if(el.path !== path){ el.path = path;}
-			if(isstroke && el.strokeweight !== linewidth){ el.strokeweight = linewidth;}
+			if(newel || ""+el.path !== path){ el.path = path;}
+			if(isstroke && ""+el.strokeweight !== linewidth){ el.strokeweight = linewidth;}
 		}
 		
 		var fillcolor   = (isfill   ? Candle.parse(this.fillStyle)   : "none");
 		var strokecolor = (isstroke ? Candle.parse(this.strokeStyle) : "none");
-		if(el.fillcolor   !== fillcolor)  { el.fillcolor   = fillcolor;}
-		if(el.strokecolor !== strokecolor){ el.strokecolor = strokecolor;}
+		if(""+el.fillcolor   !== fillcolor)  { el.fillcolor   = fillcolor;}
+		if(""+el.strokecolor !== strokecolor){ el.strokecolor = strokecolor;}
 
 		return el;
 	},
