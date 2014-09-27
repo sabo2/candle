@@ -47,12 +47,12 @@ var V_TAG_SHAPE    = '<v:shape',
 	V_STYLE_ALIGN = 'v-text-align:',
 	V_STYLE_END   = ';',
 
-	V_PATH_MOVE   = ' m',
-	V_PATH_LINE   = ' l',
-	V_PATH_CLOSE  = ' x',
-	V_PATH_ARCTO  = ' ?', /* 'at'か'wa'どちらか */
-	V_PATH_NOSTROKE = ' ns',
-	V_PATH_NOFILL   = ' nf',
+	V_PATH_MOVE   = 'm',
+	V_PATH_LINE   = 'l',
+	V_PATH_CLOSE  = 'x',
+	V_PATH_ARCTO  = '?', /* 'at'か'wa'どちらか */
+	V_PATH_NOSTROKE = 'ns',
+	V_PATH_NOFILL   = 'nf',
 
 	V_WIDTH = { left:0, center:0.5, right:1 },
 	V_HEIGHT = { 'candle-top':-0.25, top:-0.4, hanging:-0.4, middle:0, alphabetic:0.22, bottom:0.4 },

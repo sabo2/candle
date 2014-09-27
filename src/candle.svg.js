@@ -15,10 +15,10 @@ function newEL(tag){ return _doc.createElementNS(SVGNS, tag);}
 /* ------------------------------------------- */
 /*   VectorContext(SVG)クラス用const文字列集   */
 /* ------------------------------------------- */
-var S_PATH_MOVE   = ' M',
-	S_PATH_LINE   = ' L',
-	S_PATH_ARCTO  = ' A',
-	S_PATH_CLOSE  = ' z',
+var S_PATH_MOVE   = 'M',
+	S_PATH_LINE   = 'L',
+	S_PATH_ARCTO  = 'A',
+	S_PATH_CLOSE  = 'z',
 
 //	S_ATT_ID          = 'id',
 	S_ATT_PATH        = 'd',
