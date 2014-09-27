@@ -198,38 +198,53 @@ Candle.addWrapper('svg:vector',{
 
 	/* Canvas API functions (for text) */
 	fillText_main : function(el,text,x,y){
-		var newel = !el;
+		var newel = !el, _cache = (!!this.vid ? this._textcache[this.vid] || {} : {});
 		if(newel){ el = newEL('text');}
 		else{ this.show(el);}
 
-		var ME = Candle.ME;
-		ME.style.font = this.font;
-		ME.innerHTML = text;
-		var top = y - ME.offsetHeight * S_HEIGHT[this.textBaseline.toLowerCase()];
-		var anchor = S_ANCHOR[this.textAlign.toLowerCase()];
-		 
-		if(el.getAttribute('x')!==x)  { el.setAttribute('x', x);}
-		if(el.getAttribute('y')!==top){ el.setAttribute('y', top);}
-		if(el.getAttribute(S_ATT_FILL)   !==this.fillStyle){ el.setAttribute(S_ATT_FILL, this.fillStyle);}
-		if(el.getAttribute('text-anchor')!==anchor)        { el.setAttribute('text-anchor', anchor);}
+		if(el.getAttribute(S_ATT_FILL)!==this.fillStyle){ el.setAttribute(S_ATT_FILL, this.fillStyle);}
 
-		if(this.font.match(/(.+\s)?([0-9]+)px (.+)$/)){
-			var style = RegExp.$1, size = RegExp.$2, family = RegExp.$3;
-			el.setAttribute('font-size', size);
+		if(_cache.x!==x || _cache.y!==y || _cache.ta!==this.textAlign || _cache.tb!==this.textBaseline || _cache.font!==this.font){
+			var ME = Candle.ME;
+			ME.style.font = this.font;
+			ME.innerHTML = text;
+			var top = y - ME.offsetHeight * S_HEIGHT[this.textBaseline.toLowerCase()];
+			var anchor = S_ANCHOR[this.textAlign.toLowerCase()];
+			 
+			if(el.getAttribute('x')!==x)  { el.setAttribute('x', x);}
+			if(el.getAttribute('y')!==top){ el.setAttribute('y', top);}
+			if(el.getAttribute('text-anchor')!==anchor){ el.setAttribute('text-anchor', anchor);}
 			
-			if(!family.match(/^sans\-serif$/i)){ el.setAttribute('font-family', family);}
-			else{ el.removeAttribute('font-family');}
-			
-			if(style.match(/(italic|oblique)/)){ el.setAttribute('font-style', RegExp.$1);}
-			else{ el.removeAttribute('font-style');}
-			
-			if(style.match(/(bold|bolder|lighter|[1-9]00)/)){ el.setAttribute('font-weight', RegExp.$1);}
-			else{ el.removeAttribute('font-weight');}
+			_cache.x = x;
+			_cache.y = y;
+			_cache.ta = this.textAlign;
+			_cache.tb = this.textBaseline;
 		}
-		else{
-			el.setAttribute('font', this.font);
+
+		if(_cache.font!==this.font){
+			if(this.font.match(/(.+\s)?([0-9]+)px (.+)$/)){
+				var style = RegExp.$1, size = RegExp.$2, family = RegExp.$3;
+				el.setAttribute('font-size', size);
+				
+				if(!family.match(/^sans\-serif$/i)){ el.setAttribute('font-family', family);}
+				else{ el.removeAttribute('font-family');}
+				
+				if(style.match(/(italic|oblique)/)){ el.setAttribute('font-style', RegExp.$1);}
+				else{ el.removeAttribute('font-style');}
+				
+				if(style.match(/(bold|bolder|lighter|[1-9]00)/)){ el.setAttribute('font-weight', RegExp.$1);}
+				else{ el.removeAttribute('font-weight');}
+			}
+			else{
+				el.setAttribute('font', this.font);
+			}
+			
+			_cache.font = this.font;
 		}
+
 		if(el.textContent!==text){ el.textContent = text;}
+
+		if(!!this.vid){ this._textcache[this.vid] = _cache;}
 
 		if(newel){ this.target.appendChild(el);}
 		return el;

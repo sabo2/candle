@@ -215,30 +215,43 @@ Candle.addWrapper('vml:vector',{
 
 	/* Canvas API functions (for text) */
 	fillText_main : function(el,text,x,y){
-		var newel = !el;
-		if(!newel){ this.deleteElement(el);}
+		var newel = !el, _cache = (!!this.vid ? this._textcache[this.vid] || {} : {});
+		if(!newel && (_cache.x!==x || _cache.y!==y || _cache.ta!==this.textAlign || _cache.tb!==this.textBaseline || _cache.font!==this.font)){
+			this.target.removeChild(el);
+			newel = true;
+		}
+		else{ this.show(el);}
 
-		var ME = Candle.ME;
-		ME.style.font = this.font;
-		ME.innerHTML = text;
-		var wid = (ME.offsetWidth*Z-Z2)|0;
-		var left = ((x - ME.offsetWidth  * V_WIDTH [this.textAlign.toLowerCase()]   )*Z-Z2)|0;
-		var top  = ((y - ME.offsetHeight * V_HEIGHT[this.textBaseline.toLowerCase()])*Z-Z2)|0;
-		
-		var ar = [
-			V_TAG_GROUP, V_ATT_COORDSIZE, V_TAGEND,
-				V_TAG_POLYLINE, V_ATT_POINTS, [left,top,left+wid,top].join(','), V_ATT_END,
-				V_DEF_ATT_POLYLINE, V_ATT_FILLCOLOR, Candle.parse(this.fillStyle), V_ATT_END, V_TAGEND,
-					V_TAG_PATH_FOR_TEXTPATH,
-					
-					V_TAG_TEXTPATH, V_DEF_ATT_TEXTPATH, V_ATT_STRING, text, V_ATT_END,
-					V_ATT_STYLE, V_STYLE_FONT, this.font, V_STYLE_END,
-					V_STYLE_ALIGN, this.textAlign, V_STYLE_END, V_ATT_END, V_TAGEND_NULL,
-				V_CLOSETAG_POLYLINE,
-			V_CLOSETAG_GROUP
-		];
-		this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
-		el = this.target.lastChild;
+		if(newel){
+			var ME = Candle.ME;
+			ME.style.font = this.font;
+			ME.innerHTML = text;
+			var wid = (ME.offsetWidth*Z-Z2)|0;
+			var left = ((x - ME.offsetWidth  * V_WIDTH [this.textAlign.toLowerCase()]   )*Z-Z2)|0;
+			var top  = ((y - ME.offsetHeight * V_HEIGHT[this.textBaseline.toLowerCase()])*Z-Z2)|0;
+			
+			var ar = [
+				V_TAG_GROUP, V_ATT_COORDSIZE, V_TAGEND,
+					V_TAG_POLYLINE, V_ATT_POINTS, [left,top,left+wid,top].join(','), V_ATT_END,
+					V_DEF_ATT_POLYLINE, V_ATT_FILLCOLOR, Candle.parse(this.fillStyle), V_ATT_END, V_TAGEND,
+						V_TAG_PATH_FOR_TEXTPATH,
+						
+						V_TAG_TEXTPATH, V_DEF_ATT_TEXTPATH, V_ATT_STRING, text, V_ATT_END,
+						V_ATT_STYLE, V_STYLE_FONT, this.font, V_STYLE_END,
+						V_STYLE_ALIGN, this.textAlign, V_STYLE_END, V_ATT_END, V_TAGEND_NULL,
+					V_CLOSETAG_POLYLINE,
+				V_CLOSETAG_GROUP
+			];
+			this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
+			el = this.target.lastChild;
+			
+			if(!!this.vid){ this._textcache[this.vid] = { x:x, y:y, font:this.font, ta:this.textAlign, tb:this.textBaseline };}
+		}
+		else{
+			var fillcolor = Candle.parse(this.fillStyle);
+			if(el.fillcolor !== fillcolor){ el.fillcolor = fillcolor;}
+			if(el.lastChild.string!==text){ el.lastChild.string = text;}
+		}
 
 		return el;
 	},
