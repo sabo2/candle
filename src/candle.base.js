@@ -1,4 +1,5 @@
 // candle.base.js
+/* global Candle:false, _doc:false, _2PI:false */
  
 /* ------------------- */
 /*  WrapperBaseクラス  */
@@ -48,10 +49,13 @@ Candle.addWrapper('wrapperbase',{
 	},
 
 	/* layer functions */
-	setLayer : function(layerid){
+	setLayer : function(layerid, option){
 		this.currentLayerId = (!!layerid ? layerid : '_empty');
 		this.setLayerEdge();
 		this.setEdgeStyle();
+		
+		option = option || {};
+		if(option.rendering){ this.setRendering(option.rendering);}
 	},
 	setLayerEdge : function(){
 		if(this.isedgearray[this.currentLayerId] !== void 0)
@@ -68,6 +72,7 @@ Candle.addWrapper('wrapperbase',{
 	},
 
 	/* Canvas API functions (rect) */
+	rectcenter       : function(cx,cy,bw,bh){ this.rect      (cx-bw,cy-bh,2*bw,2*bh);},
 	fillRectCenter   : function(cx,cy,bw,bh){ this.fillRect  (cx-bw,cy-bh,2*bw,2*bh);},
 	strokeRectCenter : function(cx,cy,bw,bh){ this.strokeRect(cx-bw,cy-bh,2*bw,2*bh);},
 	shapeRectCenter  : function(cx,cy,bw,bh){ this.shapeRect (cx-bw,cy-bh,2*bw,2*bh);},
@@ -87,7 +92,7 @@ Candle.addWrapper('vector:wrapperbase',{
 		// 外部から変更される追加プロパティ
 		this.vid      = '';
 		this.elements = {};
-		this.lastElement = null;
+		this._textcache = {};
 
 		// variables for internal
 		this.zidx = 1;
@@ -97,6 +102,7 @@ Candle.addWrapper('vector:wrapperbase',{
 		// 描画中path
 		this.cpath    = [];
 		this.lastpath = '';
+		this.freezepath = false;
 
 		Candle.wrapper.wrapperbase.prototype.initialize.call(this, parent);
 	},
@@ -109,20 +115,27 @@ Candle.addWrapper('vector:wrapperbase',{
 		this.rect(0,0,rect.width,rect.height);
 		this.addVectorElement(false,false);
 	},
+
+	initTarget : function(){
+		this.target = _doc.getElementById(this.canvasid);
+	},
 	clear : function(){
+		var top = this.canvas.firstChild, el = top.firstChild;
+		while(!!el){ top.removeChild(el); el=top.firstChild;}
 		this.resetElement();
 	},
 	resetElement : function(){
 		this.vid = '';
 		this.elements = {};
-		this.lastElement = null;
+		this.initTarget();
 		this.zidx = 1;
 		this.zidx_array = {};
 		this.setLayer();
+		this._textcache = {};
 	},
 
 	/* layer functions */
-	setLayer : function(layerid){
+	setLayer : function(layerid, option){
 		this.vid = '';
 		if(!!layerid){
 			var lid = [this.canvasid,"layer",layerid].join('_');
@@ -138,7 +151,8 @@ Candle.addWrapper('vector:wrapperbase',{
 		else{
 			this.target = this.child;
 		}
-		Candle.wrapper.wrapperbase.prototype.setLayer.call(this, layerid);
+		Candle.wrapper.wrapperbase.prototype.setLayer.call(this, layerid, option);
+		this.freezepath = (!!option && option.freeze);
 	},
 	createLayer : function(lid){ return null;},
 
@@ -152,6 +166,9 @@ Candle.addWrapper('vector:wrapperbase',{
 		this.changeChildSize(this.canvas.firstChild,width,height);
 	},
 	changeChildSize : function(child,width,height){},
+
+	/* Canvas API functions (for transform) */
+	translate : function(left,top){},
 
 	/* Canvas API functions (for path) */
 	beginPath : function(){
@@ -178,14 +195,14 @@ Candle.addWrapper('vector:wrapperbase',{
 	},
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
 		var sx,sy,ex,ey;
-		if(endRad-startRad>=_2PI){ sx=cx+r, sy=cy, ex=cx+r, ey=cy;}
+		if(endRad-startRad>=_2PI){ sx=cx+r; sy=cy; ex=cx+r; ey=cy;}
 		else{
-			sx = cx + r*Math.cos(startRad), sy = cy + r*Math.sin(startRad),
-			ex = cx + r*Math.cos(endRad),   ey = cy + r*Math.sin(endRad);
+			sx = cx + r*Math.cos(startRad); sy = cy + r*Math.sin(startRad);
+			ex = cx + r*Math.cos(endRad);   ey = cy + r*Math.sin(endRad);
 		}
 		if(endRad-startRad>=_2PI){ sy+=0.125;}
 		var unknownflag = (startRad>endRad)^(Math.abs(endRad-startRad)>Math.PI);
-		var islong = ((antiClockWise^unknownflag)?1:0), sweep = ((islong==0^unknownflag)?1:0);
+		var islong = ((antiClockWise^unknownflag)?1:0), sweep = ((islong===0^unknownflag)?1:0);
 		this.cpath.push(this.PATH_MOVE,sx,sy,this.PATH_ARCTO,r,r,0,islong,sweep,ex,ey);
 		this.lastpath = this.PATH_ARCTO;
 	},
@@ -218,36 +235,28 @@ Candle.addWrapper('vector:wrapperbase',{
 		this.cpath = stack;
 	},
 
-	/* Canvas API functions (for text) */
-	fillText : function(text,x,y){},
-
-	/* Canvas API functions (for image) */
-	drawImage : function(image,sx,sy,sw,sh,dx,dy,dw,dh){},
-
-	/* Canvas API functions (for transform) */
-	translate : function(left,top){},
-
 	/* extended functions */
 	setLinePath : function(){
 		var _args=arguments, _len=_args.length, len=_len-((_len|1)?1:2), a=[];
 		for(var i=0;i<len;i+=2){ a[i>>1] = [_args[i],_args[i+1]];}
+		this.beginPath();
 		this.setLinePath_com.call(this,a);
 		if(_args[_len-1]){ this.cpath.push(this.PATH_CLOSE);}
 	},
 	setOffsetLinePath : function(){
 		var _args=arguments, _len=_args.length, len=_len-((_len|1)?1:2), a=[];
 		for(var i=0;i<len-2;i+=2){ a[i>>1] = [_args[i+2]+_args[0], _args[i+3]+_args[1]];}
+		this.beginPath();
 		this.setLinePath_com.call(this,a);
 		if(_args[_len-1]){ this.cpath.push(this.PATH_CLOSE);}
 	},
 	setLinePath_com : function(array){
-		this.cpath = [];
 		for(var i=0,len=array.length;i<len;i++){
 			this.cpath.push(i===0 ? this.PATH_MOVE : this.PATH_LINE);
 			this.cpath.push(array[i][0],array[i][1]);
 		}
 	},
-	setDashSize : function(sizes){},
+	setDashSize : function(obj, sizes){},
 
 	strokeLine : function(x1,y1,x2,y2){
 		var stack = this.cpath;
@@ -258,8 +267,8 @@ Candle.addWrapper('vector:wrapperbase',{
 	strokeDashedLine : function(x1,y1,x2,y2,sizes){
 		var stack = this.cpath;
 		this.cpath = [this.PATH_MOVE,x1,y1,this.PATH_LINE,x2,y2];
-		this.addVectorElement(false,true);
-		this.setDashSize(sizes);
+		var obj = this.addVectorElement(false,true);
+		this.setDashSize(obj, sizes);
 		this.cpath = stack;
 	},
 	strokeCross : function(cx,cy,l){
@@ -296,31 +305,61 @@ Candle.addWrapper('vector:wrapperbase',{
 		this.cpath = stack;
 	},
 
+	/* Canvas API functions (for text) */
+	fillText : function(text,x,y){
+		var el = (!!this.vid ? this.elements[this.vid] : null);
+		if(!!text && !!this.fillStyle && this.fillStyle!=="none"){
+			var el2 = this.fillText_main(el,text,x,y);
+			if(!el && !!this.vid){ this.elements[this.vid] = el2;}
+		}
+		else if(!!el){ this.hide(el);}
+		this.vid = '';
+	},
+	fillText_main : function(text,x,y){},
+
+	/* Canvas API functions (for image) */
+	drawImage : function(image,sx,sy,sw,sh,dx,dy,dw,dh){
+		var el = (!!this.vid ? this.elements[this.vid] : null);
+		if(!!image){
+			if(sw===(void 0)){ sw=image.width; sh=image.height;}
+			if(dx===(void 0)){ dx=sx; sx=0; dy=sy; sy=0; dw=sw; dh=sh;}
+			
+			var el2 = this.drawImage_main(el,image,sx,sy,sw,sh,dx,dy,dw,dh);
+			if(!el && !!this.vid){ this.elements[this.vid] = el2;}
+		}
+		else if(!!el){ this.hide(el);}
+		this.vid = '';
+	},
+	drawImage_main : function(el,image,sx,sy,sw,sh,dx,dy,dw,dh){},
+
 	/* internal functions */
-	addVectorElement : function(isfill,isstroke){},
+	addVectorElement : function(isfill,isstroke){
+		isfill   = isfill   && !!this.fillStyle   && (this.fillStyle  !=="none");
+		isstroke = isstroke && !!this.strokeStyle && (this.strokeStyle!=="none");
+		var el = (!!this.vid ? this.elements[this.vid] : null), el2 = null;
+		if(isfill || isstroke){
+			el2 = this.addVectorElement_main(el,isfill,isstroke);
+			if(!el && !!this.vid){ this.elements[this.vid] = el2;}
+		}
+		else if(!!el){ this.hide(el);}
+		this.vid = '';
+		return el2;
+	},
+	addVectorElement_main : function(el,isfill,isstroke){},
 
 	/* VectorID Functions */
-	vshow : function(vids){
-		if(typeof vids === 'string'){ vids = [vids];}
-		for(var i=0,len=vids.length;i<len;i++){
-			if(!!this.elements[vids[i]]){ this.show(vids[i]);}
-		}
-	},
 	vhide : function(vids){
-		if(typeof vids === 'string'){ vids = [vids];}
-		for(var i=0,len=vids.length;i<len;i++){
-			if(!!this.elements[vids[i]]){ this.hide(vids[i]);}
-		}
+		var el = this.elements[this.vid];
+		if(!!el){ this.hide(el);}
 	},
 	vdel  : function(vids){
-		if(typeof vids === 'string'){ vids = [vids];}
-		for(var i=0;i<vids.length;i++){
-			if(!!this.elements[vids[i]]){
-				this.target.removeChild(this.elements[vids[i]]);
-				delete this.elements[vids[i]];
-			}
+		var el = this.elements[this.vid];
+		if(!!el){
+			this.target.removeChild(el);
+			delete this.elements[this.vid];
 		}
 	},
-	show : function(vid){},
-	hide : function(vid){}
+	
+	show : function(el){ el.removeAttribute('display');},
+	hide : function(el){ el.setAttribute('display', 'none');}
 });

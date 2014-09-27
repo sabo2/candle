@@ -1,4 +1,5 @@
 // candle.svg.js
+/* global Candle:false, _doc:false */
 
 (function(){
 
@@ -9,15 +10,18 @@ var SVGNS   = Candle.SVGNS   = "http://www.w3.org/2000/svg",
 	XLINKNS = Candle.XLINKNS = "http://www.w3.org/1999/xlink";
 if(!document.createElementNS || !document.createElementNS(SVGNS, 'svg').suspendRedraw){ return;}
 
+function newEL(tag){ return _doc.createElementNS(SVGNS, tag);}
+
 /* ------------------------------------------- */
 /*   VectorContext(SVG)クラス用const文字列集   */
 /* ------------------------------------------- */
-var S_PATH_MOVE   = ' M',
-	S_PATH_LINE   = ' L',
-	S_PATH_ARCTO  = ' A',
-	S_PATH_CLOSE  = ' z',
+var S_PATH_MOVE   = 'M',
+	S_PATH_LINE   = 'L',
+	S_PATH_ARCTO  = 'A',
+	S_PATH_CLOSE  = 'z',
 
-	S_ATT_ID          = 'id',
+//	S_ATT_ID          = 'id',
+	S_ATT_PATH        = 'd',
 	S_ATT_FILL        = 'fill',
 	S_ATT_STROKE      = 'stroke',
 	S_ATT_STROKEWIDTH = 'stroke-width',
@@ -73,7 +77,7 @@ Candle.addWrapper('svg:vector',{
 		root.setAttribute('xmlns', SVGNS);
 		root.setAttribute('xmlns:xlink', XLINKNS);
 		root.setAttribute('id', this.canvasid);
-		root.setAttribute('font-size', "10");
+		root.setAttribute('font-size', "10px");
 		root.setAttribute('font-family', "sans-serif");
 		root.setAttribute('width', rect.width);
 		root.setAttribute('height', rect.height);
@@ -104,7 +108,7 @@ Candle.addWrapper('svg:vector',{
 	/* layer functions */
 	setLayerEdge : function(){ /* nop */ },
 	createLayer : function(lid){
-		var layer = _doc.createElementNS(SVGNS,'g');
+		var layer = newEL('g');
 		layer.setAttribute('id', lid);
 		this.child.appendChild(layer);
 		return layer;
@@ -128,6 +132,18 @@ Candle.addWrapper('svg:vector',{
 		child.setAttribute('viewBox', [m[0],m[1],width,height].join(' '));
 	},
 
+	/* Canvas API functions (for transform) */
+	translate : function(left,top){
+		var m = this.child.getAttribute('viewBox').split(/ /);
+		m[0]=-left; m[1]=-top;
+		this.child.setAttribute('viewBox', m.join(' '));
+	},
+
+	/* extended functions */
+	setDashSize : function(obj, sizes){
+		obj.setAttribute('stroke-dasharray', sizes.join(" "));
+	},
+
 	/* SVG Special functions */
 	getDefsElement : function(){
 		// defs要素がなかったら作成する
@@ -147,7 +163,7 @@ Candle.addWrapper('svg:vector',{
 		}
 		/* defsにimage要素がない場合はdefsにimage要素を追加して返す */
 		if(!imgel){
-			imgel = _doc.createElementNS(SVGNS, 'image');
+			imgel = newEL('image');
 			imgel.setAttribute('id', [this.canvasid, "img", imgs.length].join('_'));
 			imgel.setAttribute("width",  image.width);
 			imgel.setAttribute("height", image.height);
@@ -181,103 +197,103 @@ Candle.addWrapper('svg:vector',{
 	},
 
 	/* Canvas API functions (for text) */
-	fillText : function(text,x,y){
-		var already = (!!this.vid && !!this.elements[this.vid]);
-		var ME = Candle.ME;
+	fillText_main : function(el,text,x,y){
+		var newel = !el, _cache = (!!this.vid ? this._textcache[this.vid] || {} : {});
+		if(newel){ el = newEL('text');}
+		else{ this.show(el);}
 
-		ME.style.font = this.font; ME.innerHTML = text;
-		var top = y - (ME.offsetHeight * S_HEIGHT[this.textBaseline.toLowerCase()]);
+		if(el.getAttribute(S_ATT_FILL)!==this.fillStyle){ el.setAttribute(S_ATT_FILL, this.fillStyle);}
 
-		var el = (already ? this.elements[this.vid] : _doc.createElementNS(SVGNS,'text'));
-		el.setAttribute('x', x);
-		el.setAttribute('y', top);
-		el.setAttribute(S_ATT_FILL, this.fillStyle);
-		el.setAttribute('text-anchor', S_ANCHOR[this.textAlign.toLowerCase()]);
-		if(this.font.match(/(.+\s)?([0-9]+)px (.+)$/)){
-			var style = RegExp.$1, size = RegExp.$2, family = RegExp.$3;
-			el.setAttribute('font-size', size);
+		if(_cache.x!==x || _cache.y!==y || _cache.ta!==this.textAlign || _cache.tb!==this.textBaseline || _cache.font!==this.font){
+			var ME = Candle.ME;
+			ME.style.font = this.font;
+			ME.innerHTML = text;
+			var top = y - ME.offsetHeight * S_HEIGHT[this.textBaseline.toLowerCase()];
+			var anchor = S_ANCHOR[this.textAlign.toLowerCase()];
+			 
+			if(el.getAttribute('x')!==x)  { el.setAttribute('x', x);}
+			if(el.getAttribute('y')!==top){ el.setAttribute('y', top);}
+			if(el.getAttribute('text-anchor')!==anchor){ el.setAttribute('text-anchor', anchor);}
 			
-			if(!family.match(/^sans\-serif$/i)){ el.setAttribute('font-family', family);}
-			else{ el.removeAttribute('font-family');}
-			
-			if(style.match(/(italic|oblique)/)){ el.setAttribute('font-style', RegExp.$1);}
-			else{ el.removeAttribute('font-style');}
-			
-			if(style.match(/(bold|bolder|lighter|[1-9]00)/)){ el.setAttribute('font-weight', RegExp.$1);}
-			else{ el.removeAttribute('font-weight');}
+			_cache.x = x;
+			_cache.y = y;
+			_cache.ta = this.textAlign;
+			_cache.tb = this.textBaseline;
 		}
-		else{
-			el.setAttribute('font', this.font);
+
+		if(_cache.font!==this.font){
+			if(this.font.match(/(.+\s)?([0-9]+)px (.+)$/)){
+				var style = RegExp.$1, size = RegExp.$2, family = RegExp.$3;
+				el.setAttribute('font-size', size);
+				
+				if(!family.match(/^sans\-serif$/i)){ el.setAttribute('font-family', family);}
+				else{ el.removeAttribute('font-family');}
+				
+				if(style.match(/(italic|oblique)/)){ el.setAttribute('font-style', RegExp.$1);}
+				else{ el.removeAttribute('font-style');}
+				
+				if(style.match(/(bold|bolder|lighter|[1-9]00)/)){ el.setAttribute('font-weight', RegExp.$1);}
+				else{ el.removeAttribute('font-weight');}
+			}
+			else{
+				el.setAttribute('font', this.font);
+			}
+			
+			_cache.font = this.font;
 		}
+
 		if(el.textContent!==text){ el.textContent = text;}
-		
-		if(!already){
-			this.target.appendChild(el);
-			this.lastElement = el;
-		}
 
-		if(!already && !!this.vid){ this.elements[this.vid] = this.lastElement; this.vid='';}
+		if(!!this.vid){ this._textcache[this.vid] = _cache;}
+
+		if(newel){ this.target.appendChild(el);}
+		return el;
 	},
 
 	/* Canvas API functions (for image) */
-	drawImage : function(image,sx,sy,sw,sh,dx,dy,dw,dh){
-		var already = (!!this.vid && !!this.elements[this.vid]);
-
-		if(sw===(void 0)){ sw=image.width; sh=image.height;}
-		if(dx===(void 0)){ dx=sx; sx=0; dy=sy; sy=0; dw=sw; dh=sh;}
+	drawImage_main : function(el,image,sx,sy,sw,sh,dx,dy,dw,dh){
+		var newel = !el;
+		if(newel){ el = newEL('use');}
+		else{ this.show(el);}
 		var refid = this.getImageSymbol(image,sx,sy,sw,sh).getAttribute("id");
 
 		/* viewBoxはgetImageSymbol()で設定済み */
-		var el = (already ? this.elements[this.vid] : _doc.createElementNS(SVGNS, "use"));
-		el.setAttribute("x", dx);
-		el.setAttribute("y", dy);
-		el.setAttribute("width",  dw);
-		el.setAttribute("height", dh);
-		el.setAttributeNS(XLINKNS, "xlink:href", "#"+refid);
-
-		if(!already){
-			this.target.appendChild(el);
-			this.lastElement = el;
+		if(el.getAttribute('x')!==dx){ el.setAttribute('x', dx);}
+		if(el.getAttribute('y')!==dy){ el.setAttribute('y', dy);}
+		if(el.getAttribute('width') !==dw){ el.setAttribute('width',  dw);}
+		if(el.getAttribute('height')!==dh){ el.setAttribute('height', dh);}
+		if(el.getAttributeNS(XLINKNS, "xlink:href")!=="#"+refid){
+			el.setAttributeNS(XLINKNS, "xlink:href", "#"+refid);
 		}
 
-		if(!already && !!this.vid){ this.elements[this.vid] = this.lastElement; this.vid='';}
-	},
-
-	/* Canvas API functions (for transform) */
-	translate : function(left,top){
-		var m = this.child.getAttribute('viewBox').split(/ /);
-		m[0]=-left, m[1]=-top;
-		this.child.setAttribute('viewBox', m.join(' '));
-	},
-
-	/* extended functions */
-	setDashSize : function(sizes){
-		if(!this.lastElement){ return;}
-		this.lastElement.setAttribute('stroke-dasharray', sizes.join(" "));
+		if(newel){ this.target.appendChild(el);}
+		return el;
 	},
 
 	/* internal functions */
-	addVectorElement : function(isfill,isstroke){
-		var path = this.cpath.join(' ');
+	addVectorElement_main : function(el,isfill,isstroke){
+		var newel = !el;
+		if(newel){
+			el = newEL('path');
+			el.setAttribute(S_ATT_FILL,   S_NONE);
+			el.setAttribute(S_ATT_STROKE, S_NONE);
+		}
+		else{ this.show(el);}
 
-		var el = _doc.createElementNS(SVGNS,'path');
-		el.setAttribute('d', path);
-		el.setAttribute(S_ATT_FILL,   (isfill   ? this.fillStyle   : S_NONE));
-		el.setAttribute(S_ATT_STROKE, (isstroke ? this.strokeStyle : S_NONE));
-		if(isstroke) { el.setAttribute(S_ATT_STROKEWIDTH, this.lineWidth);}
+		if(!this.freezepath || newel){
+			var path = this.cpath.join(' ');
+			var linewidth = (isstroke ? this.lineWidth : null);
+			if(el.getAttribute(S_ATT_PATH)       !==path)     { el.setAttribute(S_ATT_PATH, path);}
+			if(el.getAttribute(S_ATT_STROKEWIDTH)!==linewidth){ el.setAttribute(S_ATT_STROKEWIDTH, linewidth);}
+		}
+		
+		var fillcolor   = (isfill   ? this.fillStyle   : S_NONE);
+		var strokecolor = (isstroke ? this.strokeStyle : S_NONE);
+		if(el.getAttribute(S_ATT_FILL)  !==fillcolor)  { el.setAttribute(S_ATT_FILL,   fillcolor);}
+		if(el.getAttribute(S_ATT_STROKE)!==strokecolor){ el.setAttribute(S_ATT_STROKE, strokecolor);}
 
-		this.target.appendChild(el);
-		this.lastElement = el;
-
-		if(!!this.vid){ this.elements[this.vid] = this.lastElement; this.vid='';}
-	},
-
-	/* VectorID Functions */
-	show : function(vid){
-		this.elements[vid].removeAttribute('display');
-	},
-	hide : function(vid){
-		this.elements[vid].setAttribute('display','none');
+		if(newel){ this.target.appendChild(el);}
+		return el;
 	}
 });
 

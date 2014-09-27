@@ -1,4 +1,4 @@
-
+/* jshint node:true */
 module.exports = function(grunt){
   var pkg = grunt.file.readJSON('package.json'), deps = pkg.devDependencies;
   for(var plugin in deps){ if(plugin.match(/^grunt\-/)){ grunt.loadNpmTasks(plugin);}}
@@ -6,7 +6,7 @@ module.exports = function(grunt){
   var fs = require('fs');
   var banner_min  = fs.readFileSync('./src/common/banner_min.js',  'utf-8');
   var banner_full = fs.readFileSync('./src/common/banner_full.js', 'utf-8');
-
+  
   grunt.initConfig({
     pkg: pkg,
 
@@ -30,7 +30,7 @@ module.exports = function(grunt){
       },
       debug: {
         files: [
-          { expand: true, cwd: "src", src: ["*.js"], dest: "dist" }
+          { expand: true, cwd: "src", src: ["**/*.js"], dest: "dist" }
         ]
       }
     },
@@ -38,7 +38,7 @@ module.exports = function(grunt){
     uglify: {
       options: {
         banner: banner_min,
-        report: 'min',
+        report: 'min'
       },
       candle: {
         files: [
@@ -55,6 +55,18 @@ module.exports = function(grunt){
           "mv candle-<%= pkg.version %>.* ..",
           "cd .."
         ].join('; ')
+      }
+    },
+
+    jshint: {
+      options: {
+        jshintrc: true
+      },
+      all: {
+        src: [
+          'Gruntfile.js',
+          'src/*.js'
+        ]
       }
     }
   });

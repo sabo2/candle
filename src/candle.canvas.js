@@ -1,4 +1,5 @@
 // candle.canvas.js
+/* global Candle:false, _doc:false, _2PI:false */
  
 (function(){
 
@@ -52,6 +53,9 @@ Candle.addWrapper('canvas:wrapperbase',{
 
 		Candle.wrapper.wrapperbase.prototype.initialize.call(this, parent);
 	},
+	setkey : function(vid){ return this;},
+	hidekey : function(vid){ return this;},
+	release : function(vid){ return this;},
 
 	/* extend functions (initialize) */
 	initElement : function(){
@@ -86,7 +90,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 	},
 
 	clear : function(){
-		this.setProperties();
+		this.setProperties(true,true);
 		this.context.setTransform(1,0,0,1,0,0); // 変形をリセット
 		this.context.translate(this.x0, this.y0);
 		var rect = Candle.getRectSize(this.canvas);
@@ -120,7 +124,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 		parent.style.height = height + 'px';
 
 		var child = this.child;
-		var left = parseInt(child.style.left), top = parseInt(child.style.top);
+		var left = parseInt(child.style.left), top = parseInt(child.style.top); // jshint ignore:line
 		width += (left<0?-left:0);
 		height += (top<0?-top:0);
 		child.style.width  = width + 'px';
@@ -130,14 +134,17 @@ Candle.addWrapper('canvas:wrapperbase',{
 	},
 
 	/* 内部用関数 */
-	setProperties : function(){
+	setProperties : function(isfill,isstroke){
+		isfill   = isfill   && !!this.fillStyle   && (this.fillStyle  !=="none");
+		isstroke = isstroke && !!this.strokeStyle && (this.strokeStyle!=="none");
 		var c = this.context;
-		c.fillStyle    = this.fillStyle;
-		c.strokeStyle  = this.strokeStyle;
+		if(isfill)  { c.fillStyle   = this.fillStyle;}
+		if(isstroke){ c.strokeStyle = this.strokeStyle;}
 		c.lineWidth    = this.lineWidth;
 		c.font         = this.font;
 		c.textAlign    = this.textAlign;
 		c.textBaseline = this.textBaseline;
+		return (isfill || isstroke);
 	},
 
 	/* Canvas API functions (for path) */
@@ -158,44 +165,60 @@ Candle.addWrapper('canvas:wrapperbase',{
 	},
 
 	/* Canvas API functions (for drawing) */
-	fill       : function(){ this.setProperties(); this.context.fill();},
-	stroke     : function(){ this.setProperties(); this.context.stroke();},
+	fill : function(){
+		if(this.setProperties(true,false)){
+			this.context.fill();
+		}
+	},
+	stroke : function(){
+		if(this.setProperties(false,true)){
+			this.context.stroke();
+		}
+	},
 	shape : function(){
-		this.setProperties();
-		this.context.fill();
-		this.context.stroke();
+		if(this.setProperties(true,true)){
+			var c = this.context;
+			if(!!this.fillStyle   && this.fillStyle  !=="none"){ c.fill();}
+			if(!!this.strokeStyle && this.strokeStyle!=="none"){ c.stroke();}
+		}
 	},
 
 	/* Canvas API functions (rect) */
 	fillRect   : function(x,y,w,h){
-		this.setProperties();
-		this.context.fillRect(x,y,w,h);
+		if(this.setProperties(true,false)){
+			this.context.fillRect(x,y,w,h);
+		}
 	},
 	strokeRect : function(x,y,w,h){
-		this.setProperties();
-		this.context.strokeRect(x,y,w,h);
+		if(this.setProperties(false,true)){
+			this.context.strokeRect(x,y,w,h);
+		}
 	},
 	shapeRect : function(x,y,w,h){
-		this.setProperties();
-		this.context.fillRect(x,y,w,h);
-		this.context.strokeRect(x,y,w,h);
+		if(this.setProperties(true,true)){
+			var c = this.context;
+			if(!!this.fillStyle   && this.fillStyle  !=="none"){ c.fillRect(x,y,w,h);}
+			if(!!this.strokeStyle && this.strokeStyle!=="none"){ c.strokeRect(x,y,w,h);}
+		}
 	},
 
 	/* Canvas API functions (for text) */
 	fillText : function(text,x,y){
-		this.setProperties();
-		if(this.textBaseline==="candle-top"){
-			var ME = Candle.ME;
-			ME.style.font = this.font;
-			ME.innerHTML = text;
-			y -= ME.offsetHeight*CTOP_OFFSET;
-			this.context.textBaseline = "alphabetic";
+		if(!!text && this.setProperties(true,false)){
+			if(this.textBaseline==="candle-top"){
+				var ME = Candle.ME;
+				ME.style.font = this.font;
+				ME.innerHTML = text;
+				y -= ME.offsetHeight*CTOP_OFFSET;
+				this.context.textBaseline = "alphabetic";
+			}
+			this.context.fillText(text,x,y);
 		}
-		this.context.fillText(text,x,y);
 	},
 
 	/* Canvas API functions (for image) */
 	drawImage : function(){
+		if(!arguments[0]){ return;}
 		this.context.drawImage.apply(this.context, arguments);
 	},
 
@@ -210,6 +233,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 	setLinePath : function(){
 		var _args=arguments, _len=_args.length, len=_len-((_len|1)?1:2), a=[];
 		for(var i=0;i<len;i+=2){ a[i>>1] = [_args[i],_args[i+1]];}
+		this.context.beginPath();
 		this.setLinePath_com.call(this,a);
 		if(_args[_len-1]){ this.context.closePath();}
 	},
@@ -227,28 +251,29 @@ Candle.addWrapper('canvas:wrapperbase',{
 			else     { this.context.lineTo(ar[0],ar[1]);}
 		}
 	},
-	setDashSize : function(size){ },
+	setDashSize : function(obj, size){ },
 
 	strokeLine : function(x1,y1,x2,y2){
-		var c = this.context;
-		this.setProperties();
-		c.beginPath();
-		c.moveTo(x1,y1);
-		c.lineTo(x2,y2);
-		c.stroke();
+		if(this.setProperties(false,true)){
+			var c = this.context;
+			c.beginPath();
+			c.moveTo(x1,y1);
+			c.lineTo(x2,y2);
+			c.stroke();
+		}
 	},
 	strokeDashedLine : function(x1,y1,x2,y2,sizes){
-		var self = this, c = this.context;
 		this.strokeDashedLine = ((!!this.context.setLineDash) ?
 			function(x1,y1,x2,y2,sizes){
-				var c = self.context;
-				self.setProperties();
-				c.beginPath();
-				c.moveTo(x1,y1);
-				c.lineTo(x2,y2);
-				c.setLineDash(sizes);
-				c.stroke();
-				c.setLineDash([]);
+				var c = this.context;
+				if(this.setProperties(false,true)){
+					c.beginPath();
+					c.moveTo(x1,y1);
+					c.lineTo(x2,y2);
+					c.setLineDash(sizes);
+					c.stroke();
+					c.setLineDash([]);
+				}
 			}
 		:
 			function(x1,y1,x2,y2,sizes){
@@ -260,66 +285,70 @@ Candle.addWrapper('canvas:wrapperbase',{
 					tilts = tilt*tilt+1;
 				}
 				
-				self.setProperties();
-				
-				var c = self.context;
-				c.beginPath();
-				c.moveTo(x1, y1);
-				while(distance<length){
-					var px, py;
-					if(tilt!==null){
-						var a = Math.sqrt(distance*distance/tilts);
-						px = x1+a;
-						py = y1+tilt*a;
+				if(this.setProperties(false,true)){
+					var c = this.context;
+					c.beginPath();
+					c.moveTo(x1, y1);
+					while(distance<length){
+						var px, py;
+						if(tilt!==null){
+							var a = Math.sqrt(distance*distance/tilts);
+							px = x1+a;
+							py = y1+tilt*a;
+						}
+						else{
+							px = x1;
+							py = y1+distance;
+						}
+						if((phase&1)===0){ c.moveTo(px, py);}
+						else             { c.lineTo(px, py);}
+						distance += sizes[phase];
+						phase++;
+						if(phase>=sizes.length){ phase=0;}
 					}
-					else{
-						px = x1;
-						py = y1+distance;
-					}
-					if((phase&1)===0){ c.moveTo(px, py);}
-					else             { c.lineTo(px, py);}
-					distance += sizes[phase];
-					phase++;
-					if(phase>=sizes.length){ phase=0;}
+					c.stroke();
 				}
-				c.stroke();
 			}
 		);
 		this.strokeDashedLine(x1,y1,x2,y2,sizes);
 	},
 	strokeCross : function(cx,cy,l){
-		var c = this.context;
-		this.setProperties();
-		c.beginPath();
-		c.moveTo(cx-l,cy-l);
-		c.lineTo(cx+l,cy+l);
-		c.moveTo(cx-l,cy+l);
-		c.lineTo(cx+l,cy-l);
-		c.stroke();
+		if(this.setProperties(false,true)){
+			var c = this.context;
+			c.beginPath();
+			c.moveTo(cx-l,cy-l);
+			c.lineTo(cx+l,cy+l);
+			c.moveTo(cx-l,cy+l);
+			c.lineTo(cx+l,cy-l);
+			c.stroke();
+		}
 	},
 
 	/* extended functions (circle) */
 	fillCircle : function(cx,cy,r){
-		var c = this.context;
-		this.setProperties();
-		c.beginPath();
-		c.arc(cx,cy,r,0,_2PI,false);
-		c.fill();
+		if(this.setProperties(true,false)){
+			var c = this.context;
+			c.beginPath();
+			c.arc(cx,cy,r,0,_2PI,false);
+			c.fill();
+		}
 	},
 	strokeCircle : function(cx,cy,r){
-		var c = this.context;
-		this.setProperties();
-		c.beginPath();
-		c.arc(cx,cy,r,0,_2PI,false);
-		c.stroke();
+		if(this.setProperties(false,true)){
+			var c = this.context;
+			c.beginPath();
+			c.arc(cx,cy,r,0,_2PI,false);
+			c.stroke();
+		}
 	},
 	shapeCircle : function(cx,cy,r){
-		var c = this.context;
-		this.setProperties();
-		c.beginPath();
-		c.arc(cx,cy,r,0,_2PI,false);
-		c.fill();
-		c.stroke();
+		if(this.setProperties(true,true)){
+			var c = this.context;
+			c.beginPath();
+			c.arc(cx,cy,r,0,_2PI,false);
+			if(!!this.fillStyle   && this.fillStyle  !=="none"){ c.fill();}
+			if(!!this.strokeStyle && this.strokeStyle!=="none"){ c.stroke();}
+		}
 	}
 });
 
