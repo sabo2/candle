@@ -189,7 +189,6 @@ Candle.addWrapper('vml:vector',{
 
 	/* extended functions */
 	setLinePath_com : function(array){
-		this.cpath = [];
 		for(var i=0,len=array.length;i<len;i++){
 			this.cpath.push(i===0 ? this.PATH_MOVE : this.PATH_LINE);
 			this.cpath.push(ePos(array[i][0]),ePos(array[i][1]));

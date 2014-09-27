@@ -238,17 +238,18 @@ Candle.addWrapper('vector:wrapperbase',{
 	setLinePath : function(){
 		var _args=arguments, _len=_args.length, len=_len-((_len|1)?1:2), a=[];
 		for(var i=0;i<len;i+=2){ a[i>>1] = [_args[i],_args[i+1]];}
+		this.beginPath();
 		this.setLinePath_com.call(this,a);
 		if(_args[_len-1]){ this.cpath.push(this.PATH_CLOSE);}
 	},
 	setOffsetLinePath : function(){
 		var _args=arguments, _len=_args.length, len=_len-((_len|1)?1:2), a=[];
 		for(var i=0;i<len-2;i+=2){ a[i>>1] = [_args[i+2]+_args[0], _args[i+3]+_args[1]];}
+		this.beginPath();
 		this.setLinePath_com.call(this,a);
 		if(_args[_len-1]){ this.cpath.push(this.PATH_CLOSE);}
 	},
 	setLinePath_com : function(array){
-		this.cpath = [];
 		for(var i=0,len=array.length;i<len;i++){
 			this.cpath.push(i===0 ? this.PATH_MOVE : this.PATH_LINE);
 			this.cpath.push(array[i][0],array[i][1]);

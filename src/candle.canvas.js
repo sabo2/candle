@@ -233,6 +233,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 	setLinePath : function(){
 		var _args=arguments, _len=_args.length, len=_len-((_len|1)?1:2), a=[];
 		for(var i=0;i<len;i+=2){ a[i>>1] = [_args[i],_args[i+1]];}
+		this.context.beginPath();
 		this.setLinePath_com.call(this,a);
 		if(_args[_len-1]){ this.context.closePath();}
 	},
