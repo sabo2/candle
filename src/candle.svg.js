@@ -262,7 +262,7 @@ Candle.addWrapper('svg:vector',{
 		if(el.getAttribute('y')!==dy){ el.setAttribute('y', dy);}
 		if(el.getAttribute('width') !==dw){ el.setAttribute('width',  dw);}
 		if(el.getAttribute('height')!==dh){ el.setAttribute('height', dh);}
-		if(el.getAttributeNS("xlink:href")!=="#"+refid){
+		if(el.getAttributeNS(XLINKNS, "xlink:href")!=="#"+refid){
 			el.setAttributeNS(XLINKNS, "xlink:href", "#"+refid);
 		}
 
