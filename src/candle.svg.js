@@ -118,12 +118,6 @@ Candle.addWrapper('svg:vector',{
 	setRendering : function(render){
 		this.target.setAttribute(S_ATT_RENDERING, render);
 	},
-	setUnselectable : function(unsel){
-		unsel = ((unsel===(void 0)) ? true : !!unsel);
-		this.canvas.style.MozUserSelect    = (unsel ? 'none' : 'text');
-		this.canvas.style.WebkitUserSelect = (unsel ? 'none' : 'text');
-		this.canvas.style.userSelect       = (unsel ? 'none' : 'text');
-	},
 
 	changeChildSize : function(child,width,height){
 		child.setAttribute('width', width);

@@ -112,12 +112,6 @@ Candle.addWrapper('canvas:wrapperbase',{
 	},
 
 	/* property functions */
-	setUnselectable : function(unsel){
-		unsel = ((unsel===(void 0)) ? true : !!unsel);
-		var s = this.canvas.style;
-		s.MozUserSelect = s.WebkitUserSelect = s.userSelect = (unsel ? 'none' : 'text');
-	},
-
 	changeSize : function(width,height){
 		var parent = this.canvas;
 		parent.style.width  = width + 'px';

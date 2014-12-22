@@ -17,8 +17,7 @@ var V_TAG_SHAPE    = '<v:shape',
 	V_TAG_TEXTPATH = '<v:textpath',
 	V_TAG_POLYLINE = '<v:polyline',
 	V_TAG_PATH_FOR_TEXTPATH = '<v:path textpathok="t" />',
-	V_EL_UNSELECTABLE = '', // デフォルトはunselectableでない
-//	V_EL_UNSELECTABLE = ' unselectable="on"',
+	V_EL_UNSELECTABLE = ' unselectable="on"',
 	V_TAGEND      = '>',
 	V_TAGEND_NULL = ' />',
 //	V_CLOSETAG_SHAPE    = '</v:shape>',
@@ -130,7 +129,7 @@ Candle.addWrapper('vml:vector',{
 	createLayer : function(lid){
 		var layer = _doc.createElement('div');
 		layer.id = lid;
-		layer.unselectable = (!!V_EL_UNSELECTABLE ? 'on' : '');
+		layer.unselectable = 'on';
 		layer.style.position = 'absolute';
 		layer.style.left   = '0px';
 		layer.style.top    = '0px';
@@ -139,13 +138,6 @@ Candle.addWrapper('vml:vector',{
 	},
 
 	/* property functions */
-	setUnselectable : function(unsel){
-		unsel = ((unsel===(void 0)) ? true : !!unsel);
-		V_EL_UNSELECTABLE = (unsel ? ' unselectable="on"' : '');
-		this.canvas.unselectable = (unsel ? 'on' : '');
-		this.child.unselectable  = (unsel ? 'on' : '');
-	},
-
 	changeChildSize : function(child,width,height){
 		child.style.width  = width + 'px';
 		child.style.height = height + 'px';
@@ -231,7 +223,7 @@ Candle.addWrapper('vml:vector',{
 			var top  = ((y - ME.offsetHeight * V_HEIGHT[this.textBaseline.toLowerCase()])*Z-Z2)|0;
 			
 			var ar = [
-				V_TAG_GROUP, V_ATT_COORDSIZE, V_TAGEND,
+				V_TAG_GROUP, V_EL_UNSELECTABLE, V_ATT_COORDSIZE, V_TAGEND,
 					V_TAG_POLYLINE, V_ATT_POINTS, [left,top,left+wid,top].join(','), V_ATT_END,
 					V_DEF_ATT_POLYLINE, V_ATT_FILLCOLOR, fillcolor, V_ATT_END, V_TAGEND,
 						V_TAG_PATH_FOR_TEXTPATH,
@@ -263,7 +255,7 @@ Candle.addWrapper('vml:vector',{
 	drawImage_main : function(el,image,sx,sy,sw,sh,dx,dy,dw,dh){
 		var newel = !el;
 		if(newel){
-			var ar = [V_TAG_IMAGE, V_ATT_COORDSIZE, V_TAGEND_NULL];
+			var ar = [V_TAG_IMAGE, V_EL_UNSELECTABLE, V_ATT_COORDSIZE, V_TAGEND_NULL];
 			this.target.insertAdjacentHTML('BeforeEnd', ar.join(''));
 			el = this.target.lastChild;
 		}

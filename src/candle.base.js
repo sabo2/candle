@@ -157,8 +157,6 @@ Candle.addWrapper('vector:wrapperbase',{
 	createLayer : function(lid){ return null;},
 
 	/* property functions */
-	setUnselectable : function(unsel){},
-
 	changeSize : function(width,height){
 		this.canvas.style.width  = width + 'px';
 		this.canvas.style.height = height + 'px';
