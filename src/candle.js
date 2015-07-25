@@ -4,8 +4,7 @@
 		"candle.core",
 		"candle.base",
 		"candle.svg",
-		"candle.canvas",
-		"candle.vml"
+		"candle.canvas"
 	];
 
 	var isbrowser = true;

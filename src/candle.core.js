@@ -155,19 +155,14 @@ var Candle = {
 	addCSS : function(sel,rule){
 		if(!!this.sheet){
 			var s = this.sheet;
-			if(!!s.insertRule){ s.insertRule(sel+'{'+rule+'}',s.cssRules.length);}
-			else if(!!s.addRule){ s.addRule(sel,rule,-1);}
+			s.insertRule(sel+'{'+rule+'}',s.cssRules.length);
 		}
 		else{ _css.push(sel,rule);}
 	}
 };
 
 // 初期化関数設定 
-if(!!window.addEventListener){ window.addEventListener("load",function(){ Candle.onload();},false);}
-else if(!!window.attachEvent){ window.attachEvent("onload",function(){ Candle.onload();});}
-
-// IE用ハック
-_doc.createElement('candle');
+window.addEventListener("load",function(){ Candle.onload();},false);
 
 // CSS設定 
 Candle.createCSS();

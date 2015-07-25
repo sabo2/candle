@@ -1,6 +1,6 @@
 {
   "name": "candle",
-  "version": "0.3.0-pre",
+  "version": "0.4.0-pre",
   "description": "This is a support script for pzpr.js",
   "main": "candle.js",
   "keywords": [
