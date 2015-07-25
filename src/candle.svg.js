@@ -34,20 +34,20 @@ var S_PATH_MOVE   = 'M',
 
 var UA = navigator.userAgent;
 if(UA.match(/Chrome/)){
-	S_HEIGHT = { 'candle-top':-0.52, top:-0.58, hanging:-0.45, middle:-0.25, alphabetic:0, bottom:0.08 };
+	S_HEIGHT = { 'candle-top':-0.72, top:-0.95, hanging:-0.72, middle:-0.35, alphabetic:0, bottom:0.25 };
 }
 else if(UA.match(/AppleWebKit/)){
-	S_HEIGHT = { 'candle-top':-0.6,  top:-0.82, hanging:-0.82, middle:-0.25, alphabetic:0, bottom:0.18 };
+	S_HEIGHT = { 'candle-top':-0.7,  top:-0.9,  hanging:-0.9,  middle:-0.35, alphabetic:0, bottom:0.25 };
 }
 else if(UA.match(/Trident/)){
-	S_HEIGHT = { 'candle-top':-0.5,  top:-0.72, hanging:-0.72, middle:-0.25, alphabetic:0, bottom:0.25 };
+	S_HEIGHT = { 'candle-top':-0.74, top:-1.02, hanging:-1.02, middle:-0.32, alphabetic:0, bottom:0.45 };
 }
 else /* if(UA.match(/Gecko/)) */{
 	if(UA.match(/Win/)){
-		S_HEIGHT = { 'candle-top':-0.65, top:-0.8,  hanging:-0.8,  middle:-0.3,  alphabetic:0, bottom:0.2  };
+		S_HEIGHT = { 'candle-top':-0.7,  top:-0.85, hanging:-0.85, middle:-0.34, alphabetic:0, bottom:0.15 };
 	}
 	else{
-		S_HEIGHT = { 'candle-top':-0.5,  top:-0.6,  hanging:-0.6,  middle:-0.25, alphabetic:0, bottom:0.08 };
+		S_HEIGHT = { 'candle-top':-0.76, top:-0.9,  hanging:-0.9,  middle:-0.38, alphabetic:0, bottom:0.08 };
 	}
 }
 
@@ -392,6 +392,7 @@ Candle.addWrapper('svg:wrapperbase',{
 		if(_cache.x!==x || _cache.y!==y || _cache.ta!==this.textAlign || _cache.tb!==this.textBaseline || _cache.font!==this.font){
 			var ME = Candle.ME;
 			ME.style.font = this.font;
+			ME.style.lineHeight = '100%';
 			ME.innerHTML = text;
 			var top = y - ME.offsetHeight * S_HEIGHT[this.textBaseline.toLowerCase()];
 			var anchor = S_ANCHOR[this.textAlign.toLowerCase()];

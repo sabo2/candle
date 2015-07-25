@@ -20,18 +20,21 @@ if(window.CanvasRenderingContext2D){
 }
 
 var CTOP_OFFSET = 0, UA = navigator.userAgent;
-if(UA.match(/Chrome|Trident/)){
-	CTOP_OFFSET = -0.5;
+if(UA.match(/Chrome/)){
+	CTOP_OFFSET = -0.72;
 }
 else if(UA.match(/AppleWebKit/)){
-	CTOP_OFFSET = -0.6;
+	CTOP_OFFSET = -0.7;
+}
+else if(UA.match(/Trident/)){
+	CTOP_OFFSET = -0.74;
 }
 else /* if(UA.match(/Gecko/)) */{
 	if(UA.match(/Win/)){
-		CTOP_OFFSET = -0.65;
+		CTOP_OFFSET = -0.7;
 	}
 	else{
-		CTOP_OFFSET = -0.5;
+		CTOP_OFFSET = -0.76;
 	}
 }
 
@@ -346,6 +349,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 			if(this.textBaseline==="candle-top"){
 				var ME = Candle.ME;
 				ME.style.font = this.font;
+				ME.style.lineHeight = '100%';
 				ME.innerHTML = text;
 				y -= ME.offsetHeight*CTOP_OFFSET;
 				this.context.textBaseline = "alphabetic";
