@@ -20,18 +20,21 @@ if(window.CanvasRenderingContext2D){
 }
 
 var CTOP_OFFSET = 0, UA = navigator.userAgent;
-if(UA.match(/Chrome|Trident/)){
-	CTOP_OFFSET = -0.5;
+if(UA.match(/Chrome/)){
+	CTOP_OFFSET = -0.72;
 }
 else if(UA.match(/AppleWebKit/)){
-	CTOP_OFFSET = -0.6;
+	CTOP_OFFSET = -0.7;
+}
+else if(UA.match(/Trident/)){
+	CTOP_OFFSET = -0.74;
 }
 else /* if(UA.match(/Gecko/)) */{
 	if(UA.match(/Win/)){
-		CTOP_OFFSET = -0.65;
+		CTOP_OFFSET = -0.7;
 	}
 	else{
-		CTOP_OFFSET = -0.5;
+		CTOP_OFFSET = -0.76;
 	}
 }
 
