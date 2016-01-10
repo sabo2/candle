@@ -205,10 +205,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 	fillText : function(text,x,y){
 		if(!!text && this.setProperties(true,false)){
 			if(this.textBaseline==="candle-top"){
-				var ME = Candle.ME;
-				ME.style.font = this.font;
-				ME.innerHTML = text;
-				y -= ME.offsetHeight*CTOP_OFFSET;
+				y -= Candle.getoffsetHeight(text, this.font)*CTOP_OFFSET;
 				this.context.textBaseline = "alphabetic";
 			}
 			this.context.fillText(text,x,y);

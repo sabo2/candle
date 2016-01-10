@@ -73,14 +73,36 @@ var Candle = {
 	/* externs */
 	ME     : null,
 	initME : function(){
+		if(!_doc){ return;}
+
 		var me = _doc.createElement('div');
 		me.style.display  = 'inline';
 		me.style.position = 'absolute';
+		me.style.top      = "0px";
 		me.style.left     = '-9000px';
 		me.innerHTML = '';
 		_doc.body.appendChild(me);
 
-		this.ME = me;
+		if(me.offsetHeight!==void 0){
+			this.ME = me;
+		}
+		else{
+			_doc.body.removeChild(me);
+		}
+	},
+	getoffsetHeight : function(text, font){
+		var top;
+		if(font.match(/(.+\s)?([0-9]+)px (.+)$/)){
+			top = +RegExp.$2;
+		}
+		else if(!!this.ME){
+			var ME = this.ME;
+			ME.style.font = font;
+			ME.style.lineHeight = '100%';
+			ME.innerHTML = text;
+			top = ME.offsetHeight;
+		}
+		return top;
 	},
 
 	/* color parser */

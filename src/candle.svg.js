@@ -201,11 +201,7 @@ Candle.addWrapper('svg:vector',{
 		if(el.getAttribute(S_ATT_FILL)!==this.fillStyle){ el.setAttribute(S_ATT_FILL, this.fillStyle);}
 
 		if(_cache.x!==x || _cache.y!==y || _cache.ta!==this.textAlign || _cache.tb!==this.textBaseline || _cache.font!==this.font){
-			var ME = Candle.ME;
-			ME.style.font = this.font;
-			ME.style.lineHeight = '100%';
-			ME.innerHTML = text;
-			var top = y - ME.offsetHeight * S_HEIGHT[this.textBaseline.toLowerCase()];
+			var top = y - Candle.getoffsetHeight(text, this.font) * S_HEIGHT[this.textBaseline.toLowerCase()];
 			var anchor = S_ANCHOR[this.textAlign.toLowerCase()];
 			 
 			if(el.getAttribute('x')!==x)  { el.setAttribute('x', x);}
