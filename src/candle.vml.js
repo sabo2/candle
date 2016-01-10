@@ -6,6 +6,7 @@
 /* ------------------- */
 /*   VML描画可能条件   */
 /* ------------------- */
+if(typeof document==='undefined'){ return;}
 try{ document.namespaces.add("v", "urn:schemas-microsoft-com:vml");}catch(e){ return;}
 
 /* ------------------------------------------- */

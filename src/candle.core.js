@@ -1,10 +1,11 @@
 // candle.core.js
+/* jshint node:true */
 /* exported Candle, _doc, _2PI */
 
 /* ------------- */
 /*   variables   */
 /* ------------- */
-var _doc = document,
+var _doc = (typeof document!=='undefined' ? document : null),
 	_2PI = 2*Math.PI,
 	_color = [],
 	_css = [];
@@ -162,15 +163,18 @@ var Candle = {
 	}
 };
 
-// 初期化関数設定 
-if(!!window.addEventListener){ window.addEventListener("load",function(){ Candle.onload();},false);}
-else if(!!window.attachEvent){ window.attachEvent("onload",function(){ Candle.onload();});}
+if(typeof window!=='undefined'){
+	// 初期化関数設定 
+	if(!!window.addEventListener){ window.addEventListener("load",function(){ Candle.onload();},false);}
+	else if(!!window.attachEvent){ window.attachEvent("onload",function(){ Candle.onload();});}
 
-// IE用ハック
-_doc.createElement('candle');
+	// IE用ハック
+	_doc.createElement('candle');
 
-// CSS設定 
-Candle.createCSS();
+	// CSS設定 
+	Candle.createCSS();
+}
 
 // extern
-window.Candle = Candle;
+if(typeof module==='object'&&typeof exports==='object'){ module.exports = Candle;}
+else{ this.Candle = Candle;}

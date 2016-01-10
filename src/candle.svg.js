@@ -6,9 +6,11 @@
 /* ------------------- */
 /*   SVG描画可能条件   */
 /* ------------------- */
+if(typeof document==='undefined'){ return;}
+if(!!window.opera || !document.createElementNS){ return;}
+
 var SVGNS   = Candle.SVGNS   = "http://www.w3.org/2000/svg",
 	XLINKNS = Candle.XLINKNS = "http://www.w3.org/1999/xlink";
-if(!document.createElementNS || !document.createElementNS(SVGNS, 'svg').suspendRedraw){ return;}
 
 function newEL(tag){ return _doc.createElementNS(SVGNS, tag);}
 

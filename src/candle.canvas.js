@@ -6,7 +6,9 @@
 /* ---------------------- */
 /*   canvas描画可能条件   */
 /* ---------------------- */
-if(!document.createElement('canvas').getContext){ return;}
+if(typeof document==='undefined'){ return;}
+if(!!document.createElement('canvas').probablySupportsContext && 
+	!document.createElement('canvas').probablySupportsContext('2d')){ return;}
 
 /* -------------------------- */
 /*   canvasブラウザ依存対策   */
