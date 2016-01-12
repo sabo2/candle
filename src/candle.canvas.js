@@ -6,7 +6,9 @@
 /* ---------------------- */
 /*   canvas描画可能条件   */
 /* ---------------------- */
-if(!document.createElement('canvas').getContext){ return;}
+if(typeof document==='undefined'){ return;}
+if(!!document.createElement('canvas').probablySupportsContext && 
+	!document.createElement('canvas').probablySupportsContext('2d')){ return;}
 
 /* -------------------------- */
 /*   canvasブラウザ依存対策   */
@@ -347,11 +349,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 	fillText : function(text,x,y){
 		if(!!text && this.setProperties(true,false)){
 			if(this.textBaseline==="candle-top"){
-				var ME = Candle.ME;
-				ME.style.font = this.font;
-				ME.style.lineHeight = '100%';
-				ME.innerHTML = text;
-				y -= ME.offsetHeight*CTOP_OFFSET;
+				y -= Candle.getoffsetHeight(text, this.font)*CTOP_OFFSET;
 				this.context.textBaseline = "alphabetic";
 			}
 			this.context.fillText(text,x,y);

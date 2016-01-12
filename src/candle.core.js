@@ -1,10 +1,11 @@
 // candle.core.js
+/* jshint node:true */
 /* exported Candle, _doc, _2PI */
 
 /* ------------- */
 /*   variables   */
 /* ------------- */
-var _doc = document,
+var _doc = (typeof document!=='undefined' ? document : null),
 	_2PI = 2*Math.PI,
 	_color = [],
 	_css = [];
@@ -72,14 +73,36 @@ var Candle = {
 	/* externs */
 	ME     : null,
 	initME : function(){
+		if(!_doc){ return;}
+
 		var me = _doc.createElement('div');
 		me.style.display  = 'inline';
 		me.style.position = 'absolute';
+		me.style.top      = "0px";
 		me.style.left     = '-9000px';
 		me.innerHTML = '';
 		_doc.body.appendChild(me);
 
-		this.ME = me;
+		if(me.offsetHeight!==void 0){
+			this.ME = me;
+		}
+		else{
+			_doc.body.removeChild(me);
+		}
+	},
+	getoffsetHeight : function(text, font){
+		var top;
+		if(font.match(/(.+\s)?([0-9]+)px (.+)$/)){
+			top = +RegExp.$2;
+		}
+		else if(!!this.ME){
+			var ME = this.ME;
+			ME.style.font = font;
+			ME.style.lineHeight = '100%';
+			ME.innerHTML = text;
+			top = ME.offsetHeight;
+		}
+		return top;
 	},
 
 	/* color parser */
@@ -161,11 +184,14 @@ var Candle = {
 	}
 };
 
-// 初期化関数設定 
-window.addEventListener("load",function(){ Candle.onload();},false);
+if(typeof window!=='undefined'){
+	// 初期化関数設定 
+	window.addEventListener("load",function(){ Candle.onload();},false);
 
-// CSS設定 
-Candle.createCSS();
+	// CSS設定 
+	Candle.createCSS();
+}
 
 // extern
-window.Candle = Candle;
+if(typeof module==='object'&&typeof exports==='object'){ module.exports = Candle;}
+else{ this.Candle = Candle;}

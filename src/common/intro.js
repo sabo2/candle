@@ -3,4 +3,4 @@
 (function(){
 
 // 多重定義防止
-if(!!window.Candle){ return;}
+if(typeof window!=='undefined'&&!!window.Candle){ return;}
