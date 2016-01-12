@@ -7,8 +7,7 @@
 /* ------------- */
 var _doc = (typeof document!=='undefined' ? document : null),
 	_2PI = 2*Math.PI,
-	_color = [],
-	_css = [];
+	_color = [];
 
 /* ---------- */
 /*   arrays   */
@@ -157,39 +156,13 @@ var Candle = {
 
 	/* initialize functions */
 	onload : function(){
-		this.createCSS();
 		this.initAllElements();
-	},
-
-	sheet : null,
-	createCSS : function(){
-		if(!!this.sheet){ return;}
-		var _head = _doc.getElementsByTagName('head')[0];
-		if(!!_head){
-			var style = _doc.createElement('style');
-			style.setAttribute('type', "text/css");
-			_head.appendChild(style);
-		}
-		else{ _doc.write("<style></style>");}
-		this.sheet = _doc.styleSheets[_doc.styleSheets.length - 1];
-		for(var i=0;i<_css.length;i++){ this.addCSS(_css[i][0],_css[i][1]);}
-		_css=[];
-	},
-	addCSS : function(sel,rule){
-		if(!!this.sheet){
-			var s = this.sheet;
-			s.insertRule(sel+'{'+rule+'}',s.cssRules.length);
-		}
-		else{ _css.push(sel,rule);}
 	}
 };
 
 if(typeof window!=='undefined'){
 	// 初期化関数設定 
 	window.addEventListener("load",function(){ Candle.onload();},false);
-
-	// CSS設定 
-	Candle.createCSS();
 }
 
 // extern
