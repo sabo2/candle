@@ -137,12 +137,6 @@ var Candle = {
 		return "_candle_"+this._counter;
 	},
 
-	initAllElements : function(){
-		if(!!_doc){
-			var elements = _doc.getElementsByTagName('candle');
-			for(var i=0;i<elements.length;i++){ this.start(elements[i]);}
-		}
-	},
 	init : function(){
 		if(!_doc){
 			if(typeof document==='undefined'){
@@ -171,11 +165,6 @@ var Candle = {
 		if(!!initCallBack){ initCallBack(context);}
 	}
 };
-
-if(typeof window!=='undefined'){
-	// 初期化関数設定 
-	window.addEventListener("load",function(){ Candle.initAllElements();},false);
-}
 
 // extern
 if(typeof module==='object'&&typeof exports==='object'){ module.exports = Candle;}
