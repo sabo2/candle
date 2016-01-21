@@ -12,17 +12,6 @@ if(!Candle.addTypeIf('canvas', function(){
 		  document.createElement('canvas').probablySupportsContext('2d')) );
 })){ return;}
 
-/* -------------------------- */
-/*   canvasブラウザ依存対策   */
-/* -------------------------- */
-if(window.CanvasRenderingContext2D){
-	var p = CanvasRenderingContext2D.prototype;
-	if(!p.setLineDash){
-		if     ('mozDash' in p)       { p.setLineDash = function(sizes){ this.mozDash=sizes;};}
-		else if('webkitLineDash' in p){ p.setLineDash = function(sizes){ this.webkitLineDash=sizes;};}
-	}
-}
-
 var CTOP_OFFSET;
 function setheight(){
 	var UA = navigator.userAgent;
