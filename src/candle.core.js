@@ -6,6 +6,7 @@
 /*   variables   */
 /* ------------- */
 var _doc = (typeof document!=='undefined' ? document : null),
+	_judgefuncs = {},
 	_2PI = 2*Math.PI,
 	_color = [];
 
@@ -49,10 +50,18 @@ var Candle = {
 	/* TypeList class */
 	_order : [],
 	enable : {},
-	addTypes : function(type){
-		this._order.push(type);
-		this.enable[type] = true;
-		if(!this.current){ this.current=type;}
+	addTypeIf : function(type, judgefunc){
+		if(!!_doc){
+			if(!judgefunc()){ return false;}
+			
+			this._order.push(type);
+			this.enable[type] = true;
+			if(!this.current){ this.current=type;}
+		}
+		else{
+			_judgefuncs[type] = judgefunc;
+		}
+		return true;
 	},
 
 	TypeList : function(type){
@@ -72,8 +81,6 @@ var Candle = {
 	/* externs */
 	ME     : null,
 	initME : function(){
-		if(!_doc){ return;}
-
 		var me = _doc.createElement('div');
 		me.style.display  = 'inline';
 		me.style.position = 'absolute';
@@ -131,12 +138,23 @@ var Candle = {
 	},
 
 	initAllElements : function(){
-		var elements = _doc.getElementsByTagName('candle');
-		for(var i=0;i<elements.length;i++){ this.start(elements[i]);}
+		if(!!_doc){
+			var elements = _doc.getElementsByTagName('candle');
+			for(var i=0;i<elements.length;i++){ this.start(elements[i]);}
+		}
+	},
+	init : function(){
+		if(!_doc){
+			if(typeof document==='undefined'){
+				throw 'Candle should run under document environment';
+			}
+			_doc = document;
+			for(var i in _judgefuncs){ this.addTypeIf(i, _judgefuncs[i]);}
+		}
+		if(!this.ME){ this.initME();}
 	},
 	start : function(element, type, initCallBack){
-		initCallBack = initCallBack || function(){};
-		if(!this.ME){ this.initME();}
+		this.init();
 
 		if(typeof element === "string"){ element = document.getElementById(element);}
 		var context;
@@ -151,18 +169,13 @@ var Candle = {
 			context = element.parentNode.getContext('2d');
 		}
 
-		initCallBack(context);
-	},
-
-	/* initialize functions */
-	onload : function(){
-		this.initAllElements();
+		if(!!initCallBack){ initCallBack(context);}
 	}
 };
 
 if(typeof window!=='undefined'){
 	// 初期化関数設定 
-	window.addEventListener("load",function(){ Candle.onload();},false);
+	window.addEventListener("load",function(){ Candle.initAllElements();},false);
 }
 
 // extern

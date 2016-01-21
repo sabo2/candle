@@ -6,9 +6,11 @@
 /* ---------------------- */
 /*   canvas描画可能条件   */
 /* ---------------------- */
-if(typeof document==='undefined'){ return;}
-if(!!document.createElement('canvas').probablySupportsContext && 
-	!document.createElement('canvas').probablySupportsContext('2d')){ return;}
+if(!Candle.addTypeIf('canvas', function(){
+	return (typeof document!=='undefined' &&
+		(!document.createElement('canvas').probablySupportsContext ||
+		  document.createElement('canvas').probablySupportsContext('2d')) );
+})){ return;}
 
 /* -------------------------- */
 /*   canvasブラウザ依存対策   */
@@ -43,8 +45,6 @@ else /* if(UA.match(/Gecko/)) */{
 /* -------------------- */
 /*   Canvas用ラッパー   */
 /* -------------------- */
-Candle.addTypes('canvas');
-
 Candle.addWrapper('canvas:wrapperbase',{
 
 	initialize : function(parent){
