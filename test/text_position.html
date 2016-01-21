@@ -7,11 +7,11 @@
 Candle.select('vml');
 
 function onload_func(){
-	Candle.start('can1', 'svg',    draw);
-	Candle.start('can2', 'canvas', draw);
+	Candle.start(can1, 'svg',    draw);
+	Candle.start(can2, 'canvas', draw);
 
-	Candle.start('can3', 'svg',    draw2);
-	Candle.start('can4', 'canvas', draw2);
+	Candle.start(can3, 'svg',    draw2);
+	Candle.start(can4, 'canvas', draw2);
 }
 function draw(ctx){
 	ctx.lineWidth = '1';

@@ -156,7 +156,6 @@ var Candle = {
 	start : function(element, type, initCallBack){
 		this.init();
 
-		if(typeof element === "string"){ element = document.getElementById(element);}
 		var context;
 		if(!element.candleEnable){
 			var choice = type;

@@ -8,10 +8,10 @@
 
 function onload_func(){
 	console.log(Candle.version);
-	Candle.start('svg_auto', 'svg', function(g){ vml_draw(g,'auto');});
-	Candle.start('svg_edge', 'svg', function(g){ vml_draw(g,'crispEdges');});
-	Candle.start('cv_auto', 'canvas', function(g){ vml_draw(g,'auto');})
-	Candle.start('cv_edge', 'canvas', function(g){ vml_draw(g,'crispEdges');})
+	Candle.start(svg_auto, 'svg', function(g){ vml_draw(g,'auto');});
+	Candle.start(svg_edge, 'svg', function(g){ vml_draw(g,'crispEdges');});
+	Candle.start(cv_auto, 'canvas', function(g){ vml_draw(g,'auto');})
+	Candle.start(cv_edge, 'canvas', function(g){ vml_draw(g,'crispEdges');})
 }
 
 function vml_draw(g, rendering){
