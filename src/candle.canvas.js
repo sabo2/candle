@@ -23,22 +23,26 @@ if(window.CanvasRenderingContext2D){
 	}
 }
 
-var CTOP_OFFSET = 0, UA = navigator.userAgent;
-if(UA.match(/Chrome/)){
-	CTOP_OFFSET = -0.72;
-}
-else if(UA.match(/AppleWebKit/)){
-	CTOP_OFFSET = -0.7;
-}
-else if(UA.match(/Trident/)){
-	CTOP_OFFSET = -0.74;
-}
-else /* if(UA.match(/Gecko/)) */{
-	if(UA.match(/Win/)){
+var CTOP_OFFSET;
+function setheight(){
+	var UA = navigator.userAgent;
+	CTOP_OFFSET = 0;
+	if(UA.match(/Chrome/)){
+		CTOP_OFFSET = -0.72;
+	}
+	else if(UA.match(/AppleWebKit/)){
 		CTOP_OFFSET = -0.7;
 	}
-	else{
-		CTOP_OFFSET = -0.76;
+	else if(UA.match(/Trident/)){
+		CTOP_OFFSET = -0.74;
+	}
+	else /* if(UA.match(/Gecko/)) */{
+		if(UA.match(/Win/)){
+			CTOP_OFFSET = -0.7;
+		}
+		else{
+			CTOP_OFFSET = -0.76;
+		}
 	}
 }
 
@@ -52,6 +56,9 @@ Candle.addWrapper('canvas:wrapperbase',{
 		this.context  = null;	// 本来のCanvasRenderingContext2Dオブジェクト
 
 		this.use = new Candle.TypeList('canvas');
+
+		// define const
+		if(!CTOP_OFFSET){ setheight();}
 
 		this.x0 = 0;
 		this.y0 = 0;

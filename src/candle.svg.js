@@ -35,22 +35,24 @@ var S_PATH_MOVE   = 'M',
 	S_ANCHOR = { left:'start', center:'middle', right:'end'},
 	S_HEIGHT;
 
-var UA = navigator.userAgent;
-if(UA.match(/Chrome/)){
-	S_HEIGHT = { 'candle-top':-0.72, top:-0.95, hanging:-0.72, middle:-0.35, alphabetic:0, bottom:0.25 };
-}
-else if(UA.match(/AppleWebKit/)){
-	S_HEIGHT = { 'candle-top':-0.7,  top:-0.9,  hanging:-0.9,  middle:-0.35, alphabetic:0, bottom:0.25 };
-}
-else if(UA.match(/Trident/)){
-	S_HEIGHT = { 'candle-top':-0.74, top:-1.02, hanging:-1.02, middle:-0.32, alphabetic:0, bottom:0.45 };
-}
-else /* if(UA.match(/Gecko/)) */{
-	if(UA.match(/Win/)){
-		S_HEIGHT = { 'candle-top':-0.7,  top:-0.85, hanging:-0.85, middle:-0.34, alphabetic:0, bottom:0.15 };
+function setheight(){
+	var UA = navigator.userAgent;
+	if(UA.match(/Chrome/)){
+		S_HEIGHT = { 'candle-top':-0.72, top:-0.95, hanging:-0.72, middle:-0.35, alphabetic:0, bottom:0.25 };
 	}
-	else{
-		S_HEIGHT = { 'candle-top':-0.76, top:-0.9,  hanging:-0.9,  middle:-0.38, alphabetic:0, bottom:0.08 };
+	else if(UA.match(/AppleWebKit/)){
+		S_HEIGHT = { 'candle-top':-0.7,  top:-0.9,  hanging:-0.9,  middle:-0.35, alphabetic:0, bottom:0.25 };
+	}
+	else if(UA.match(/Trident/)){
+		S_HEIGHT = { 'candle-top':-0.74, top:-1.02, hanging:-1.02, middle:-0.32, alphabetic:0, bottom:0.45 };
+	}
+	else /* if(UA.match(/Gecko/)) */{
+		if(UA.match(/Win/)){
+			S_HEIGHT = { 'candle-top':-0.7,  top:-0.85, hanging:-0.85, middle:-0.34, alphabetic:0, bottom:0.15 };
+		}
+		else{
+			S_HEIGHT = { 'candle-top':-0.76, top:-0.9,  hanging:-0.9,  middle:-0.38, alphabetic:0, bottom:0.08 };
+		}
 	}
 }
 
@@ -63,10 +65,7 @@ Candle.addWrapper('svg:wrapperbase',{
 		this.use = new Candle.TypeList('svg');
 
 		// define const
-		this.PATH_MOVE  = S_PATH_MOVE;
-		this.PATH_LINE  = S_PATH_LINE;
-		this.PATH_CLOSE = S_PATH_CLOSE;
-		this.PATH_ARCTO = S_PATH_ARCTO;
+		if(!S_HEIGHT){ setheight();}
 
 		// 外部から変更される追加プロパティ
 		this.vid      = '';
@@ -193,22 +192,22 @@ Candle.addWrapper('svg:wrapperbase',{
 		this.lastpath = '';
 	},
 	closePath : function(){
-		this.cpath.push(this.PATH_CLOSE);
-		this.lastpath = this.PATH_CLOSE;
+		this.cpath.push(S_PATH_CLOSE);
+		this.lastpath = S_PATH_CLOSE;
 	},
 
 	moveTo : function(x,y){
-		this.cpath.push(this.PATH_MOVE,x,y);
-		this.lastpath = this.PATH_MOVE;
+		this.cpath.push(S_PATH_MOVE,x,y);
+		this.lastpath = S_PATH_MOVE;
 	},
 	lineTo : function(x,y){
-		if(this.lastpath!==this.PATH_LINE){ this.cpath.push(this.PATH_LINE);}
+		if(this.lastpath!==S_PATH_LINE){ this.cpath.push(S_PATH_LINE);}
 		this.cpath.push(x,y);
-		this.lastpath = this.PATH_LINE;
+		this.lastpath = S_PATH_LINE;
 	},
 	rect : function(x,y,w,h){
-		this.cpath.push(this.PATH_MOVE,x,y,this.PATH_LINE,(x+w),y,(x+w),(y+h),x,(y+h),this.PATH_CLOSE);
-		this.lastpath = this.PATH_CLOSE;
+		this.cpath.push(S_PATH_MOVE,x,y,S_PATH_LINE,(x+w),y,(x+w),(y+h),x,(y+h),S_PATH_CLOSE);
+		this.lastpath = S_PATH_CLOSE;
 	},
 	arc : function(cx,cy,r,startRad,endRad,antiClockWise){
 		var sx,sy,ex,ey;
@@ -220,8 +219,8 @@ Candle.addWrapper('svg:wrapperbase',{
 		if(endRad-startRad>=_2PI){ sy+=0.125;}
 		var unknownflag = (startRad>endRad)!==(Math.abs(endRad-startRad)>Math.PI);
 		var islong = ((antiClockWise^unknownflag)?1:0), sweep = ((islong===0^unknownflag)?1:0);
-		this.cpath.push(this.PATH_MOVE,sx,sy,this.PATH_ARCTO,r,r,0,islong,sweep,ex,ey);
-		this.lastpath = this.PATH_ARCTO;
+		this.cpath.push(S_PATH_MOVE,sx,sy,S_PATH_ARCTO,r,r,0,islong,sweep,ex,ey);
+		this.lastpath = S_PATH_ARCTO;
 	},
 
 	/* Canvas API functions (for drawing) */
@@ -258,39 +257,39 @@ Candle.addWrapper('svg:wrapperbase',{
 		for(var i=0;i<len;i+=2){ a[i>>1] = [_args[i],_args[i+1]];}
 		this.beginPath();
 		this.setLinePath_com.call(this,a);
-		if(_args[_len-1]){ this.cpath.push(this.PATH_CLOSE);}
+		if(_args[_len-1]){ this.cpath.push(S_PATH_CLOSE);}
 	},
 	setOffsetLinePath : function(){
 		var _args=arguments, _len=_args.length, len=_len-((_len|1)?1:2), a=[];
 		for(var i=0;i<len-2;i+=2){ a[i>>1] = [_args[i+2]+_args[0], _args[i+3]+_args[1]];}
 		this.beginPath();
 		this.setLinePath_com.call(this,a);
-		if(_args[_len-1]){ this.cpath.push(this.PATH_CLOSE);}
+		if(_args[_len-1]){ this.cpath.push(S_PATH_CLOSE);}
 	},
 	setLinePath_com : function(array){
 		for(var i=0,len=array.length;i<len;i++){
-			this.cpath.push(i===0 ? this.PATH_MOVE : this.PATH_LINE);
+			this.cpath.push(i===0 ? S_PATH_MOVE : S_PATH_LINE);
 			this.cpath.push(array[i][0],array[i][1]);
 		}
 	},
 
 	strokeLine : function(x1,y1,x2,y2){
 		var stack = this.cpath;
-		this.cpath = [this.PATH_MOVE,x1,y1,this.PATH_LINE,x2,y2];
+		this.cpath = [S_PATH_MOVE,x1,y1,S_PATH_LINE,x2,y2];
 		this.addVectorElement(false,true);
 		this.cpath = stack;
 	},
 	strokeDashedLine : function(x1,y1,x2,y2,sizes){
 		var stack = this.cpath;
-		this.cpath = [this.PATH_MOVE,x1,y1,this.PATH_LINE,x2,y2];
+		this.cpath = [S_PATH_MOVE,x1,y1,S_PATH_LINE,x2,y2];
 		var obj = this.addVectorElement(false,true);
 		obj.setAttribute('stroke-dasharray', sizes.join(" "));
 		this.cpath = stack;
 	},
 	strokeCross : function(cx,cy,l){
 		var stack = this.cpath;
-		this.cpath = [this.PATH_MOVE,(cx-l),(cy-l),this.PATH_LINE,(cx+l),(cy+l),
-					  this.PATH_MOVE,(cx-l),(cy+l),this.PATH_LINE,(cx+l),(cy-l)];
+		this.cpath = [S_PATH_MOVE,(cx-l),(cy-l),S_PATH_LINE,(cx+l),(cy+l),
+					  S_PATH_MOVE,(cx-l),(cy+l),S_PATH_LINE,(cx+l),(cy-l)];
 		this.addVectorElement(false,true);
 		this.cpath = stack;
 	},
@@ -300,7 +299,7 @@ Candle.addWrapper('svg:wrapperbase',{
 		var stack = this.cpath;
 		this.cpath = [];
 		this.arc(cx,cy,r,0,_2PI,false);
-		this.cpath.push(this.PATH_CLOSE);
+		this.cpath.push(S_PATH_CLOSE);
 		this.addVectorElement(true,false);
 		this.cpath = stack;
 	},
@@ -308,7 +307,7 @@ Candle.addWrapper('svg:wrapperbase',{
 		var stack = this.cpath;
 		this.cpath = [];
 		this.arc(cx,cy,r,0,_2PI,false);
-		this.cpath.push(this.PATH_CLOSE);
+		this.cpath.push(S_PATH_CLOSE);
 		this.addVectorElement(false,true);
 		this.cpath = stack;
 	},
@@ -316,7 +315,7 @@ Candle.addWrapper('svg:wrapperbase',{
 		var stack = this.cpath;
 		this.cpath = [];
 		this.arc(cx,cy,r,0,_2PI,false);
-		this.cpath.push(this.PATH_CLOSE);
+		this.cpath.push(S_PATH_CLOSE);
 		this.addVectorElement(true,true);
 		this.cpath = stack;
 	},
