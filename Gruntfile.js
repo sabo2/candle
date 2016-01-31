@@ -10,7 +10,15 @@ module.exports = function(grunt){
   grunt.initConfig({
     pkg: pkg,
 
-    clean: ['dist/*', 'candle-*.tar.gz'],
+    clean: ['dist/*'],
+
+    copy: {
+      license: {
+        files : [
+          { src: 'LICENSE.txt', dest: 'dist/LICENSE.txt'}
+        ]
+      }
+    },
 
     concat: {
       options: {
@@ -18,19 +26,16 @@ module.exports = function(grunt){
         process: true
       },
       candle: {
+        options: {
+          sourceMap: true
+        },
         files: [
           { src: require('./src/candle.js').files, dest: 'dist/candle.concat.js' }
         ]
-      }
-    },
-
-    copy: {
-      options: {
-        process: function(content, srcpath){ return grunt.template.process(content);}
       },
-      debug: {
+      'candle-rel': {
         files: [
-          { expand: true, cwd: "src", src: ["**/*.js"], dest: "dist" }
+          { src: require('./src/candle.js').files, dest: 'dist/candle.concat.js' }
         ]
       }
     },
@@ -41,20 +46,19 @@ module.exports = function(grunt){
         report: 'min'
       },
       candle: {
+        options: {
+          sourceMap : 'dist/candle.js.map',
+          sourceMapIn : 'dist/candle.concat.js.map',
+          sourceMapIncludeSources : true
+        },
         files: [
           { src: 'dist/candle.concat.js', dest: 'dist/candle.js' }
         ]
-      }
-    },
-
-    shell: {
-      release: {
-        command: [
-          "cd dist",
-          "tar cvzf candle-<%= pkg.version %>.tar.gz --exclude \".DS_Store\" *",
-          "mv candle-<%= pkg.version %>.* ..",
-          "cd .."
-        ].join('; ')
+      },
+      'candle-rel': {
+        files: [
+          { src: 'dist/candle.concat.js', dest: 'dist/candle.js' }
+        ]
       }
     },
 
@@ -71,8 +75,7 @@ module.exports = function(grunt){
     }
   });
   
-  grunt.registerTask('default', ['clean', 'copy:debug']);
-  grunt.registerTask('release', ['clean', 'concat', 'uglify']);
-  grunt.registerTask('zipfile', ['shell:release']);
+  grunt.registerTask('default', ['newer:jshint',                          'concat:candle',     'uglify:candle']);
+  grunt.registerTask('release', ['newer:jshint', 'clean', 'copy:license', 'concat:candle-rel', 'uglify:candle-rel']);
 };
 

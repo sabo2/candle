@@ -6,9 +6,9 @@
 /*   variables   */
 /* ------------- */
 var _doc = (typeof document!=='undefined' ? document : null),
+	_judgefuncs = {},
 	_2PI = 2*Math.PI,
-	_color = [],
-	_css = [];
+	_color = [];
 
 /* ---------- */
 /*   arrays   */
@@ -50,10 +50,18 @@ var Candle = {
 	/* TypeList class */
 	_order : [],
 	enable : {},
-	addTypes : function(type){
-		this._order.push(type);
-		this.enable[type] = true;
-		if(!this.current){ this.current=type;}
+	addTypeIf : function(type, judgefunc){
+		if(!!_doc){
+			if(!judgefunc()){ return false;}
+			
+			this._order.push(type);
+			this.enable[type] = true;
+			if(!this.current){ this.current=type;}
+		}
+		else{
+			_judgefuncs[type] = judgefunc;
+		}
+		return true;
 	},
 
 	TypeList : function(type){
@@ -73,8 +81,6 @@ var Candle = {
 	/* externs */
 	ME     : null,
 	initME : function(){
-		if(!_doc){ return;}
-
 		var me = _doc.createElement('div');
 		me.style.display  = 'inline';
 		me.style.position = 'absolute';
@@ -131,15 +137,19 @@ var Candle = {
 		return "_candle_"+this._counter;
 	},
 
-	initAllElements : function(){
-		var elements = _doc.getElementsByTagName('candle');
-		for(var i=0;i<elements.length;i++){ this.start(elements[i]);}
+	init : function(){
+		if(!_doc){
+			if(typeof document==='undefined'){
+				throw 'Candle should run under document environment';
+			}
+			_doc = document;
+			for(var i in _judgefuncs){ this.addTypeIf(i, _judgefuncs[i]);}
+		}
+		if(!this.ME){ this.initME();}
 	},
 	start : function(element, type, initCallBack){
-		initCallBack = initCallBack || function(){};
-		if(!this.ME){ this.initME();}
+		this.init();
 
-		if(typeof element === "string"){ element = document.getElementById(element);}
 		var context;
 		if(!element.candleEnable){
 			var choice = type;
@@ -152,50 +162,9 @@ var Candle = {
 			context = element.parentNode.getContext('2d');
 		}
 
-		initCallBack(context);
-	},
-
-	/* initialize functions */
-	onload : function(){
-		this.createCSS();
-		this.initAllElements();
-	},
-
-	sheet : null,
-	createCSS : function(){
-		if(!!this.sheet){ return;}
-		var _head = _doc.getElementsByTagName('head')[0];
-		if(!!_head){
-			var style = _doc.createElement('style');
-			style.setAttribute('type', "text/css");
-			_head.appendChild(style);
-		}
-		else{ _doc.write("<style></style>");}
-		this.sheet = _doc.styleSheets[_doc.styleSheets.length - 1];
-		for(var i=0;i<_css.length;i++){ this.addCSS(_css[i][0],_css[i][1]);}
-		_css=[];
-	},
-	addCSS : function(sel,rule){
-		if(!!this.sheet){
-			var s = this.sheet;
-			if(!!s.insertRule){ s.insertRule(sel+'{'+rule+'}',s.cssRules.length);}
-			else if(!!s.addRule){ s.addRule(sel,rule,-1);}
-		}
-		else{ _css.push(sel,rule);}
+		if(!!initCallBack){ initCallBack(context);}
 	}
 };
-
-if(typeof window!=='undefined'){
-	// 初期化関数設定 
-	if(!!window.addEventListener){ window.addEventListener("load",function(){ Candle.onload();},false);}
-	else if(!!window.attachEvent){ window.attachEvent("onload",function(){ Candle.onload();});}
-
-	// IE用ハック
-	_doc.createElement('candle');
-
-	// CSS設定 
-	Candle.createCSS();
-}
 
 // extern
 if(typeof module==='object'&&typeof exports==='object'){ module.exports = Candle;}

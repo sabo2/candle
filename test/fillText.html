@@ -7,10 +7,9 @@
 Candle.select('vml');
 
 function onload_func(){
-	var can = document.getElementById('can');
-	if(!can.candleEnable){ setTimeout(arguments.callee,50); return;}
-
-	var ctx = can.getContext("2d");
+	Candle.start(document.getElementById('can'), '', draw);
+}
+function draw(ctx){
 	ctx.lineWidth = '1';
 	ctx.strokeStyle = "silver";
 	ctx.strokeLine(0,100,200,100);

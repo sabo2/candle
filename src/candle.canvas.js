@@ -6,45 +6,38 @@
 /* ---------------------- */
 /*   canvas描画可能条件   */
 /* ---------------------- */
-if(typeof document==='undefined'){ return;}
-if(!!document.createElement('canvas').probablySupportsContext && 
-	!document.createElement('canvas').probablySupportsContext('2d')){ return;}
+if(!Candle.addTypeIf('canvas', function(){
+	return (typeof document!=='undefined' &&
+		(!document.createElement('canvas').probablySupportsContext ||
+		  document.createElement('canvas').probablySupportsContext('2d')) );
+})){ return;}
 
-/* -------------------------- */
-/*   canvasブラウザ依存対策   */
-/* -------------------------- */
-if(window.CanvasRenderingContext2D){
-	var p = CanvasRenderingContext2D.prototype;
-	if(!p.setLineDash){
-		if     ('mozDash' in p)       { p.setLineDash = function(sizes){ this.mozDash=sizes;};}
-		else if('webkitLineDash' in p){ p.setLineDash = function(sizes){ this.webkitLineDash=sizes;};}
+var CTOP_OFFSET;
+function setheight(){
+	var UA = navigator.userAgent;
+	CTOP_OFFSET = 0;
+	if(UA.match(/Chrome/)){
+		CTOP_OFFSET = -0.72;
 	}
-}
-
-var CTOP_OFFSET = 0, UA = navigator.userAgent;
-if(UA.match(/Chrome/)){
-	CTOP_OFFSET = -0.72;
-}
-else if(UA.match(/AppleWebKit/)){
-	CTOP_OFFSET = -0.7;
-}
-else if(UA.match(/Trident/)){
-	CTOP_OFFSET = -0.74;
-}
-else /* if(UA.match(/Gecko/)) */{
-	if(UA.match(/Win/)){
+	else if(UA.match(/AppleWebKit/)){
 		CTOP_OFFSET = -0.7;
 	}
-	else{
-		CTOP_OFFSET = -0.76;
+	else if(UA.match(/Trident/)){
+		CTOP_OFFSET = -0.74;
+	}
+	else /* if(UA.match(/Gecko/)) */{
+		if(UA.match(/Win/)){
+			CTOP_OFFSET = -0.7;
+		}
+		else{
+			CTOP_OFFSET = -0.76;
+		}
 	}
 }
 
 /* -------------------- */
 /*   Canvas用ラッパー   */
 /* -------------------- */
-Candle.addTypes('canvas');
-
 Candle.addWrapper('canvas:wrapperbase',{
 
 	initialize : function(parent){
@@ -52,6 +45,9 @@ Candle.addWrapper('canvas:wrapperbase',{
 		this.context  = null;	// 本来のCanvasRenderingContext2Dオブジェクト
 
 		this.use = new Candle.TypeList('canvas');
+
+		// define const
+		if(!CTOP_OFFSET){ setheight();}
 
 		this.x0 = 0;
 		this.y0 = 0;
@@ -93,6 +89,9 @@ Candle.addWrapper('canvas:wrapperbase',{
 		};
 		root.toBlob = root.toBlob || root.msToBlob;
 	},
+	initLayer : function(){
+		this.setLayer();
+	},
 
 	clear : function(){
 		this.setProperties(true,true);
@@ -103,6 +102,14 @@ Candle.addWrapper('canvas:wrapperbase',{
 	},
 
 	/* layer functions */
+	setLayer : function(layerid, option){
+		var layer = this.currentLayerId = (!!layerid ? layerid : '_empty');
+		this.isedge = this.isedgearray[(this.isedgearray[layer]!==void 0) ? layer : "_empty"];
+		this.setEdgeStyle();
+		
+		option = option || {};
+		if(option.rendering){ this.setRendering(option.rendering);}
+	},
 	setEdgeStyle : function(){
 		var s = this.canvas.style;
 		if('imageRendering' in s){
@@ -117,6 +124,11 @@ Candle.addWrapper('canvas:wrapperbase',{
 	},
 
 	/* property functions */
+	setRendering : function(render){
+		this.isedge = this.isedgearray[this.currentLayerId] = (render==='crispEdges');
+		this.setEdgeStyle();
+	},
+
 	changeSize : function(width,height){
 		var parent = this.canvas;
 		parent.style.width  = width + 'px';
@@ -130,6 +142,13 @@ Candle.addWrapper('canvas:wrapperbase',{
 		child.style.height = height + 'px';
 		child.width  = width;
 		child.height = height;
+	},
+
+	/* Canvas API functions (for transform) */
+	translate : function(left,top){
+		this.x0 = left;
+		this.y0 = top;
+		this.context.translate(left, top);
 	},
 
 	/* 内部用関数 */
@@ -174,7 +193,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 			this.context.stroke();
 		}
 	},
-	shape : function(){
+	shape : function(){ /* extension */
 		if(this.setProperties(true,true)){
 			var c = this.context;
 			if(!!this.fillStyle   && this.fillStyle  !=="none"){ c.fill();}
@@ -201,30 +220,6 @@ Candle.addWrapper('canvas:wrapperbase',{
 		}
 	},
 
-	/* Canvas API functions (for text) */
-	fillText : function(text,x,y){
-		if(!!text && this.setProperties(true,false)){
-			if(this.textBaseline==="candle-top"){
-				y -= Candle.getoffsetHeight(text, this.font)*CTOP_OFFSET;
-				this.context.textBaseline = "alphabetic";
-			}
-			this.context.fillText(text,x,y);
-		}
-	},
-
-	/* Canvas API functions (for image) */
-	drawImage : function(){
-		if(!arguments[0]){ return;}
-		this.context.drawImage.apply(this.context, arguments);
-	},
-
-	/* Canvas API functions (for transform) */
-	translate : function(left,top){
-		this.x0 = left;
-		this.y0 = top;
-		this.context.translate(left, top);
-	},
-
 	/* extended functions */
 	setLinePath : function(){
 		var _args=arguments, _len=_args.length, len=_len-((_len|1)?1:2), a=[];
@@ -247,7 +242,6 @@ Candle.addWrapper('canvas:wrapperbase',{
 			else     { this.context.lineTo(ar[0],ar[1]);}
 		}
 	},
-	setDashSize : function(obj, size){ },
 
 	strokeLine : function(x1,y1,x2,y2){
 		if(this.setProperties(false,true)){
@@ -345,7 +339,25 @@ Candle.addWrapper('canvas:wrapperbase',{
 			if(!!this.fillStyle   && this.fillStyle  !=="none"){ c.fill();}
 			if(!!this.strokeStyle && this.strokeStyle!=="none"){ c.stroke();}
 		}
+	},
+
+	/* Canvas API functions (for text) */
+	fillText : function(text,x,y){
+		if(!!text && this.setProperties(true,false)){
+			if(this.textBaseline==="candle-top"){
+				y -= Candle.getoffsetHeight(text, this.font)*CTOP_OFFSET;
+				this.context.textBaseline = "alphabetic";
+			}
+			this.context.fillText(text,x,y);
+		}
+	},
+
+	/* Canvas API functions (for image) */
+	drawImage : function(){
+		if(!arguments[0]){ return;}
+		this.context.drawImage.apply(this.context, arguments);
 	}
+	
 });
 
 })();
