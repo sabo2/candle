@@ -156,7 +156,7 @@ var Candle = {
 			context = new this.wrapper[choice](element);
 		}
 		else{
-			context = element.parentNode.getContext('2d');
+			context = element.getContext('2d');
 		}
 
 		if(!!initCallBack){ initCallBack(context);}
