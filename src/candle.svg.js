@@ -112,6 +112,10 @@ Candle.addWrapper('svg:wrapperbase',{
 			if(!!f){ f(blob);}
 			return blob;
 		};
+		this.canvas.toBuffer = function(type){
+			var svgdata = root.outerHTML || new XMLSerializer().serializeToString(root);
+			return '<?xml version="1.0" encoding="UTF-8"?>\n' + svgdata;
+		};
 	},
 	initLayer : function(){
 		this.setLayer();

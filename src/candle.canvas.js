@@ -1,6 +1,6 @@
 // candle.canvas.js
 /* jshint node:true */
-/* global Candle:false, _doc:false, _2PI:false */
+/* global Candle:false, _doc:false, _2PI:false, Buffer:false */
  
 (function(){
 
@@ -86,6 +86,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 		this.canvas.toDataURL = function(type){
 			return root.toDataURL(type || void 0);
 		};
+		root.toBlob = root.toBlob || root.msToBlob;
 		this.canvas.toBlob = function(f, type){
 			try{ return root.toBlob(f, type);}catch(e){}
 			/* Webkit, BlinkにtoBlobがない... */
@@ -97,7 +98,22 @@ Candle.addWrapper('canvas:wrapperbase',{
 			if(!!f){ f(blob);}
 			return blob;
 		};
-		root.toBlob = root.toBlob || root.msToBlob;
+		this.canvas.toBuffer = function(type){
+			var dataurl = root.toDataURL(type || void 0).replace(/^data:image\/\w+?;base64,/,'');
+			if(canvas_mode==='node'){
+				return new Buffer(dataurl, 'base64');
+			}
+			var data;
+			if(typeof Uint8Array!=='undefined'){
+				var binary = window.atob(dataurl);
+				data = new Uint8Array(binary.length);
+				for(var i=0;i<binary.length;i++){ data[i] = binary.charCodeAt(i);}
+			}
+			else{
+				data = window.atob(dataurl);
+			}
+			return data;
+		};
 	},
 	initLayer : function(){
 		this.setLayer();
