@@ -51,7 +51,7 @@ var Candle = {
 	_order : [],
 	enable : {},
 	addTypeIf : function(type, judgefunc){
-		if(!!_doc){
+		if(!!_doc || (_judgefuncs[type]===judgefunc)){
 			if(!judgefunc()){ return false;}
 			
 			this._order.push(type);
@@ -139,13 +139,10 @@ var Candle = {
 
 	init : function(){
 		if(!_doc){
-			if(typeof document==='undefined'){
-				throw 'Candle should run under document environment';
-			}
-			_doc = document;
-			for(var i in _judgefuncs){ this.addTypeIf(i, _judgefuncs[i]);}
+			if(typeof document!=='undefined'){ _doc = document;}
+ 			for(var i in _judgefuncs){ this.addTypeIf(i, _judgefuncs[i]);}
 		}
-		if(!this.ME){ this.initME();}
+		if(!this.ME && !!_doc){ this.initME();}
 	},
 	start : function(element, type, initCallBack){
 		this.init();
@@ -154,7 +151,7 @@ var Candle = {
 		if(!element.candleEnable){
 			var choice = type;
 			if(!this.enable[choice]){ choice=this.current;}
-			if(!this.enable[choice]){ return;}
+			if(!choice || !this.enable[choice]){ throw 'No canvas environment is installed';}
 
 			context = new this.wrapper[choice](element);
 		}

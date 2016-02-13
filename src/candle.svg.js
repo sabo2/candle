@@ -7,7 +7,7 @@
 /*   SVG描画可能条件   */
 /* ------------------- */
 if(!Candle.addTypeIf('svg', function(){
-	return (typeof document!=='undefined' && !window.opera && !!document.createElementNS);
+	return (typeof document!=='undefined' && typeof window!=='undefined' && !window.opera && !!document.createElementNS);
 })){ return;}
 
 var SVGNS   = Candle.SVGNS   = "http://www.w3.org/2000/svg",
@@ -36,7 +36,7 @@ var S_PATH_MOVE   = 'M',
 	S_HEIGHT;
 
 function setheight(){
-	var UA = navigator.userAgent;
+	var UA = (typeof navigator!=='undefined' ? (navigator.userAgent||'') : '');
 	if(UA.match(/Chrome/)){
 		S_HEIGHT = { 'candle-top':-0.72, top:-0.95, hanging:-0.72, middle:-0.35, alphabetic:0, bottom:0.25 };
 	}
@@ -87,6 +87,7 @@ Candle.addWrapper('svg:wrapperbase',{
 
 	/* additional functions (for initialize) */
 	initElement : function(){
+		this.canvas.style.overflow = 'hidden';
 		var rect = Candle.getRectSize(this.canvas);
 		var root = this.child = _doc.createElementNS(SVGNS,'svg');
 		root.setAttribute('xmlns', SVGNS);

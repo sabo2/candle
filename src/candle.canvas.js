@@ -1,4 +1,5 @@
 // candle.canvas.js
+/* jshint node:true */
 /* global Candle:false, _doc:false, _2PI:false */
  
 (function(){
@@ -6,7 +7,14 @@
 /* ---------------------- */
 /*   canvas描画可能条件   */
 /* ---------------------- */
+var canvas_mode = 'html';
 if(!Candle.addTypeIf('canvas', function(){
+	try{
+		require('canvas'); // Is there node-canvas?
+		canvas_mode = 'node';
+		return true;
+	}
+	catch(e){}
 	return (typeof document!=='undefined' &&
 		(!document.createElement('canvas').probablySupportsContext ||
 		  document.createElement('canvas').probablySupportsContext('2d')) );
@@ -14,7 +22,7 @@ if(!Candle.addTypeIf('canvas', function(){
 
 var CTOP_OFFSET;
 function setheight(){
-	var UA = navigator.userAgent;
+	var UA = (typeof navigator!=='undefined' ? (navigator.userAgent||'') : '');
 	CTOP_OFFSET = 0;
 	if(UA.match(/Chrome/)){
 		CTOP_OFFSET = -0.72;
@@ -60,15 +68,17 @@ Candle.addWrapper('canvas:wrapperbase',{
 
 	/* extend functions (initialize) */
 	initElement : function(){
-		var rect = Candle.getRectSize(this.canvas);
-		var root = this.child = _doc.createElement('canvas');
-		root.id = this.canvasid;
-		root.width  = rect.width;
-		root.height = rect.height;
-		root.style.width  = rect.width + 'px';
-		root.style.height = rect.height + 'px';
-		this.canvas.appendChild(root);
-
+		var root = this.child = (canvas_mode==='html' ? _doc.createElement('canvas') : new (require('canvas'))());
+		if(canvas_mode==='html'){
+			this.canvas.style.overflow = 'hidden';
+			var rect = Candle.getRectSize(this.canvas);
+			root.id = this.canvasid;
+			root.width  = rect.width;
+			root.height = rect.height;
+			root.style.width  = rect.width + 'px';
+			root.style.height = rect.height + 'px';
+			this.canvas.appendChild(root);
+		}
 		this.context = root.getContext('2d');
 	},
 	initFunction : function(){
@@ -97,8 +107,10 @@ Candle.addWrapper('canvas:wrapperbase',{
 		this.setProperties(true,true);
 		this.context.setTransform(1,0,0,1,0,0); // 変形をリセット
 		this.context.translate(this.x0, this.y0);
-		var rect = Candle.getRectSize(this.canvas);
-		this.context.clearRect(0,0,rect.width,rect.height);
+		if(canvas_mode==='html'){
+			var rect = Candle.getRectSize(this.canvas);
+			this.context.clearRect(0,0,rect.width,rect.height);
+		}
 	},
 
 	/* layer functions */
@@ -111,6 +123,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 		if(option.rendering){ this.setRendering(option.rendering);}
 	},
 	setEdgeStyle : function(){
+		if(canvas_mode==='node'){ return;}
 		var s = this.canvas.style;
 		if('imageRendering' in s){
 			s.imageRendering = '';
@@ -130,16 +143,20 @@ Candle.addWrapper('canvas:wrapperbase',{
 	},
 
 	changeSize : function(width,height){
-		var parent = this.canvas;
-		parent.style.width  = width + 'px';
-		parent.style.height = height + 'px';
+		if(canvas_mode==='html'){
+			var parent = this.canvas;
+			parent.style.width  = width + 'px';
+			parent.style.height = height + 'px';
+		}
 
 		var child = this.child;
-		var left = parseInt(child.style.left), top = parseInt(child.style.top); // jshint ignore:line
-		width += (left<0?-left:0);
-		height += (top<0?-top:0);
-		child.style.width  = width + 'px';
-		child.style.height = height + 'px';
+		if(canvas_mode==='html'){
+			var left = parseInt(child.style.left), top = parseInt(child.style.top); // jshint ignore:line
+			width += (left<0?-left:0);
+			height += (top<0?-top:0);
+			child.style.width  = width + 'px';
+			child.style.height = height + 'px';
+		}
 		child.width  = width;
 		child.height = height;
 	},

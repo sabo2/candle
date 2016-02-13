@@ -14,7 +14,6 @@ Candle.addWrapper('wrapperbase',{
 		this.textAlign    = 'center';
 		this.textBaseline = 'middle';
 		this.canvas = parent;	// 親エレメントとなるdivエレメント
-		this.canvas.style.overflow = 'hidden';
 
 		// variables for internal
 		this.canvasid = Candle.getcanvasid();
