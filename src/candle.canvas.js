@@ -82,21 +82,28 @@ Candle.addWrapper('canvas:wrapperbase',{
 		this.context = root.getContext('2d');
 	},
 	initFunction : function(){
+		function atob(base64){
+			if(canvas_mode==='html'){ return window.atob(base64);}
+			else{ return new Buffer(RegExp.$2, 'base64').toString('binary');}
+		}
+		
 		var root = this.child;
 		this.canvas.toDataURL = function(type){
 			return root.toDataURL(type || void 0);
 		};
-		root.toBlob = root.toBlob || root.msToBlob;
-		this.canvas.toBlob = function(f, type){
-			try{ return root.toBlob(f, type);}catch(e){}
-			/* Webkit, BlinkにtoBlobがない... */
-			root.toDataURL(type || void 0).match(/data:(.*);base64,(.*)/);
-			var bin = window.atob(RegExp.$2), len=bin.length;
-			var buf = new Uint8Array(len);
-			for(var i=0;i<len;i++){ buf[i]=bin.charCodeAt(i);}
-			var blob = new Blob([buf.buffer], {type:RegExp.$1});
-			if(!!f){ f(blob);}
-			return blob;
+		this.canvas.toBlob = function(callback, type){
+			if(typeof root.toBlob==='function'){
+				root.toBlob(callback, type);
+			}
+			else{
+				/* Webkit, BlinkにtoBlobがない... */
+				/* IE, EdgeのmsToBlobもtypeが受け付けられないので回避 */
+				root.toDataURL(type || void 0).match(/data:(.*);base64,(.*)/);
+				var bin = atob(RegExp.$2), len = bin.length;
+				var buf = new Uint8Array(len);
+				for(var i=0;i<len;i++){ buf[i]=bin.charCodeAt(i);}
+				callback(new Blob([buf.buffer], {type:RegExp.$1}));
+			}
 		};
 		this.canvas.toBuffer = function(type){
 			var dataurl = root.toDataURL(type || void 0).replace(/^data:image\/\w+?;base64,/,'');
@@ -105,12 +112,12 @@ Candle.addWrapper('canvas:wrapperbase',{
 			}
 			var data;
 			if(typeof Uint8Array!=='undefined'){
-				var binary = window.atob(dataurl);
+				var binary = atob(dataurl);
 				data = new Uint8Array(binary.length);
 				for(var i=0;i<binary.length;i++){ data[i] = binary.charCodeAt(i);}
 			}
 			else{
-				data = window.atob(dataurl);
+				data = atob(dataurl);
 			}
 			return data;
 		};

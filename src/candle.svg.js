@@ -101,20 +101,18 @@ Candle.addWrapper('svg:wrapperbase',{
 		this.canvas.appendChild(root);
 	},
 	initFunction : function(){
+		var xmldeclare = '<?xml version="1.0" encoding="UTF-8"?>\n';
 		function getOuterHTML(el){ return el.outerHTML || new XMLSerializer().serializeToString(el);}
 		
 		var root = this.child;
 		this.canvas.toDataURL = function(type){
 			return "data:image/svg+xml;base64," + window.btoa(getOuterHTML(root));
 		};
-		this.canvas.toBlob = function(f, type){
-			var blob = new Blob([getOuterHTML(root)], {type:'image/svg+xml'});
-			if(!!f){ f(blob);}
-			return blob;
+		this.canvas.toBlob = function(callback, type){
+			callback(new Blob([xmldeclare + getOuterHTML(root)], {type:'image/svg+xml'}));
 		};
 		this.canvas.toBuffer = function(type){
-			var svgdata = root.outerHTML || new XMLSerializer().serializeToString(root);
-			return '<?xml version="1.0" encoding="UTF-8"?>\n' + svgdata;
+			return xmldeclare + getOuterHTML(root);
 		};
 	},
 	initLayer : function(){
