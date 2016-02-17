@@ -88,25 +88,25 @@ Candle.addWrapper('canvas:wrapperbase',{
 		}
 		
 		var root = this.child;
-		this.canvas.toDataURL = function(type){
-			return root.toDataURL(type || void 0);
+		this.canvas.toDataURL = function(type, quality){
+			return root.toDataURL(type || void 0, quality);
 		};
-		this.canvas.toBlob = function(callback, type){
+		this.canvas.toBlob = function(callback, type, quality){
 			if(typeof root.toBlob==='function'){
-				root.toBlob(callback, type);
+				root.toBlob(callback, type, quality);
 			}
 			else{
 				/* Webkit, BlinkにtoBlobがない... */
 				/* IE, EdgeのmsToBlobもtypeが受け付けられないので回避 */
-				root.toDataURL(type || void 0).match(/data:(.*);base64,(.*)/);
+				root.toDataURL(type || void 0, quality).match(/data:(.*);base64,(.*)/);
 				var bin = atob(RegExp.$2), len = bin.length;
 				var buf = new Uint8Array(len);
 				for(var i=0;i<len;i++){ buf[i]=bin.charCodeAt(i);}
 				callback(new Blob([buf.buffer], {type:RegExp.$1}));
 			}
 		};
-		this.canvas.toBuffer = function(type){
-			var dataurl = root.toDataURL(type || void 0).replace(/^data:image\/\w+?;base64,/,'');
+		this.canvas.toBuffer = function(type, quality){
+			var dataurl = root.toDataURL(type || void 0, quality).replace(/^data:image\/\w+?;base64,/,'');
 			if(canvas_mode==='node'){
 				return new Buffer(dataurl, 'base64');
 			}

@@ -105,13 +105,13 @@ Candle.addWrapper('svg:wrapperbase',{
 		function getOuterHTML(el){ return el.outerHTML || new XMLSerializer().serializeToString(el);}
 		
 		var root = this.child;
-		this.canvas.toDataURL = function(type){
+		this.canvas.toDataURL = function(type, quality){
 			return "data:image/svg+xml;base64," + window.btoa(getOuterHTML(root));
 		};
-		this.canvas.toBlob = function(callback, type){
+		this.canvas.toBlob = function(callback, type, quality){
 			callback(new Blob([xmldeclare + getOuterHTML(root)], {type:'image/svg+xml'}));
 		};
-		this.canvas.toBuffer = function(type){
+		this.canvas.toBuffer = function(type, quality){
 			return xmldeclare + getOuterHTML(root);
 		};
 	},
