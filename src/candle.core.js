@@ -6,7 +6,6 @@
 /*   variables   */
 /* ------------- */
 var _doc = (typeof document!=='undefined' ? document : null),
-	_judgefuncs = {},
 	_2PI = 2*Math.PI,
 	_color = [];
 
@@ -50,20 +49,11 @@ var Candle = {
 	/* TypeList class */
 	_order : [],
 	enable : {},
-	addTypeIf : function(type, judgefunc){
-		if(!!_doc || (_judgefuncs[type]===judgefunc)){
-			if(!judgefunc()){ return false;}
-			
-			this._order.push(type);
-			this.enable[type] = true;
-			if(!this.current){ this.current=type;}
-		}
-		else{
-			_judgefuncs[type] = judgefunc;
-		}
-		return true;
+	addType : function(type, judgefunc){
+		this._order.push(type);
+		this.enable[type] = true;
+		if(!this.current){ this.current=type;}
 	},
-
 	TypeList : function(type){
 		for(var i=0;i<Candle._order.length;i++){
 			this[Candle._order[i]]=(Candle._order[i]===type);
@@ -126,8 +116,8 @@ var Candle = {
 
 	/* DOM datas */
 	getRectSize : function(el){
-		return { width :(el.offsetWidth  || el.clientWidth),
-				 height:(el.offsetHeight || el.clientHeight)};
+		return { width :(el.offsetWidth  || el.clientWidth || 0),
+				 height:(el.offsetHeight || el.clientHeight || 0)};
 	},
 
 	/* functions */
@@ -137,15 +127,8 @@ var Candle = {
 		return "_candle_"+this._counter;
 	},
 
-	init : function(){
-		if(!_doc){
-			if(typeof document!=='undefined'){ _doc = document;}
- 			for(var i in _judgefuncs){ this.addTypeIf(i, _judgefuncs[i]);}
-		}
-		if(!this.ME && !!_doc){ this.initME();}
-	},
 	start : function(element, type, initCallBack){
-		this.init();
+		if(!this.ME && typeof window!=='undefined'){ this.initME();}
 
 		var context;
 		if(!element.candleEnable){

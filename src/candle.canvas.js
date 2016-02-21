@@ -8,17 +8,14 @@
 /*   canvas描画可能条件   */
 /* ---------------------- */
 var canvas_mode = 'html';
-if(!Candle.addTypeIf('canvas', function(){
-	try{
-		require('canvas'); // Is there node-canvas?
-		canvas_mode = 'node';
-		return true;
-	}
-	catch(e){}
-	return (typeof document!=='undefined' &&
-		(!document.createElement('canvas').probablySupportsContext ||
-		  document.createElement('canvas').probablySupportsContext('2d')) );
-})){ return;}
+try{
+	Candle.Canvas = require('canvas'); // Is there node-canvas?
+	canvas_mode = 'node';
+}
+catch(e){
+	if((document.createElement('canvas').probablySupportsContext &&
+	   !document.createElement('canvas').probablySupportsContext('2d')) ){ return;}
+}
 
 var CTOP_OFFSET;
 function setheight(){
@@ -46,6 +43,8 @@ function setheight(){
 /* -------------------- */
 /*   Canvas用ラッパー   */
 /* -------------------- */
+Candle.addType('canvas');
+
 Candle.addWrapper('canvas:wrapperbase',{
 
 	initialize : function(parent){
@@ -68,13 +67,15 @@ Candle.addWrapper('canvas:wrapperbase',{
 
 	/* extend functions (initialize) */
 	initElement : function(){
-		var root = this.child = (canvas_mode==='html' ? _doc.createElement('canvas') : new (require('canvas'))());
+		var root = this.child = (canvas_mode==='html' ? _doc.createElement('canvas') : new Candle.Canvas());
 		if(canvas_mode==='html'){
 			this.canvas.style.overflow = 'hidden';
-			var rect = Candle.getRectSize(this.canvas);
-			root.id = this.canvasid;
-			root.width  = rect.width;
-			root.height = rect.height;
+		}
+		var rect = Candle.getRectSize(this.canvas);
+		root.id = this.canvasid;
+		root.width  = rect.width;
+		root.height = rect.height;
+		if(canvas_mode==='html'){
 			root.style.width  = rect.width + 'px';
 			root.style.height = rect.height + 'px';
 			this.canvas.appendChild(root);
