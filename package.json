@@ -2,7 +2,7 @@
   "name": "candle",
   "version": "0.4.0",
   "description": "This is a support script for pzpr.js",
-  "main": "candle.js",
+  "main": "./dist/candle.js",
   "keywords": [
     "graphic",
     "HTML5",
@@ -15,7 +15,7 @@
     "build": "grunt default",
     "release": "grunt release",
     "lint": "grunt jshint",
-    "test": "grunt jshint"
+    "test": "grunt jshint && mocha -R progress --recursive test"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

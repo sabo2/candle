@@ -1,20 +1,25 @@
 // candle.canvas.js
-/* global Candle:false, _doc:false, _2PI:false */
+/* jshint node:true */
+/* global Candle:false, _doc:false, _2PI:false, Buffer:false */
  
 (function(){
 
 /* ---------------------- */
 /*   canvas描画可能条件   */
 /* ---------------------- */
-if(!Candle.addTypeIf('canvas', function(){
-	return (typeof document!=='undefined' &&
-		(!document.createElement('canvas').probablySupportsContext ||
-		  document.createElement('canvas').probablySupportsContext('2d')) );
-})){ return;}
+var canvas_mode = 'html';
+try{
+	Candle.Canvas = require('canvas'); // Is there node-canvas?
+	canvas_mode = 'node';
+}
+catch(e){
+	if((document.createElement('canvas').probablySupportsContext &&
+	   !document.createElement('canvas').probablySupportsContext('2d')) ){ return;}
+}
 
 var CTOP_OFFSET;
 function setheight(){
-	var UA = navigator.userAgent;
+	var UA = (typeof navigator!=='undefined' ? (navigator.userAgent||'') : '');
 	CTOP_OFFSET = 0;
 	if(UA.match(/Chrome/)){
 		CTOP_OFFSET = -0.72;
@@ -38,6 +43,8 @@ function setheight(){
 /* -------------------- */
 /*   Canvas用ラッパー   */
 /* -------------------- */
+Candle.addType('canvas');
+
 Candle.addWrapper('canvas:wrapperbase',{
 
 	initialize : function(parent){
@@ -60,34 +67,61 @@ Candle.addWrapper('canvas:wrapperbase',{
 
 	/* extend functions (initialize) */
 	initElement : function(){
+		var root = this.child = (canvas_mode==='html' ? _doc.createElement('canvas') : new Candle.Canvas());
+		if(canvas_mode==='html'){
+			this.canvas.style.overflow = 'hidden';
+		}
 		var rect = Candle.getRectSize(this.canvas);
-		var root = this.child = _doc.createElement('canvas');
 		root.id = this.canvasid;
 		root.width  = rect.width;
 		root.height = rect.height;
-		root.style.width  = rect.width + 'px';
-		root.style.height = rect.height + 'px';
-		this.canvas.appendChild(root);
-
+		if(canvas_mode==='html'){
+			root.style.width  = rect.width + 'px';
+			root.style.height = rect.height + 'px';
+			this.canvas.appendChild(root);
+		}
 		this.context = root.getContext('2d');
 	},
 	initFunction : function(){
+		function atob(base64){
+			if(canvas_mode==='html'){ return window.atob(base64);}
+			else{ return new Buffer(RegExp.$2, 'base64').toString('binary');}
+		}
+		
 		var root = this.child;
-		this.canvas.toDataURL = function(type){
-			return root.toDataURL(type || void 0);
+		this.canvas.toDataURL = function(type, quality){
+			return root.toDataURL(type || void 0, quality);
 		};
-		this.canvas.toBlob = function(f, type){
-			try{ return root.toBlob(f, type);}catch(e){}
-			/* Webkit, BlinkにtoBlobがない... */
-			root.toDataURL(type || void 0).match(/data:(.*);base64,(.*)/);
-			var bin = window.atob(RegExp.$2), len=bin.length;
-			var buf = new Uint8Array(len);
-			for(var i=0;i<len;i++){ buf[i]=bin.charCodeAt(i);}
-			var blob = new Blob([buf.buffer], {type:RegExp.$1});
-			if(!!f){ f(blob);}
-			return blob;
+		this.canvas.toBlob = function(callback, type, quality){
+			if(typeof root.toBlob==='function'){
+				root.toBlob(callback, type, quality);
+			}
+			else{
+				/* Webkit, BlinkにtoBlobがない... */
+				/* IE, EdgeのmsToBlobもtypeが受け付けられないので回避 */
+				root.toDataURL(type || void 0, quality).match(/data:(.*);base64,(.*)/);
+				var bin = atob(RegExp.$2), len = bin.length;
+				var buf = new Uint8Array(len);
+				for(var i=0;i<len;i++){ buf[i]=bin.charCodeAt(i);}
+				callback(new Blob([buf.buffer], {type:RegExp.$1}));
+			}
 		};
-		root.toBlob = root.toBlob || root.msToBlob;
+		this.canvas.toBuffer = function(type, quality){
+			var dataurl = root.toDataURL(type || void 0, quality).replace(/^data:image\/\w+?;base64,/,'');
+			if(canvas_mode==='node'){
+				return new Buffer(dataurl, 'base64');
+			}
+			var data;
+			if(typeof Uint8Array!=='undefined'){
+				var binary = atob(dataurl);
+				data = new Uint8Array(binary.length);
+				for(var i=0;i<binary.length;i++){ data[i] = binary.charCodeAt(i);}
+			}
+			else{
+				data = atob(dataurl);
+			}
+			return data;
+		};
 	},
 	initLayer : function(){
 		this.setLayer();
@@ -97,8 +131,10 @@ Candle.addWrapper('canvas:wrapperbase',{
 		this.setProperties(true,true);
 		this.context.setTransform(1,0,0,1,0,0); // 変形をリセット
 		this.context.translate(this.x0, this.y0);
-		var rect = Candle.getRectSize(this.canvas);
-		this.context.clearRect(0,0,rect.width,rect.height);
+		if(canvas_mode==='html'){
+			var rect = Candle.getRectSize(this.canvas);
+			this.context.clearRect(0,0,rect.width,rect.height);
+		}
 	},
 
 	/* layer functions */
@@ -111,6 +147,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 		if(option.rendering){ this.setRendering(option.rendering);}
 	},
 	setEdgeStyle : function(){
+		if(canvas_mode==='node'){ return;}
 		var s = this.canvas.style;
 		if('imageRendering' in s){
 			s.imageRendering = '';
@@ -130,16 +167,20 @@ Candle.addWrapper('canvas:wrapperbase',{
 	},
 
 	changeSize : function(width,height){
-		var parent = this.canvas;
-		parent.style.width  = width + 'px';
-		parent.style.height = height + 'px';
+		if(canvas_mode==='html'){
+			var parent = this.canvas;
+			parent.style.width  = width + 'px';
+			parent.style.height = height + 'px';
+		}
 
 		var child = this.child;
-		var left = parseInt(child.style.left), top = parseInt(child.style.top); // jshint ignore:line
-		width += (left<0?-left:0);
-		height += (top<0?-top:0);
-		child.style.width  = width + 'px';
-		child.style.height = height + 'px';
+		if(canvas_mode==='html'){
+			var left = parseInt(child.style.left), top = parseInt(child.style.top); // jshint ignore:line
+			width += (left<0?-left:0);
+			height += (top<0?-top:0);
+			child.style.width  = width + 'px';
+			child.style.height = height + 'px';
+		}
 		child.width  = width;
 		child.height = height;
 	},

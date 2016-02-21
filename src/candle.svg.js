@@ -1,14 +1,14 @@
 // candle.svg.js
-/* global Candle:false, _doc:false, _2PI:false */
+/* global Candle:false, _doc:false, _2PI:false, Buffer:false */
 
 (function(){
 
 /* ------------------- */
 /*   SVG描画可能条件   */
 /* ------------------- */
-if(!Candle.addTypeIf('svg', function(){
-	return (typeof document!=='undefined' && !window.opera && !!document.createElementNS);
-})){ return;}
+if(typeof document==='undefined' || !document.createElementNS || (typeof window!=='undefined' && !!window.opera)){ return;}
+
+var canvas_mode = (typeof process==='undefined' ? 'html' : 'node');
 
 var SVGNS   = Candle.SVGNS   = "http://www.w3.org/2000/svg",
 	XLINKNS = Candle.XLINKNS = "http://www.w3.org/1999/xlink";
@@ -36,7 +36,7 @@ var S_PATH_MOVE   = 'M',
 	S_HEIGHT;
 
 function setheight(){
-	var UA = navigator.userAgent;
+	var UA = (typeof navigator!=='undefined' ? (navigator.userAgent||'') : '');
 	if(UA.match(/Chrome/)){
 		S_HEIGHT = { 'candle-top':-0.72, top:-0.95, hanging:-0.72, middle:-0.35, alphabetic:0, bottom:0.25 };
 	}
@@ -59,6 +59,8 @@ function setheight(){
 /* ----------------- */
 /*   SVG用ラッパー   */
 /* ----------------- */
+Candle.addType('svg');
+
 Candle.addWrapper('svg:wrapperbase',{
 
 	initialize : function(parent){
@@ -73,8 +75,6 @@ Candle.addWrapper('svg:wrapperbase',{
 		this._textcache = {};
 
 		// variables for internal
-		this.zidx = 1;
-		this.zidx_array = {};
 		this.target = null;	// エレメントの追加対象となるオブジェクト
 
 		// 描画中path
@@ -87,6 +87,9 @@ Candle.addWrapper('svg:wrapperbase',{
 
 	/* additional functions (for initialize) */
 	initElement : function(){
+		if(canvas_mode==='html'){
+			this.canvas.style.overflow = 'hidden';
+		}
 		var rect = Candle.getRectSize(this.canvas);
 		var root = this.child = _doc.createElementNS(SVGNS,'svg');
 		root.setAttribute('xmlns', SVGNS);
@@ -97,19 +100,28 @@ Candle.addWrapper('svg:wrapperbase',{
 		root.setAttribute('width', rect.width);
 		root.setAttribute('height', rect.height);
 		root.setAttribute('viewBox', [0,0,rect.width,rect.height].join(' '));
-		this.canvas.appendChild(root);
+		if(!!this.canvas.appendChild){
+			this.canvas.appendChild(root);
+		}
 	},
 	initFunction : function(){
-		function getOuterHTML(el){ return el.outerHTML || new XMLSerializer().serializeToString(el);}
+		function btoa(bin){
+			if(canvas_mode==='html'){ return window.btoa(bin);}
+			else if(Buffer.isBuffer(bin)){ return bin.toString('base64');}
+			else{ return new Buffer(bin.toString(), 'binary').toString('base64');}
+		}
+		var xmldeclare = '<?xml version="1.0" encoding="UTF-8"?>\n';
+		function getOuterHTML(el){ return (el.outerHTML || new XMLSerializer().serializeToString(el)).replace(/^<\?xml.+?\?>[\r\n]*/,'');}
 		
 		var root = this.child;
-		this.canvas.toDataURL = function(type){
-			return "data:image/svg+xml;base64," + window.btoa(getOuterHTML(root));
+		this.canvas.toDataURL = function(type, quality){
+			return "data:image/svg+xml;base64," + btoa(getOuterHTML(root));
 		};
-		this.canvas.toBlob = function(f, type){
-			var blob = new Blob([getOuterHTML(root)], {type:'image/svg+xml'});
-			if(!!f){ f(blob);}
-			return blob;
+		this.canvas.toBlob = function(callback, type, quality){
+			callback(new Blob([xmldeclare + getOuterHTML(root)], {type:'image/svg+xml'}));
+		};
+		this.canvas.toBuffer = function(type, quality){
+			return xmldeclare + getOuterHTML(root);
 		};
 	},
 	initLayer : function(){
@@ -121,15 +133,13 @@ Candle.addWrapper('svg:wrapperbase',{
 	},
 
 	clear : function(){
-		var root = this.canvas.firstChild, el = root.firstChild;
+		var root = this.child, el = root.firstChild;
 		while(!!el){ root.removeChild(el); el = root.firstChild;}
 
 		/* resetElement */
 		this.vid = '';
 		this.elements = {};
-		this.target = _doc.getElementById(this.canvasid);
-		this.zidx = 1;
-		this.zidx_array = {};
+		this.target = this.child;
 		this.setLayer();
 		this._textcache = {};
 	},
@@ -140,16 +150,11 @@ Candle.addWrapper('svg:wrapperbase',{
 		this.vid = '';
 		if(!!layerid){
 			var lid = [this.canvasid,"layer",layerid].join('_');
-			var layer = _doc.getElementById(lid);
+			var layer = this.child.querySelector('#'+lid);
 			if(!layer){
 				layer = newEL('g');
 				layer.setAttribute('id', lid);
 				this.child.appendChild(layer);
-			}
-
-			if(!this.zidx_array[layerid]){
-				this.zidx++;
-				this.zidx_array[layerid] = layer.style.zIndex = this.zidx;
 			}
 			this.target = layer;
 		}
@@ -169,10 +174,11 @@ Candle.addWrapper('svg:wrapperbase',{
 	},
 
 	changeSize : function(width,height){
-		this.canvas.style.width  = width + 'px';
-		this.canvas.style.height = height + 'px';
-
-		var child = this.canvas.firstChild;
+		if(canvas_mode==='html'){
+			this.canvas.style.width  = width + 'px';
+			this.canvas.style.height = height + 'px';
+		}
+		var child = this.child;
 		child.setAttribute('width', width);
 		child.setAttribute('height', height);
 		var m = child.getAttribute('viewBox').split(/ /);
@@ -323,7 +329,7 @@ Candle.addWrapper('svg:wrapperbase',{
 	/* SVG Special functions */
 	getDefsElement : function(){
 		// defs要素がなかったら作成する
-		var defs = document.querySelector('defs');
+		var defs = this.child.querySelector('defs');
 		if(!defs){
 			defs = document.createElementNS(SVGNS, 'defs');
 			this.child.insertBefore(defs, (this.child.firstChild || null));

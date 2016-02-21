@@ -2,6 +2,7 @@
 
 exports.files = [
 	"candle.core",
+	"mocknode",
 	"candle.base",
 	"candle.svg",
 	"candle.canvas"
