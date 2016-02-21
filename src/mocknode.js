@@ -161,6 +161,7 @@ MockNode.prototype = {
 	_attr     : null,
 	_children : null,
 	parentNode : null,
+	nodeType : 1,
 
 	get firstChild(){ return this._children[0];},
 	get lastChild(){ return this._children[this._children.length-1];},
@@ -200,6 +201,7 @@ var MockText = function(text){
 MockText.prototype = {
 	_attr : {id:''},
 	parentNode : null,
+	nodeType : 3,
 	data : '',
 	get firstChild(){ return null;},
 	get childNodes(){ return [];},
@@ -215,6 +217,7 @@ var MockDocument = Candle.MockDocument = function(){
 };
 MockDocument.prototype = {
 	_children : null,
+	nodeType : 9,
 
 	createElement   : function(tag)   { return new MockNode(tag);},
 	createElementNS : function(ns,tag){ return new MockNode(tag);},
