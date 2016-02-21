@@ -73,8 +73,6 @@ Candle.addWrapper('svg:wrapperbase',{
 		this._textcache = {};
 
 		// variables for internal
-		this.zidx = 1;
-		this.zidx_array = {};
 		this.target = null;	// エレメントの追加対象となるオブジェクト
 
 		// 描画中path
@@ -130,9 +128,7 @@ Candle.addWrapper('svg:wrapperbase',{
 		/* resetElement */
 		this.vid = '';
 		this.elements = {};
-		this.target = _doc.getElementById(this.canvasid);
-		this.zidx = 1;
-		this.zidx_array = {};
+		this.target = this.child;
 		this.setLayer();
 		this._textcache = {};
 	},
@@ -148,11 +144,6 @@ Candle.addWrapper('svg:wrapperbase',{
 				layer = newEL('g');
 				layer.setAttribute('id', lid);
 				this.child.appendChild(layer);
-			}
-
-			if(!this.zidx_array[layerid]){
-				this.zidx++;
-				this.zidx_array[layerid] = layer.style.zIndex = this.zidx;
 			}
 			this.target = layer;
 		}
