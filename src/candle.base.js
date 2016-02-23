@@ -30,7 +30,6 @@ Candle.addWrapper('wrapperbase',{
 
 		var self = this;
 		this.canvas.getContext = function(type){ return self;};
-		this.canvas.candleEnable = true;
 	},
 
 	/* Initialize functions */
