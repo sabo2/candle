@@ -131,11 +131,10 @@ var Candle = {
 		if(!this.ME && typeof window!=='undefined'){ this.initME();}
 
 		var context;
-		if(!element.candleEnable){
+		if(!element.getContext){
 			var choice = type;
 			if(!this.enable[choice]){ choice=this.current;}
 			if(!choice || !this.enable[choice]){ throw 'No canvas environment is installed';}
-
 			context = new this.wrapper[choice](element);
 		}
 		else{

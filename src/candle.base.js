@@ -19,18 +19,12 @@ Candle.addWrapper('wrapperbase',{
 		this.canvasid = Candle.getcanvasid();
 		this.child    = null;	// 親エレメントの直下にあるエレメント
 
-		// Layer additional
-		this.currentLayerId = '_empty';
-		this.isedgearray    = {_empty:false};
-		this.isedge         = false;
-
 		this.initElement();
 		this.initFunction();
 		this.initLayer();
 
 		var self = this;
 		this.canvas.getContext = function(type){ return self;};
-		this.canvas.candleEnable = true;
 	},
 
 	/* Initialize functions */

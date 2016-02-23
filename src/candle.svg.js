@@ -76,6 +76,7 @@ Candle.addWrapper('svg:wrapperbase',{
 
 		// variables for internal
 		this.target = null;	// エレメントの追加対象となるオブジェクト
+		this.layers = {};
 
 		// 描画中path
 		this.cpath    = [];
@@ -94,7 +95,6 @@ Candle.addWrapper('svg:wrapperbase',{
 		var root = this.child = _doc.createElementNS(SVGNS,'svg');
 		root.setAttribute('xmlns', SVGNS);
 		root.setAttribute('xmlns:xlink', XLINKNS);
-		root.setAttribute('id', this.canvasid);
 		root.setAttribute('font-size', "10px");
 		root.setAttribute('font-family', "sans-serif");
 		root.setAttribute('width', rect.width);
@@ -139,6 +139,7 @@ Candle.addWrapper('svg:wrapperbase',{
 		/* resetElement */
 		this.vid = '';
 		this.elements = {};
+		this.layers = {};
 		this.target = this.child;
 		this.setLayer();
 		this._textcache = {};
@@ -149,11 +150,9 @@ Candle.addWrapper('svg:wrapperbase',{
 		option = option || {};
 		this.vid = '';
 		if(!!layerid){
-			var lid = [this.canvasid,"layer",layerid].join('_');
-			var layer = this.child.querySelector('#'+lid);
+			var layer = this.layers[layerid];
 			if(!layer){
-				layer = newEL('g');
-				layer.setAttribute('id', lid);
+				layer = this.layers[layerid] = newEL('g');
 				this.child.appendChild(layer);
 			}
 			this.target = layer;
@@ -162,7 +161,6 @@ Candle.addWrapper('svg:wrapperbase',{
 			this.target = this.child;
 		}
 		
-		this.currentLayerId = (!!layerid ? layerid : '_empty');
 		if(option.rendering){ this.setRendering(option.rendering);}
 		
 		this.freezepath = (!!option && option.freeze);
@@ -346,7 +344,7 @@ Candle.addWrapper('svg:wrapperbase',{
 		/* defsにimage要素がない場合はdefsにimage要素を追加して返す */
 		if(!imgel){
 			imgel = newEL('image');
-			imgel.setAttribute('id', [this.canvasid, "img", imgs.length].join('_'));
+			imgel.setAttribute('id', (!!imgel.ownerDocument?this.canvasid+'_':'')+"img"+(imgs.length));
 			imgel.setAttribute("width",  image.width);
 			imgel.setAttribute("height", image.height);
 			imgel.setAttributeNS(XLINKNS, "xlink:href", image.src);
@@ -366,7 +364,7 @@ Candle.addWrapper('svg:wrapperbase',{
 		/* defsにimage・viewBoxが共通のsymbol要素がない場合はdefsにsymbol要素を追加して返す */
 		if(!symbol){
 			symbol = document.createElementNS(SVGNS, 'symbol');
-			symbol.setAttribute("id", [this.canvasid, "symimg", syms.length].join('_'));
+			symbol.setAttribute("id", (!!symbol.ownerDocument?this.canvasid+'_':'')+"symimg"+syms.length);
 			symbol.setAttribute("viewBox", viewbox);
 			
 			var use = document.createElementNS(SVGNS, 'use');

@@ -53,6 +53,11 @@ Candle.addWrapper('canvas:wrapperbase',{
 
 		this.use = new Candle.TypeList('canvas');
 
+		// Layer additional
+		this.currentLayerId = '_empty';
+		this.isedgearray    = {_empty:false};
+		this.isedge         = false;
+
 		// define const
 		if(!CTOP_OFFSET){ setheight();}
 
@@ -72,7 +77,6 @@ Candle.addWrapper('canvas:wrapperbase',{
 			this.canvas.style.overflow = 'hidden';
 		}
 		var rect = Candle.getRectSize(this.canvas);
-		root.id = this.canvasid;
 		root.width  = rect.width;
 		root.height = rect.height;
 		if(canvas_mode==='html'){

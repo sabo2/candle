@@ -15,6 +15,16 @@ describe('General Usage', function(){
 		assert.equal(el.outerHTML, '<puzzle/>');
 		assert.equal(el.innerHTML, '');
 	});
+	it('Attributes',function(){
+		var doc = new Candle.MockDocument();
+		var el = doc.createElement('puzzle');
+		el.setAttribute('type', 'nurikabe');
+		assert.equal(el.outerHTML, '<puzzle type="nurikabe"/>');
+		el.setAttribute('type', '');
+		assert.equal(el.outerHTML, '<puzzle type=""/>');
+		el.removeAttribute('type');
+		assert.equal(el.outerHTML, '<puzzle/>');
+	});
 });
 describe('Serializing', function(){
 	it('Basic',function(){

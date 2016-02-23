@@ -41,26 +41,28 @@ function insertBefore(newnode, refnode){
 /*----------------*/
 /* querySelectors */
 /*----------------*/
-function querySelectorMain(query, isall){ // This only accepts tagName or id only.
-	query = query.replace(/\*/g, '\\\w+(#[\w\-]+)?');
-	query = new RegExp(query.replace(/\s+/g,'[^\/]*?\/([^\/]+\/)?')+'[^\/]*$');
+function querySearch(query, breakIfFound){ // This only accepts tagName or id only.
+	query = query.replace(/\*/g, '[^\/]+');
+	query = query.replace(/([\w#]+|\*)/g,"[^\/]*$1[^\/]*");
+	query = query.replace(/\s+/g,'\/([^\/]+\/)?');
+	query = new RegExp(query+'[^\/]*$');
 	var els = (!!this.firstChild ? [this.firstChild] : []), matched = [];
 	while(els.length>0){
 		var el = els.pop();
 		if(getXPath(el,this).match(query)){
 			matched.push(el);
-			if(!isall){ break;}
+			if(breakIfFound){ break;}
 		}
 		if(!!el.nextSibling){ els.push(el.nextSibling);}
 		if(el.childNodes.length>0){ els.push(el.firstChild);}
 	}
-	return (isall ? matched : (matched[0] || null));
+	return matched;
 }
 function querySelectorAll(query){
-	return querySelectorMain.call(this, query, true);
+	return querySearch.call(this, query, false);
 }
 function querySelector(query){
-	return querySelectorMain.call(this, query, false);
+	return querySearch.call(this, query, true)[0] || null;
 }
 function getXPath(node,base){
 	var path = '';
@@ -104,9 +106,9 @@ function parseStyle(node, text){
 }
 function parseAttributes(node, attrs){
 	while(1){
-		var matches = attrs.match(/^\s*([\w\-\:]+)(\=)?(['"](.+?)['"]|[^\s]+)?\s*/);
+		var matches = attrs.match(/^\s*([\w\-\:]+)(\=)?(?:['"](.+?)['"]|([^\s]+))?\s*/);
 		if(!matches){ break;}
-		var attr = matches[1], val = matches[4] || matches[5] || '';
+		var attr = matches[1], val = matches[3] || matches[4] || '';
 		attrs = RegExp["$'"];
 		if(!!attr){
 			if(matches[2]==='='){
@@ -162,6 +164,7 @@ MockNode.prototype = {
 	_children : null,
 	parentNode : null,
 	nodeType : 1,
+	get nodeName(){ return this.tagName;},
 
 	get firstChild(){ return this._children[0];},
 	get lastChild(){ return this._children[this._children.length-1];},
@@ -174,11 +177,10 @@ MockNode.prototype = {
 
 	setAttribute   : function(attr,val)   { this._attr[attr] = val;},
 	setAttributeNS : function(ns,attr,val){ this._attr[attr] = val;},
-	getAttribute   : function(attr)       { return this._attr[attr] || '';},
-	getAttributeNS : function(ns,attr)    { return this._attr[attr] || '';},
+	getAttribute   : function(attr)       { return ((attr in this._attr) ? this._attr[attr] : null);},
+	getAttributeNS : function(ns,attr)    { return ((attr in this._attr) ? this._attr[attr] : null);},
 	removeAttribute : function(attr)      { delete this._attr[attr];},
 	get id(){ return this._attr.id || '';},
-	get nodeName(){ return this.tagName;},
 
 	get innerHTML(){ return innerHTML.call(this);},
 	get outerHTML(){ return outerHTML.call(this);},
@@ -199,12 +201,13 @@ var MockText = function(text){
 	this.data = text;
 };
 MockText.prototype = {
-	_attr : {id:''},
+	_attr : {},
 	parentNode : null,
 	nodeType : 3,
+	nodeName : '#text',
 	data : '',
-	get firstChild(){ return null;},
-	get childNodes(){ return [];},
+	firstChild : null,
+	chilsNodes : [],
 	get nextSibling(){ return nextSibling.call(this);},
 	get outerHTML(){ return this.data;}
 };
@@ -218,6 +221,7 @@ var MockDocument = Candle.MockDocument = function(){
 MockDocument.prototype = {
 	_children : null,
 	nodeType : 9,
+	nodeName : '#document',
 
 	createElement   : function(tag)   { return new MockNode(tag);},
 	createElementNS : function(ns,tag){ return new MockNode(tag);},
