@@ -53,6 +53,11 @@ Candle.addWrapper('canvas:wrapperbase',{
 
 		this.use = new Candle.TypeList('canvas');
 
+		// Layer additional
+		this.currentLayerId = '_empty';
+		this.isedgearray    = {_empty:false};
+		this.isedge         = false;
+
 		// define const
 		if(!CTOP_OFFSET){ setheight();}
 

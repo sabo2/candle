@@ -19,11 +19,6 @@ Candle.addWrapper('wrapperbase',{
 		this.canvasid = Candle.getcanvasid();
 		this.child    = null;	// 親エレメントの直下にあるエレメント
 
-		// Layer additional
-		this.currentLayerId = '_empty';
-		this.isedgearray    = {_empty:false};
-		this.isedge         = false;
-
 		this.initElement();
 		this.initFunction();
 		this.initLayer();
