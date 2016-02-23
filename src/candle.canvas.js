@@ -77,7 +77,6 @@ Candle.addWrapper('canvas:wrapperbase',{
 			this.canvas.style.overflow = 'hidden';
 		}
 		var rect = Candle.getRectSize(this.canvas);
-		root.id = this.canvasid;
 		root.width  = rect.width;
 		root.height = rect.height;
 		if(canvas_mode==='html'){
