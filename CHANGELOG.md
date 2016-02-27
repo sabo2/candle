@@ -1,5 +1,15 @@
 # ChangeLog
 
+## 2016/02/27 v0.6.1
+* core: addWrapperとaddType関数を統合します
+* canvas: ブラウザもnode-canvasもない環境でcanvasが有効と誤判定してしまう問題を修正
+
+## 2016/02/23 v0.6.0
+* svg, canvas: layer自体の参照を持つようにしてidを設定しないようにします
+* canvas: Layer関連のオブジェクトをcanvas下に移動
+* core, base: 要素にcandleEnableプロパティを設定しないようにします
+* mocknode: nodeNameプロパティ追加、attributeのserialize修正とquerySelectorの修正
+
 ## 2016/02/21 v0.5.0
 * node.js環境でもnode-canvasがglobalにインストールされている時canvas描画ができるよう修正
 * node.js環境下でjsdomを使用せずにSVG出力できるようにSVGの解析ルーチンを作成します

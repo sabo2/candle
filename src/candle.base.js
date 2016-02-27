@@ -4,7 +4,8 @@
 /* ------------------- */
 /*  WrapperBaseクラス  */
 /* ------------------- */
-Candle.addWrapper('wrapperbase',{
+Candle.wrapperbase = {
+
 	initialize : function(parent){
 		// canvasに存在するプロパティ＆デフォルト値
 		this.fillStyle    = 'black';
@@ -46,4 +47,4 @@ Candle.addWrapper('wrapperbase',{
 
 	/* VectorID Functions */
 	vhide : function(){}
-});
+};
