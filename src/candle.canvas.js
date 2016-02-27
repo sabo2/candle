@@ -13,8 +13,10 @@ try{
 	canvas_mode = 'node';
 }
 catch(e){
-	if((document.createElement('canvas').probablySupportsContext &&
-	   !document.createElement('canvas').probablySupportsContext('2d')) ){ return;}
+	if(!(function(){
+		var canvas = document.createElement('canvas');
+		return (!!canvas.getContext && (!canvas.probablySupportsContext || canvas.probablySupportsContext('2d')));
+	})()){ return;}
 }
 
 var CTOP_OFFSET;
