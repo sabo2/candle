@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 2016/02/27 v0.6.1
+* core: addWrapperとaddType関数を統合します
+* canvas: ブラウザもnode-canvasもない環境でcanvasが有効と誤判定してしまう問題を修正
+
 ## 2016/02/23 v0.6.0
 * svg, canvas: layer自体の参照を持つようにしてidを設定しないようにします
 * canvas: Layer関連のオブジェクトをcanvas下に移動
