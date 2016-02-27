@@ -27,29 +27,18 @@ var Candle = {
 	/* wrapper classes */
 	wrapper : {},
 	addWrapper : function(classname, proto){
-		classname = classname.replace(/\s+/g,'');
-		var colon = classname.indexOf(':'), basename = '';
-		if(colon>=0){
-			basename  = classname.substr(colon+1);
-			classname = classname.substr(0,colon);
-		}
-
-		var NewClass = function(){ if(!!this.initialize){ this.initialize.apply(this,arguments);}};
 		var name;
-		if(!!basename && !!this.wrapper[basename]){
-			var BaseClass = this.wrapper[basename];
-			for(name in BaseClass.prototype){ NewClass.prototype[name] = BaseClass.prototype[name];}
-		}
+		var NewClass = function(){ if(!!this.initialize){ this.initialize.apply(this,arguments);}};
+		for(name in this.wrapperbase){ NewClass.prototype[name] = this.wrapperbase[name];}
 		for(name in proto){ NewClass.prototype[name] = proto[name];}
-		NewClass.prototype.constructor = NewClass;
-		var rel = {body:NewClass, name:classname, base:basename};
-		this.wrapper[rel.name] = rel.body;
+		this.wrapper[classname] = NewClass.prototype.constructor = NewClass;
+		this.addType(classname);
 	},
 
 	/* TypeList class */
 	_order : [],
 	enable : {},
-	addType : function(type, judgefunc){
+	addType : function(type){
 		this._order.push(type);
 		this.enable[type] = true;
 		if(!this.current){ this.current=type;}

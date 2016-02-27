@@ -59,9 +59,7 @@ function setheight(){
 /* ----------------- */
 /*   SVG用ラッパー   */
 /* ----------------- */
-Candle.addType('svg');
-
-Candle.addWrapper('svg:wrapperbase',{
+Candle.addWrapper('svg',{
 
 	initialize : function(parent){
 		this.use = new Candle.TypeList('svg');
@@ -83,7 +81,7 @@ Candle.addWrapper('svg:wrapperbase',{
 		this.lastpath = '';
 		this.freezepath = false;
 
-		Candle.wrapper.wrapperbase.prototype.initialize.call(this, parent);
+		Candle.wrapperbase.initialize.call(this, parent);
 	},
 
 	/* additional functions (for initialize) */

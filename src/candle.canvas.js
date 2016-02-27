@@ -45,9 +45,7 @@ function setheight(){
 /* -------------------- */
 /*   Canvas用ラッパー   */
 /* -------------------- */
-Candle.addType('canvas');
-
-Candle.addWrapper('canvas:wrapperbase',{
+Candle.addWrapper('canvas',{
 
 	initialize : function(parent){
 		// variables for internal
@@ -66,7 +64,7 @@ Candle.addWrapper('canvas:wrapperbase',{
 		this.x0 = 0;
 		this.y0 = 0;
 
-		Candle.wrapper.wrapperbase.prototype.initialize.call(this, parent);
+		Candle.wrapperbase.initialize.call(this, parent);
 	},
 	setkey : function(vid){ return this;},
 	hidekey : function(vid){ return this;},
