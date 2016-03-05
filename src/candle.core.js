@@ -5,7 +5,7 @@
 /* ------------- */
 /*   variables   */
 /* ------------- */
-var _doc = (typeof document!=='undefined' ? document : null),
+var _doc = (typeof document!=='undefined' ? document : void 0),
 	_2PI = 2*Math.PI,
 	_color = [];
 
@@ -23,6 +23,11 @@ var _hex = (function(){
 /* ---------------------- */
 var Candle = {
 	version : '<%= pkg.version %>',
+	
+	env : {
+		node : (typeof module==='object' && typeof exports==='object' && typeof require==='function'),
+		browser : (typeof document==='object' && typeof window==='object' && typeof location==='object')
+	},
 	
 	/* wrapper classes */
 	wrapper : {},
