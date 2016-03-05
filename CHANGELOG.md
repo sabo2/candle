@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 2016/03/06 v0.7.0
+* mocknode: node.js環境でグローバル名前空間に影響が出ないようにします
+* core: Electron環境でもブラウザ環境と同様に動作するよう修正します
+
 ## 2016/02/27 v0.6.1
 * core: addWrapperとaddType関数を統合します
 * canvas: ブラウザもnode-canvasもない環境でcanvasが有効と誤判定してしまう問題を修正
