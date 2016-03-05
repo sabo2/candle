@@ -257,9 +257,9 @@ MockDOMParser.prototype.parseFromString = function(str,mimetype){
 /* extern */
 /*========*/
 // jshint ignore:start
-_doc = document = new MockDocument();
-XMLSerializer = MockXMLSerializer;
-DOMParser = MockDOMParser;
+Candle.document = _doc = new MockDocument();
+Candle.XMLSerializer = MockXMLSerializer;
+Candle.DOMParser = MockDOMParser;
 // jshint ignore:end
 
 })();

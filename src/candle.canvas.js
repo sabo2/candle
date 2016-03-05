@@ -9,7 +9,7 @@
 /* ---------------------- */
 if(Candle.env.browser){
 	if(!(function(){
-		var canvas = document.createElement('canvas');
+		var canvas = _doc.createElement('canvas');
 		return (!!canvas.getContext && (!canvas.probablySupportsContext || canvas.probablySupportsContext('2d')));
 	})()){ return;}
 }

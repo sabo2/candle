@@ -6,7 +6,7 @@
 /* ------------------- */
 /*   SVG描画可能条件   */
 /* ------------------- */
-if(typeof document==='undefined' || !document.createElementNS || (typeof window!=='undefined' && !!window.opera)){ return;}
+if(typeof _doc==='undefined' || !_doc.createElementNS || (typeof window==='object' && !!window.opera)){ return;}
 
 var SVGNS   = Candle.SVGNS   = "http://www.w3.org/2000/svg",
 	XLINKNS = Candle.XLINKNS = "http://www.w3.org/1999/xlink";
@@ -325,7 +325,7 @@ Candle.addWrapper('svg',{
 		// defs要素がなかったら作成する
 		var defs = this.child.querySelector('defs');
 		if(!defs){
-			defs = document.createElementNS(SVGNS, 'defs');
+			defs = _doc.createElementNS(SVGNS, 'defs');
 			this.child.insertBefore(defs, (this.child.firstChild || null));
 		}
 		return defs;
@@ -359,11 +359,11 @@ Candle.addWrapper('svg',{
 		}
 		/* defsにimage・viewBoxが共通のsymbol要素がない場合はdefsにsymbol要素を追加して返す */
 		if(!symbol){
-			symbol = document.createElementNS(SVGNS, 'symbol');
+			symbol = _doc.createElementNS(SVGNS, 'symbol');
 			symbol.setAttribute("id", (!!symbol.ownerDocument?this.canvasid+'_':'')+"symimg"+syms.length);
 			symbol.setAttribute("viewBox", viewbox);
 			
-			var use = document.createElementNS(SVGNS, 'use');
+			var use = _doc.createElementNS(SVGNS, 'use');
 			use.setAttributeNS(XLINKNS, "xlink:href", "#"+this.getImageElement(image).getAttribute("id"));
 			symbol.appendChild(use);
 			

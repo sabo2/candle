@@ -5,7 +5,7 @@
 /* ------------- */
 /*   variables   */
 /* ------------- */
-var _doc = (typeof document!=='undefined' ? document : null),
+var _doc = (typeof document!=='undefined' ? document : void 0),
 	_2PI = 2*Math.PI,
 	_color = [];
 
