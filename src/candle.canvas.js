@@ -7,16 +7,17 @@
 /* ---------------------- */
 /*   canvas描画可能条件   */
 /* ---------------------- */
-var canvas_mode = 'html';
-try{
-	Candle.Canvas = require('canvas'); // Is there node-canvas?
-	canvas_mode = 'node';
-}
-catch(e){
+if(Candle.env.browser){
 	if(!(function(){
 		var canvas = document.createElement('canvas');
 		return (!!canvas.getContext && (!canvas.probablySupportsContext || canvas.probablySupportsContext('2d')));
 	})()){ return;}
+}
+else{
+	try{
+		Candle.Canvas = require('canvas'); // Is there node-canvas?
+	}
+	catch(e){ return;}
 }
 
 var CTOP_OFFSET;
@@ -72,14 +73,14 @@ Candle.addWrapper('canvas',{
 
 	/* extend functions (initialize) */
 	initElement : function(){
-		var root = this.child = (canvas_mode==='html' ? _doc.createElement('canvas') : new Candle.Canvas());
-		if(canvas_mode==='html'){
+		var root = this.child = (Candle.env.browser ? _doc.createElement('canvas') : new Candle.Canvas());
+		if(Candle.env.browser){
 			this.canvas.style.overflow = 'hidden';
 		}
 		var rect = Candle.getRectSize(this.canvas);
 		root.width  = rect.width;
 		root.height = rect.height;
-		if(canvas_mode==='html'){
+		if(Candle.env.browser){
 			root.style.width  = rect.width + 'px';
 			root.style.height = rect.height + 'px';
 			this.canvas.appendChild(root);
@@ -88,7 +89,7 @@ Candle.addWrapper('canvas',{
 	},
 	initFunction : function(){
 		function atob(base64){
-			if(canvas_mode==='html'){ return window.atob(base64);}
+			if(Candle.env.browser){ return window.atob(base64);}
 			else{ return new Buffer(RegExp.$2, 'base64').toString('binary');}
 		}
 		
@@ -112,7 +113,7 @@ Candle.addWrapper('canvas',{
 		};
 		this.canvas.toBuffer = function(type, quality){
 			var dataurl = root.toDataURL(type || void 0, quality).replace(/^data:image\/\w+?;base64,/,'');
-			if(canvas_mode==='node'){
+			if(Candle.env.node){
 				return new Buffer(dataurl, 'base64');
 			}
 			var data;
@@ -135,7 +136,7 @@ Candle.addWrapper('canvas',{
 		this.setProperties(true,true);
 		this.context.setTransform(1,0,0,1,0,0); // 変形をリセット
 		this.context.translate(this.x0, this.y0);
-		if(canvas_mode==='html'){
+		if(Candle.env.browser){
 			var rect = Candle.getRectSize(this.canvas);
 			this.context.clearRect(0,0,rect.width,rect.height);
 		}
@@ -151,7 +152,7 @@ Candle.addWrapper('canvas',{
 		if(option.rendering){ this.setRendering(option.rendering);}
 	},
 	setEdgeStyle : function(){
-		if(canvas_mode==='node'){ return;}
+		if(!Candle.env.browser){ return;}
 		var s = this.canvas.style;
 		if('imageRendering' in s){
 			s.imageRendering = '';
@@ -171,14 +172,14 @@ Candle.addWrapper('canvas',{
 	},
 
 	changeSize : function(width,height){
-		if(canvas_mode==='html'){
+		if(Candle.env.browser){
 			var parent = this.canvas;
 			parent.style.width  = width + 'px';
 			parent.style.height = height + 'px';
 		}
 
 		var child = this.child;
-		if(canvas_mode==='html'){
+		if(Candle.env.browser){
 			var left = parseInt(child.style.left), top = parseInt(child.style.top); // jshint ignore:line
 			width += (left<0?-left:0);
 			height += (top<0?-top:0);

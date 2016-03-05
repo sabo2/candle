@@ -24,6 +24,11 @@ var _hex = (function(){
 var Candle = {
 	version : '<%= pkg.version %>',
 	
+	env : {
+		node : (typeof module==='object' && typeof exports==='object' && typeof require==='function'),
+		browser : (typeof document==='object' && typeof window==='object' && typeof location==='object')
+	},
+	
 	/* wrapper classes */
 	wrapper : {},
 	addWrapper : function(classname, proto){

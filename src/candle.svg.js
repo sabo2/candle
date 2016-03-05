@@ -8,8 +8,6 @@
 /* ------------------- */
 if(typeof document==='undefined' || !document.createElementNS || (typeof window!=='undefined' && !!window.opera)){ return;}
 
-var canvas_mode = (typeof process==='undefined' ? 'html' : 'node');
-
 var SVGNS   = Candle.SVGNS   = "http://www.w3.org/2000/svg",
 	XLINKNS = Candle.XLINKNS = "http://www.w3.org/1999/xlink";
 
@@ -86,7 +84,7 @@ Candle.addWrapper('svg',{
 
 	/* additional functions (for initialize) */
 	initElement : function(){
-		if(canvas_mode==='html'){
+		if(Candle.env.browser){
 			this.canvas.style.overflow = 'hidden';
 		}
 		var rect = Candle.getRectSize(this.canvas);
@@ -104,7 +102,7 @@ Candle.addWrapper('svg',{
 	},
 	initFunction : function(){
 		function btoa(bin){
-			if(canvas_mode==='html'){ return window.btoa(bin);}
+			if(Candle.env.browser){ return window.btoa(bin);}
 			else if(Buffer.isBuffer(bin)){ return bin.toString('base64');}
 			else{ return new Buffer(bin.toString(), 'binary').toString('base64');}
 		}
@@ -170,7 +168,7 @@ Candle.addWrapper('svg',{
 	},
 
 	changeSize : function(width,height){
-		if(canvas_mode==='html'){
+		if(Candle.env.browser){
 			this.canvas.style.width  = width + 'px';
 			this.canvas.style.height = height + 'px';
 		}
