@@ -388,13 +388,13 @@ Candle.addWrapper('canvas',{
 	},
 
 	/* Canvas API functions (for text) */
-	fillText : function(text,x,y){
+	fillText : function(text,x,y,maxLength){
 		if(!!text && this.setProperties(true,false)){
 			if(this.textBaseline==="candle-top"){
 				y -= Candle.getoffsetHeight(text, this.font)*CTOP_OFFSET;
 				this.context.textBaseline = "alphabetic";
 			}
-			this.context.fillText(text,x,y);
+			this.context.fillText(text,x,y,maxLength);
 		}
 	},
 
