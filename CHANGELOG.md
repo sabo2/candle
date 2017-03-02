@@ -1,5 +1,8 @@
 # ChangeLog
 
+## 2017/03/03 v0.8.0-beta
+* svg, canvas: fillTextの第4引数であるmaxLengthに対応
+
 ## 2016/03/06 v0.7.0
 * mocknode: node.js環境でグローバル名前空間に影響が出ないようにします
 * core: Electron環境でもブラウザ環境と同様に動作するよう修正します
