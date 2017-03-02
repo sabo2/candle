@@ -1,5 +1,5 @@
 {
-  "name": "candle",
+  "name": "pzpr-canvas",
   "version": "0.7.0",
   "description": "This is a support script for pzpr.js",
   "main": "./dist/candle.js",
@@ -15,7 +15,8 @@
     "build": "grunt default",
     "release": "grunt release",
     "lint": "grunt jshint",
-    "test": "grunt jshint && mocha -R progress --recursive test"
+    "test": "grunt jshint && mocha -R progress --recursive test",
+    "prepublish": "in-publish && npm run release || not-in-publish"
   },
   "devDependencies": {
     "grunt": "^1.0.1",
@@ -24,6 +25,7 @@
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-jshint": "^1.1.0",
     "grunt-contrib-uglify": "^2.2.0",
-    "grunt-newer": "^1.1.1"
+    "grunt-newer": "^1.1.1",
+    "in-publish": "^2.0.0"
   }
 }
