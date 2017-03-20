@@ -6,13 +6,29 @@ This script enables drawing SVG, canvas by common canvas-like API.
 
 # Usage
 
-`Canvas.start(element, [type, [callback]])` is used to enable this script.
+## Installation
+
+### Browser environment
+
+`<script src='path/to/dist/candle.js'></src>`
+
+By default, this script is exported as `Candle` to global.
+
+### Node.js environment (via npm)
+
+`require('pzpr-canvas')`
+
+## How to use
+
+Use `Candle.start(element, [type, [callback]])` to enable this script.
+
+It is recommended to use block elements except `<canvas>` HTMLElement.
 
 ```js
-var Canvas = require('pzpr-canvas');
+var Candle = require('pzpr-canvas');
 var element = document.getElementById('div');
 
-Canvas.start(element, 'svg', function(ctx){
+Candle.start(element, 'svg', function(ctx){
   ctx.fillStyle = 'red';
   ctx.fillRect(100, 100, 10, 10);
 });
@@ -23,15 +39,17 @@ After that, `document.getElementById('div').getContext('2d')` can be used to obt
 `element` doesn't have to be an Element. This means, SVG file data can be outputted under node.js environment.
 
 ```js
-var Canvas = require('pzpr-canvas');
+var Candle = require('pzpr-canvas');
 var obj = {offsetWidth:200, offsetHeight:200}; // Set default canvas size (optional)
 
-Canvas.start(obj);
+Candle.start(obj);
 var ctx = obj.getContext('2d');
 ctx.fillStyle = 'red';
 ctx.fillRect(100, 100, 10, 10);
 console.log(obj.toBuffer()); // <-- output svg data to console buffer
 ```
+
+# APIs
 
 ## APIs from CanvasRenderingContext2D
 
@@ -73,7 +91,7 @@ console.log(obj.toBuffer()); // <-- output svg data to console buffer
     * Add polygon path.
 * `ctx.setOffsetLinePath(offsetx,offsety,x,y[,x,y[,...]][,isClosePath])`
     * Add polygon path that the offset is (offsetx, offsety).
-* `ctx.shape(), ctx.shapeRect(x,y,w,h)`, etc.
+* `ctx.shape(), ctx.shapeRect(x,y,w,h)`
     * Draw a figure with both fill and stroke at once.
 * `ctx.rectcenter(cx,cy,bw,bh), ctx.fill/stroke/shapeRectCenter(cx,cy,bw,bh)`
     * Draw a rectangle with center coordinate (cx, cy) and the size bw, bh to the edge.
@@ -104,10 +122,10 @@ console.log(obj.toBuffer()); // <-- output svg data to console buffer
 * `ctx.vhide(id)`
     * Hide the figure with the id.
 
-## Releases
+# Releases
 
 * 2017/03/20 v0.8.0
 
-## LICENCE
+# LICENCE
 
 MIT
