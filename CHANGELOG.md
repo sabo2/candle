@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 2017/03/20 v0.8.0
+* mocknode: Candleメンバ変数のCandle.document, XMLSerializer, DOMParserを出力するよう変更
+* svg: XMLSerializerにmocknodeのものを使用するよう修正 (node.js環境エラー回避)
+
 ## 2017/03/03 v0.8.0-beta
 * svg, canvas: fillTextの第4引数であるmaxLengthに対応
 
