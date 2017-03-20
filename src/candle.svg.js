@@ -107,7 +107,7 @@ Candle.addWrapper('svg',{
 			else{ return new Buffer(bin.toString(), 'binary').toString('base64');}
 		}
 		var xmldeclare = '<?xml version="1.0" encoding="UTF-8"?>\n';
-		function getOuterHTML(el){ return (el.outerHTML || new XMLSerializer().serializeToString(el)).replace(/^<\?xml.+?\?>[\r\n]*/,'');}
+		function getOuterHTML(el){ return (el.outerHTML || new Candle.XMLSerializer().serializeToString(el)).replace(/^<\?xml.+?\?>[\r\n]*/,'');}
 		
 		var root = this.child;
 		this.canvas.toDataURL = function(type, quality){
