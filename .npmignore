@@ -1,0 +1,14 @@
+.git*
+.hg*
+.DS_Store
+
+/.vscode
+/Gruntfile.js
+/doc
+/Changelog.md
+/src
+*.concat.js
+
+.jshintrc
+/sample
+yarn.lock

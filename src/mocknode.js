@@ -1,9 +1,7 @@
 // mocknode.js
-/* global Candle:false, _doc:false */
+/* global Candle:false */
 
 (function(){
-
-if(!!_doc){ return;}
 
 /*==================*/
 /* Common functions */
@@ -64,7 +62,7 @@ function querySelectorAll(query){
 function querySelector(query){
 	return querySearch.call(this, query, true)[0] || null;
 }
-function getXPath(node,base){
+function getXPath(node,base){ // jshint ignore:line
 	var path = '';
 	while(node && node!==base){
 		var currentpath = '';
@@ -150,7 +148,7 @@ function parseText(parent, str){
 /*==============================*/
 /* Node/Element emulation class */
 /*==============================*/
-var MockNode = function(tag){
+var MockNode = function(tag){ // jshint ignore:line
 	this.tagName = tag;
 	
 	this._attr     = {};
@@ -197,7 +195,7 @@ MockNode.prototype = {
 /*==========================*/
 /* TextNode emulation class */
 /*==========================*/
-var MockText = function(text){
+var MockText = function(text){ // jshint ignore:line
 	this.data = text;
 };
 MockText.prototype = {
@@ -257,7 +255,8 @@ MockDOMParser.prototype.parseFromString = function(str,mimetype){
 /* extern */
 /*========*/
 // jshint ignore:start
-Candle.document = _doc = new MockDocument();
+if(!_doc){ _doc = new MockDocument();}
+Candle.document = _doc;
 Candle.XMLSerializer = MockXMLSerializer;
 Candle.DOMParser = MockDOMParser;
 // jshint ignore:end

@@ -107,7 +107,7 @@ Candle.addWrapper('svg',{
 			else{ return new Buffer(bin.toString(), 'binary').toString('base64');}
 		}
 		var xmldeclare = '<?xml version="1.0" encoding="UTF-8"?>\n';
-		function getOuterHTML(el){ return (el.outerHTML || new XMLSerializer().serializeToString(el)).replace(/^<\?xml.+?\?>[\r\n]*/,'');}
+		function getOuterHTML(el){ return (el.outerHTML || new Candle.XMLSerializer().serializeToString(el)).replace(/^<\?xml.+?\?>[\r\n]*/,'');}
 		
 		var root = this.child;
 		this.canvas.toDataURL = function(type, quality){
@@ -373,32 +373,43 @@ Candle.addWrapper('svg',{
 	},
 
 	/* Canvas API functions (for text) */
-	fillText : function(text,x,y){
+	fillText : function(text,x,y,maxLength){
 		var el = (!!this.vid ? this.elements[this.vid] : null);
 		if(!!text && !!this.fillStyle && this.fillStyle!=="none"){
-			var el2 = this.fillText_main(el,text,x,y);
+			var el2 = this.fillText_main(el,text,x,y,(maxLength||''));
 			if(!el && !!this.vid){ this.elements[this.vid] = el2;}
 		}
 		else if(!!el){ this.hide(el);}
 		this.vid = '';
 	},
-	fillText_main : function(el,text,x,y){
+	fillText_main : function(el,text,x,y,maxLength){
 		var newel = !el, _cache = (!!this.vid ? this._textcache[this.vid] || {} : {});
 		if(newel){ el = newEL('text');}
 		else{ this.show(el);}
 
 		if(el.getAttribute(S_ATT_FILL)!==this.fillStyle){ el.setAttribute(S_ATT_FILL, this.fillStyle);}
 
-		if(_cache.x!==x || _cache.y!==y || _cache.ta!==this.textAlign || _cache.tb!==this.textBaseline || _cache.font!==this.font){
+		if(_cache.x!==x || _cache.y!==y || _cache.ml!==maxLength || _cache.ta!==this.textAlign || _cache.tb!==this.textBaseline || _cache.font!==this.font){
 			var top = y - Candle.getoffsetHeight(text, this.font) * S_HEIGHT[this.textBaseline.toLowerCase()];
 			var anchor = S_ANCHOR[this.textAlign.toLowerCase()];
 			 
 			if(el.getAttribute('x')!==x)  { el.setAttribute('x', x);}
 			if(el.getAttribute('y')!==top){ el.setAttribute('y', top);}
 			if(el.getAttribute('text-anchor')!==anchor){ el.setAttribute('text-anchor', anchor);}
+			if((el.getAttribute('textLength')||'')!==maxLength){
+				if(!!maxLength){
+					el.setAttribute('textLength', maxLength);
+					el.setAttribute('lengthAdjust', 'spacingAndGlyphs');
+				}
+				else{
+					el.removeAttribute('textLength');
+					el.removeAttribute('lengthAdjust');
+				}
+			}
 			
 			_cache.x = x;
 			_cache.y = y;
+			_cache.ml = maxLength;
 			_cache.ta = this.textAlign;
 			_cache.tb = this.textBaseline;
 		}
