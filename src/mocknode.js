@@ -1,9 +1,7 @@
 // mocknode.js
-/* global Candle:false, _doc:false */
+/* global Candle:false */
 
 (function(){
-
-if(!!_doc){ return;}
 
 /*==================*/
 /* Common functions */
@@ -257,7 +255,8 @@ MockDOMParser.prototype.parseFromString = function(str,mimetype){
 /* extern */
 /*========*/
 // jshint ignore:start
-Candle.document = _doc = new MockDocument();
+if(!_doc){ _doc = new MockDocument();}
+Candle.document = _doc;
 Candle.XMLSerializer = MockXMLSerializer;
 Candle.DOMParser = MockDOMParser;
 // jshint ignore:end
