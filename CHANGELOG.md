@@ -1,5 +1,8 @@
 # ChangeLog
 
+## 2017/04/21 v0.8.1
+* canvas: Opera 12でcanvasのfillText呼び出しがエラーする不具合の修正
+
 ## 2017/03/20 v0.8.0
 * mocknode: Candleメンバ変数のCandle.document, XMLSerializer, DOMParserを出力するよう変更
 * svg: XMLSerializerにmocknodeのものを使用するよう修正 (node.js環境エラー回避)

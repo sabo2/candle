@@ -124,6 +124,7 @@ console.log(obj.toBuffer()); // <-- output svg data to console buffer
 
 # Releases
 
+* 2017/04/21 v0.8.1
 * 2017/03/20 v0.8.0
 
 # LICENCE

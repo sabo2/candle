@@ -1,6 +1,6 @@
 {
   "name": "pzpr-canvas",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "This is a support script for pzpr.js",
   "main": "./dist/candle.js",
   "keywords": [
