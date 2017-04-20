@@ -394,7 +394,12 @@ Candle.addWrapper('canvas',{
 				y -= Candle.getoffsetHeight(text, this.font)*CTOP_OFFSET;
 				this.context.textBaseline = "alphabetic";
 			}
-			this.context.fillText(text,x,y,maxLength);
+			if(!!maxLength){
+				this.context.fillText(text,x,y,maxLength);
+			}
+			else{
+				this.context.fillText(text,x,y);
+			}
 		}
 	},
 
