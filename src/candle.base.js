@@ -20,6 +20,8 @@ Candle.wrapperbase = {
 		this.canvasid = Candle.getcanvasid();
 		this.child    = null;	// 親エレメントの直下にあるエレメント
 
+		this.enableTextLengthWA = false;
+
 		this.initElement();
 		this.initFunction();
 		this.initLayer();

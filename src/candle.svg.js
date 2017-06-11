@@ -11,6 +11,10 @@ if(typeof _doc==='undefined' || !_doc.createElementNS || (typeof window==='objec
 var SVGNS   = Candle.SVGNS   = "http://www.w3.org/2000/svg",
 	XLINKNS = Candle.XLINKNS = "http://www.w3.org/1999/xlink";
 
+var needTextLengthWA = (function(UA){
+	return (UA.match(/Trident\//) || (UA.match(/Safari\//) && UA.match(/Edge\//)));
+})((Candle.env.browser && navigator.userAgent) || '');
+
 function newEL(tag){ return _doc.createElementNS(SVGNS, tag);}
 
 /* ------------------------------------------- */
@@ -80,6 +84,8 @@ Candle.addWrapper('svg',{
 		this.freezepath = false;
 
 		Candle.wrapperbase.initialize.call(this, parent);
+
+		this.enableTextLengthWA = needTextLengthWA;
 	},
 
 	/* additional functions (for initialize) */
@@ -440,6 +446,14 @@ Candle.addWrapper('svg',{
 		if(!!this.vid){ this._textcache[this.vid] = _cache;}
 
 		if(newel){ this.target.appendChild(el);}
+
+		if(needTextLengthWA && this.enableTextLengthWA && (_cache.ta === 'center' || _cache.ta === 'right') && !!maxLength){
+			el.removeAttribute('textLength');
+			var rect = el.getBoundingClientRect();
+			el.setAttribute('x', _cache.x + (rect.width - maxLength)/((_cache.ta === 'center')?2:1));
+			el.setAttribute('textLength', maxLength);
+		}
+
 		return el;
 	},
 

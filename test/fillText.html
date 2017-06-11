@@ -8,6 +8,7 @@ Candle.select('vml');
 
 function onload_func(){
 	Candle.start(document.getElementById('can'), '', draw);
+	Candle.start(document.getElementById('can2'), '', draw2);
 }
 function draw(ctx){
 	ctx.lineWidth = '1';
@@ -24,10 +25,34 @@ function draw(ctx){
 //	var el = document.getElementById('metrix');
 //	alert([el.offsetWidth, el.offsetHeight]);
 }
+// Test for textLength
+function draw2(ctx){
+	ctx.lineWidth = '1';
+	ctx.strokeStyle = "silver";
+
+	ctx.fillStyle = "black";
+	ctx.font = "32px \"MS PGothic\", Sans-Serif";
+	ctx.textBaseline = "middle";
+
+	ctx.textAlign = "left";
+	ctx.strokeLine(50,25,50,75);
+	ctx.fillText("Left",   50, 50,50);
+
+	ctx.textAlign = "center";
+	ctx.strokeLine(100,75,100,125);
+	ctx.fillText("Center",100,100,50);
+
+	ctx.enableTextLengthWA = false;
+
+	ctx.textAlign = "right";
+	ctx.strokeLine(150,125,150,175);
+	ctx.fillText("Right", 150,150,50);
+}
 </script>
 </head>
 <body onload="javascript:onload_func();">
-<candle id="can" style="border:solid 1px silver;display:inline-block;width:200px;height:200px;"></candle>
+<candle id="can" style="border:solid 1px silver;display:inline-block;width:200px;height:200px;"></candle><br>
+<candle id="can2" style="border:solid 1px silver;display:inline-block;width:200px;height:200px;"></candle>
 <br>
 <!--
 <svg shape-rendering="crispEdges" style="border:solid 1px silver;width:200px;height:200px;">
