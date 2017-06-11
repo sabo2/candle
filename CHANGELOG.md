@@ -1,5 +1,8 @@
 # ChangeLog
 
+## 2017/06/11 v0.8.2
+* svg: IE/EdgeでSVG text with textLength and textAlign=center, right指定時の描画位置がおかしい件のWorkAroundを追加
+
 ## 2017/04/21 v0.8.1
 * canvas: Opera 12でcanvasのfillText呼び出しがエラーする不具合の修正
 
