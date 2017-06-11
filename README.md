@@ -122,8 +122,14 @@ console.log(obj.toBuffer()); // <-- output svg data to console buffer
 * `ctx.vhide(id)`
     * Hide the figure with the id.
 
+### APIs for workaround
+
+* `ctx.enableTextLengthWA`
+    * A bool value for fixing illegal SVG text rendering position with textLength and textAlign (center or right) for IE and Edge.
+
 # Releases
 
+* 2017/06/11 v0.8.2
 * 2017/04/21 v0.8.1
 * 2017/03/20 v0.8.0
 
