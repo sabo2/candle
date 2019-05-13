@@ -35,7 +35,9 @@ function drawing(g){
 	g.arc(150,150,25,0,Math.PI/2,false);
 	g.stroke();
 
-	require('fs').writeFile((g.use.canvas ? './test.png' : './test.svg'), g.canvas.toBuffer());
+	if(typeof describe === "undefined"){
+		require('fs').writeFileSync((g.use.canvas ? './test.png' : './test.svg'), g.canvas.toBuffer());
+	}
 }
 
 Candle.start({}, 'canvas', drawing);

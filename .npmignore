@@ -5,8 +5,8 @@
 /.vscode
 /Gruntfile.js
 /doc
-/Changelog.md
 /src
+/test
 *.concat.js
 
 .jshintrc

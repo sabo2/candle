@@ -2,6 +2,9 @@
   "name": "pzpr-canvas",
   "version": "0.8.2",
   "description": "This is a support script for pzpr.js",
+  "engines": {
+    "npm": ">=5.6.0"
+  },
   "main": "./dist/candle.js",
   "keywords": [
     "graphic",
@@ -15,8 +18,9 @@
     "build": "grunt default",
     "release": "grunt release",
     "lint": "grunt jshint",
-    "test": "grunt jshint && mocha -R progress --recursive test",
-    "prepublish": "in-publish && npm run release || not-in-publish"
+    "test": "grunt jshint && mocha --recursive test",
+    "clean": "grunt clean",
+    "prepublish": "npm run release && npm test"
   },
   "devDependencies": {
     "grunt": "^1.0.1",
@@ -26,6 +30,6 @@
     "grunt-contrib-jshint": "^1.1.0",
     "grunt-contrib-uglify": "^2.2.0",
     "grunt-newer": "^1.1.1",
-    "in-publish": "^2.0.0"
+    "mocha": "^6.1.4"
   }
 }

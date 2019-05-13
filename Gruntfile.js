@@ -10,7 +10,7 @@ module.exports = function(grunt){
   grunt.initConfig({
     pkg: pkg,
 
-    clean: ['dist/*'],
+    clean: ['dist/*', 'pzpr-canvas-*.tgz', '*.svg'],
 
     copy: {
       license: {
