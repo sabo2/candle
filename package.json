@@ -2,10 +2,12 @@
   "name": "pzpr-canvas",
   "version": "0.8.2",
   "description": "This is a support script for pzpr.js",
+  "type": "module",
   "engines": {
     "npm": ">=5.6.0"
   },
   "main": "./dist/candle.js",
+  "module": "./dist/candle.module.js",
   "keywords": [
     "graphic",
     "HTML5",
@@ -15,21 +17,24 @@
   "author": "sabo2",
   "license": "MIT",
   "scripts": {
-    "build": "grunt default",
-    "release": "grunt release",
+    "build": "webpack",
+    "release": "npm run clean && npm run lint && webpack --mode production",
     "lint": "grunt jshint",
-    "test": "grunt jshint && mocha --recursive test",
+    "test": "mocha --recursive test",
     "clean": "grunt clean",
-    "prepublish": "npm run release && npm test"
+    "prepublishOnly": "npm test"
   },
   "devDependencies": {
+    "@babel/core": "^7.4.4",
+    "@babel/polyfill": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "babel-loader": "^8.0.6",
     "grunt": "^1.0.1",
     "grunt-contrib-clean": "^1.0.0",
-    "grunt-contrib-concat": "^1.0.1",
-    "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-jshint": "^1.1.0",
-    "grunt-contrib-uglify": "^2.2.0",
     "grunt-newer": "^1.1.1",
-    "mocha": "^6.1.4"
+    "mocha": "^6.1.4",
+    "webpack": "^4.31.0",
+    "webpack-cli": "^3.3.2"
   }
 }

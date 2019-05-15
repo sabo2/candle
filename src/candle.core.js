@@ -1,13 +1,18 @@
 // candle.core.js
-/* jshint node:true */
-/* exported Candle, _doc, _2PI */
+/* global VERSION:false */
+
+import mocknode from './mocknode.js';
+import env from './candle.env.js';
+import SVGWrapper from './candle.svg.js';
+import CanvasWrapper from './candle.canvas.js';
+import metrics from './candle.metrics.js';
 
 /* ------------- */
 /*   variables   */
 /* ------------- */
-var _doc = (typeof document!=='undefined' ? document : void 0),
-	_2PI = 2*Math.PI,
-	_color = [];
+var _color = [],
+	_order = [],
+	_wrapper = {};
 
 /* ---------- */
 /*   arrays   */
@@ -22,39 +27,16 @@ var _hex = (function(){
 /*   Candleオブジェクト   */
 /* ---------------------- */
 var Candle = {
-	version : '<%= pkg.version %>',
+	version : ''+(typeof VERSION!=='undefined' ? VERSION : "src"),
 	
-	env : {
-		node : (typeof module==='object' && typeof exports==='object' && typeof require==='function'),
-		browser : (typeof document==='object' && typeof window==='object' && typeof location==='object')
-	},
+	env,
 	
-	/* wrapper classes */
-	wrapper : {},
-	addWrapper : function(classname, proto){
-		var name;
-		var NewClass = function(){ if(!!this.initialize){ this.initialize.apply(this,arguments);}};
-		for(name in this.wrapperbase){ NewClass.prototype[name] = this.wrapperbase[name];}
-		for(name in proto){ NewClass.prototype[name] = proto[name];}
-		this.wrapper[classname] = NewClass.prototype.constructor = NewClass;
-		this.addType(classname);
-	},
-
-	/* TypeList class */
-	_order : [],
-	enable : {},
-	addType : function(type){
-		this._order.push(type);
-		this.enable[type] = true;
-		if(!this.current){ this.current=type;}
-	},
-	TypeList : function(type){
-		for(var i=0;i<Candle._order.length;i++){
-			this[Candle._order[i]]=(Candle._order[i]===type);
-		}
-	},
+	document : metrics.document,
+	XMLSerializer: (typeof XMLSerializer!=='undefined' ? XMLSerializer : mocknode.XMLSerializer),
+	DOMParser: (typeof DOMParser!=='undefined' ? DOMParser : mocknode.DOMParser),
 
 	/* Selected & Enable types */
+	enable : {},
 	current : '',
 	select : function(type){
 		if(!this.enable[type]){ return false;}
@@ -62,41 +44,7 @@ var Candle = {
 		return true;
 	},
 
-	/* externs */
-	ME     : null,
-	initME : function(){
-		var me = _doc.createElement('div');
-		me.style.display  = 'inline';
-		me.style.position = 'absolute';
-		me.style.top      = "0px";
-		me.style.left     = '-9000px';
-		me.innerHTML = '';
-		_doc.body.appendChild(me);
-
-		if(me.offsetHeight!==void 0){
-			this.ME = me;
-		}
-		else{
-			_doc.body.removeChild(me);
-		}
-	},
-	getoffsetHeight : function(text, font){
-		var top;
-		if(font.match(/(.+\s)?([0-9]+)px (.+)$/)){
-			top = +RegExp.$2;
-		}
-		else if(!!this.ME){
-			var ME = this.ME;
-			ME.style.font = font;
-			ME.style.lineHeight = '100%';
-			ME.innerHTML = text;
-			top = ME.offsetHeight;
-		}
-		return top;
-	},
-
 	/* color parser */
-	color : _color,
 	parse : function(rgbstr){
 		if(!_color[rgbstr]){
 			if(rgbstr.substr(0,4)==='rgb('){
@@ -108,28 +56,16 @@ var Candle = {
 		return _color[rgbstr];
 	},
 
-	/* DOM datas */
-	getRectSize : function(el){
-		return { width :(el.offsetWidth  || el.clientWidth || 0),
-				 height:(el.offsetHeight || el.clientHeight || 0)};
-	},
-
-	/* functions */
-	_counter : -1,
-	getcanvasid : function(){
-		this._counter++;
-		return "_candle_"+this._counter;
-	},
-
 	start : function(element, type, initCallBack){
-		if(!this.ME && typeof window!=='undefined'){ this.initME();}
+		metrics.init();
 
 		var context;
 		if(!element.getContext){
 			var choice = type;
 			if(!this.enable[choice]){ choice=this.current;}
 			if(!choice || !this.enable[choice]){ throw 'No canvas environment is installed';}
-			context = new this.wrapper[choice](element);
+			context = new _wrapper[choice](element);
+			context.init();
 		}
 		else{
 			context = element.getContext('2d');
@@ -139,6 +75,25 @@ var Candle = {
 	}
 };
 
+class TypeList{
+	constructor(type){
+		for(let wrapperType of _order){
+			this[wrapperType]=(wrapperType===type);
+		}
+	}
+}
+
+for(let wrapper of [SVGWrapper, CanvasWrapper]){
+	if(wrapper.isWrapperEnable){
+		let type = wrapper.wrapperType;
+		_order.push(type);
+		Candle.enable[type] = true;
+		if(!Candle.current){ Candle.current=type;}
+
+		_wrapper[type] = wrapper.WrapperClass;
+		wrapper.WrapperClass.prototype.getTypeList = () => new TypeList(type); // jshint ignore:line
+	}
+}
+
 // extern
-if(typeof module==='object'&&typeof exports==='object'){ module.exports = Candle;}
-else{ this.Candle = Candle;}
+export default Candle;

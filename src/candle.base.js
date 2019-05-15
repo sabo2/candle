@@ -1,12 +1,12 @@
 // candle.base.js
-/* global Candle:false */
- 
+
+let _counter = -1;
+
 /* ------------------- */
 /*  WrapperBaseクラス  */
 /* ------------------- */
-Candle.wrapperbase = {
-
-	initialize : function(parent){
+export default class WrapperBase {
+	constructor(parent){
 		// canvasに存在するプロパティ＆デフォルト値
 		this.fillStyle    = 'black';
 		this.strokeStyle  = 'black';
@@ -17,18 +17,20 @@ Candle.wrapperbase = {
 		this.canvas = parent;	// 親エレメントとなるdivエレメント
 
 		// variables for internal
-		this.canvasid = Candle.getcanvasid();
+		this.canvasid = "_candle_"+(++_counter);
 		this.child    = null;	// 親エレメントの直下にあるエレメント
 
 		this.enableTextLengthWA = false;
 
+		this.canvas.getContext = (type) => this;
+
+		this.use = {};
+	}
+	init(){
 		this.initElement();
 		this.initFunction();
 		this.initLayer();
-
-		var self = this;
-		this.canvas.getContext = function(type){ return self;};
-	},
+	}
 
 	/* Initialize functions */
 	/* initElement : function(){}, (virtual) */
@@ -42,11 +44,11 @@ Candle.wrapperbase = {
 	/* setRendering : function(){}, (virtual) */
 
 	/* Canvas API functions (rect) */
-	rectcenter       : function(cx,cy,bw,bh){ this.rect      (cx-bw,cy-bh,2*bw,2*bh);},
-	fillRectCenter   : function(cx,cy,bw,bh){ this.fillRect  (cx-bw,cy-bh,2*bw,2*bh);},
-	strokeRectCenter : function(cx,cy,bw,bh){ this.strokeRect(cx-bw,cy-bh,2*bw,2*bh);},
-	shapeRectCenter  : function(cx,cy,bw,bh){ this.shapeRect (cx-bw,cy-bh,2*bw,2*bh);},
+	rectcenter      (cx,cy,bw,bh){ this.rect      (cx-bw,cy-bh,2*bw,2*bh);}
+	fillRectCenter  (cx,cy,bw,bh){ this.fillRect  (cx-bw,cy-bh,2*bw,2*bh);}
+	strokeRectCenter(cx,cy,bw,bh){ this.strokeRect(cx-bw,cy-bh,2*bw,2*bh);}
+	shapeRectCenter (cx,cy,bw,bh){ this.shapeRect (cx-bw,cy-bh,2*bw,2*bh);}
 
 	/* VectorID Functions */
-	vhide : function(){}
-};
+	vhide(){}
+}

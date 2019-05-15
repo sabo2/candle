@@ -1,7 +1,4 @@
 // mocknode.js
-/* global Candle:false */
-
-(function(){
 
 /*==================*/
 /* Common functions */
@@ -148,104 +145,107 @@ function parseText(parent, str){
 /*==============================*/
 /* Node/Element emulation class */
 /*==============================*/
-var MockNode = function(tag){ // jshint ignore:line
-	this.tagName = tag;
-	
-	this._attr     = {};
-	this.style     = {};
-	this._children = [];
-};
-MockNode.prototype = {
-	tagName   : '',
-	style     : null,
-	_attr     : null,
-	_children : null,
-	parentNode : null,
-	nodeType : 1,
-	get nodeName(){ return this.tagName;},
+class MockNode{ // jshint ignore:line
+	constructor(tag){
+		this.tagName = tag;
+		
+		this._attr     = {};
+		this.style     = {};
+		this._children = [];
+		
+		this.parentNode = null;
+	}
 
-	get firstChild(){ return this._children[0];},
-	get lastChild(){ return this._children[this._children.length-1];},
-	get childNodes(){ return this._children;},
-	get nextSibling(){ return nextSibling.call(this);},
+	get nodeType(){ return 1;}
+	get nodeName(){ return this.tagName;}
 
-	appendChild : appendChild,
-	removeChild : removeChild,
-	insertBefore : insertBefore,
+	get firstChild(){ return this._children[0];}
+	get lastChild(){ return this._children[this._children.length-1];}
+	get childNodes(){ return this._children;}
+	get nextSibling(){ return nextSibling.call(this);}
 
-	setAttribute   : function(attr,val)   { this._attr[attr] = val;},
-	setAttributeNS : function(ns,attr,val){ this._attr[attr] = val;},
-	getAttribute   : function(attr)       { return ((attr in this._attr) ? this._attr[attr] : null);},
-	getAttributeNS : function(ns,attr)    { return ((attr in this._attr) ? this._attr[attr] : null);},
-	removeAttribute : function(attr)      { delete this._attr[attr];},
-	get id(){ return this._attr.id || '';},
+	appendChild(node){ appendChild.call(this, node);}
+	removeChild(node){ return removeChild.call(this, node);}
+	insertBefore(newnode, refnode){ insertBefore.call(this, newnode, refnode);}
 
-	get innerHTML(){ return innerHTML.call(this);},
-	get outerHTML(){ return outerHTML.call(this);},
-	get textContent(){ return this.innerHTML.replace(/<.+?>/g,'');},
+	setAttribute   (attr,val)   { this._attr[attr] = val;}
+	setAttributeNS (ns,attr,val){ this._attr[attr] = val;}
+	getAttribute   (attr)       { return ((attr in this._attr) ? this._attr[attr] : null);}
+	getAttributeNS (ns,attr)    { return ((attr in this._attr) ? this._attr[attr] : null);}
+	removeAttribute(attr)       { delete this._attr[attr];}
+	get id(){ return this._attr.id || '';}
+
+	get innerHTML(){ return innerHTML.call(this);}
+	get outerHTML(){ return outerHTML.call(this);}
+	get textContent(){ return this.innerHTML.replace(/<.+?>/g,'');}
 	set textContent(text){
-		this._children.forEach(function(el){this.removeChild(el);}.bind(this));
+		this._children.forEach(el => this.removeChild(el));
 		this.appendChild(new MockText(text));
-	},
+	}
 	
-	querySelector : querySelector,
-	querySelectorAll : querySelectorAll
-};
+	querySelector(query){ return querySelector.call(this, query);}
+	querySelectorAll(query){ return querySelectorAll.call(this, query);}
+}
 
 /*==========================*/
 /* TextNode emulation class */
 /*==========================*/
-var MockText = function(text){ // jshint ignore:line
-	this.data = text;
-};
-MockText.prototype = {
-	_attr : {},
-	parentNode : null,
-	nodeType : 3,
-	nodeName : '#text',
-	data : '',
-	firstChild : null,
-	chilsNodes : [],
-	get nextSibling(){ return nextSibling.call(this);},
+class MockText{ // jshint ignore:line
+	constructor(text){
+		this.data = text;
+		
+		this._attr     = {};
+		
+		this.parentNode = null;
+	}
+
+	get nodeType(){ return 3;}
+	get nodeName(){ return '#text';}
+	get firstChild(){ return null;}
+	get childNodes(){ return [];}
+	get nextSibling(){ return nextSibling.call(this);}
 	get outerHTML(){ return this.data;}
-};
+}
 
 /*==========================*/
 /* Document emulation class */
 /*==========================*/
-var MockDocument = Candle.MockDocument = function(){
-	this._children = [];
-};
-MockDocument.prototype = {
-	_children : null,
-	nodeType : 9,
-	nodeName : '#document',
+class MockDocument{
+	constructor(){
+		this._children = [];
+	}
 
-	createElement   : function(tag)   { return new MockNode(tag);},
-	createElementNS : function(ns,tag){ return new MockNode(tag);},
-	createTextNode  : function(text)  { return new MockText(text);},
+	get nodeType(){ return 9;}
+	get nodeName(){ return '#document';}
 
-	get firstChild(){ return this._children[0];},
-	get lastChild(){ return this._children[this._children.length-1];},
-	get childNodes(){ return this._children;},
+	createElement  (tag)   { return new MockNode(tag);}
+	createElementNS(ns,tag){ return new MockNode(tag);}
+	createTextNode (text)  { return new MockText(text);}
 
-	appendChild : appendChild,
-	removeChild : removeChild,
-	insertBefore : insertBefore,
-	get innerHTML(){ return innerHTML.call(this);},
-	get outerHTML(){ return innerHTML.call(this);},
-	querySelector : querySelector,
-	querySelectorAll : querySelectorAll,
-	getElementById : function(id){ return this.querySelector('#'+id);}
-};
+	get firstChild(){ return this._children[0];}
+	get lastChild(){ return this._children[this._children.length-1];}
+	get childNodes(){ return this._children;}
+
+	appendChild(node){ appendChild.call(this, node);}
+	removeChild(node){ return removeChild.call(this, node);}
+	insertBefore(newnode, refnode){ insertBefore.call(this, newnode, refnode);}
+
+	get innerHTML(){ return innerHTML.call(this);}
+	get outerHTML(){ return innerHTML.call(this);}
+
+	querySelector(query){ return querySelector.call(this, query);}
+	querySelectorAll(query){ return querySelectorAll.call(this, query);}
+
+	getElementById(id){ return this.querySelector('#'+id);}
+}
 
 /*=========================================*/
 /* XMLSerializer/DOMParser emulation class */
 /*=========================================*/
-var MockXMLSerializer = Candle.MockXMLSerializer = function(){};
+var MockXMLSerializer = function(){};
 MockXMLSerializer.prototype.serializeToString = function(node){ return node.outerHTML;};
 
-var MockDOMParser = Candle.MockDOMParser = function(){};
+var MockDOMParser = function(){};
 MockDOMParser.prototype.parseFromString = function(str,mimetype){
 	var doc = new MockDocument();
 	return parseText(doc,str);
@@ -254,11 +254,8 @@ MockDOMParser.prototype.parseFromString = function(str,mimetype){
 /*========*/
 /* extern */
 /*========*/
-// jshint ignore:start
-if(!_doc){ _doc = new MockDocument();}
-Candle.document = _doc;
-Candle.XMLSerializer = MockXMLSerializer;
-Candle.DOMParser = MockDOMParser;
-// jshint ignore:end
-
-})();
+export default {
+	document: (new MockDocument()),
+	XMLSerializer: MockXMLSerializer,
+	DOMParser: MockDOMParser
+};

@@ -5,6 +5,8 @@
 <title>crispEdge test</title>
 <script type="text/javascript" src="../dist/candle.js"></script>
 <script type="text/javascript">
+//import Candle from '../dist/candle.module.js';
+//import Candle from '../src/candle.core.js';
 
 function onload_func(){
 	console.log(Candle.version);
@@ -13,6 +15,8 @@ function onload_func(){
 	Candle.start(cv_auto, 'canvas', function(g){ vml_draw(g,'auto');})
 	Candle.start(cv_edge, 'canvas', function(g){ vml_draw(g,'crispEdges');})
 }
+window.Candle = Candle;
+window.onload_func = onload_func;
 
 function vml_draw(g, rendering){
 	g.changeSize(200,50);
