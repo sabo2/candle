@@ -1,5 +1,4 @@
 // candle.canvas.js
-/* jshint node:true */
 /* global Buffer:false */
 
 import env from './candle.env.js';
@@ -185,7 +184,7 @@ class CanvasWrapper extends WrapperBase {
 
 		var child = this.child;
 		if(isBrowser){
-			var left = parseInt(child.style.left), top = parseInt(child.style.top); // jshint ignore:line
+			var left = parseInt(child.style.left), top = parseInt(child.style.top);
 			width += (left<0?-left:0);
 			height += (top<0?-top:0);
 			child.style.width  = width + 'px';

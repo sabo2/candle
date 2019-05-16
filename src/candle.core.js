@@ -91,7 +91,7 @@ for(let wrapper of [SVGWrapper, CanvasWrapper]){
 		if(!Candle.current){ Candle.current=type;}
 
 		_wrapper[type] = wrapper.WrapperClass;
-		wrapper.WrapperClass.prototype.getTypeList = () => new TypeList(type); // jshint ignore:line
+		wrapper.WrapperClass.prototype.getTypeList = () => new TypeList(type);
 	}
 }
 

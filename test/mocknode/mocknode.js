@@ -1,5 +1,4 @@
-// jshint node:true, browser:false, esnext:true
-/* global describe:false, it:false */
+/* eslint-env node, mocha */
 
 var assert = require('assert');
 

@@ -19,7 +19,7 @@
   "scripts": {
     "build": "webpack",
     "release": "npm run clean && npm run lint && webpack --mode production",
-    "lint": "grunt jshint",
+    "lint": "eslint --cache src/*.js",
     "test": "mocha --recursive test",
     "clean": "grunt clean",
     "prepublishOnly": "npm test"
@@ -29,10 +29,9 @@
     "@babel/polyfill": "^7.4.4",
     "@babel/preset-env": "^7.4.4",
     "babel-loader": "^8.0.6",
+    "eslint": "^5.16.0",
     "grunt": "^1.0.1",
     "grunt-contrib-clean": "^1.0.0",
-    "grunt-contrib-jshint": "^1.1.0",
-    "grunt-newer": "^1.1.1",
     "mocha": "^6.1.4",
     "webpack": "^4.31.0",
     "webpack-cli": "^3.3.2"

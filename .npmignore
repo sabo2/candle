@@ -10,5 +10,7 @@
 *.concat.js
 
 .jshintrc
+.eslintrc.json
+.eslintcache
 /sample
 yarn.lock

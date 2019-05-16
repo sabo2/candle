@@ -59,7 +59,7 @@ function querySelectorAll(query){
 function querySelector(query){
 	return querySearch.call(this, query, true)[0] || null;
 }
-function getXPath(node,base){ // jshint ignore:line
+function getXPath(node,base){
 	var path = '';
 	while(node && node!==base){
 		var currentpath = '';
@@ -92,7 +92,7 @@ function outerHTML(){
 /* parsing */
 /*---------*/
 function parseStyle(node, text){
-	while(1){
+	for(;;){
 		var smatches = text.match(/^\s*([^:]+?):([^;]+?);?/);
 		if(!smatches){ break;}
 		node.style[smatches[1]] = smatches[2];
@@ -100,7 +100,7 @@ function parseStyle(node, text){
 	}
 }
 function parseAttributes(node, attrs){
-	while(1){
+	for(;;){
 		var matches = attrs.match(/^\s*([\w\-\:]+)(\=)?(?:['"](.+?)['"]|([^\s]+))?\s*/);
 		if(!matches){ break;}
 		var attr = matches[1], val = matches[3] || matches[4] || '';
@@ -145,7 +145,7 @@ function parseText(parent, str){
 /*==============================*/
 /* Node/Element emulation class */
 /*==============================*/
-class MockNode{ // jshint ignore:line
+class MockNode{
 	constructor(tag){
 		this.tagName = tag;
 		
@@ -190,7 +190,7 @@ class MockNode{ // jshint ignore:line
 /*==========================*/
 /* TextNode emulation class */
 /*==========================*/
-class MockText{ // jshint ignore:line
+class MockText{
 	constructor(text){
 		this.data = text;
 		

@@ -1,4 +1,5 @@
 candle.js
 dist
 node_modules
+.eslintcache
 .DS_store
