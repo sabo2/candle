@@ -1,6 +1,6 @@
 {
   "name": "pzpr-canvas",
-  "version": "0.8.2",
+  "version": "0.9.0-beta1",
   "description": "This is a support script for pzpr.js",
   "type": "module",
   "engines": {
@@ -16,6 +16,11 @@
   ],
   "author": "sabo2",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sabo2/candle"
+  },
+  "homepage": "https://github.com/sabo2/candle",
   "scripts": {
     "build": "webpack",
     "release": "npm run clean && npm run lint && webpack --mode production",

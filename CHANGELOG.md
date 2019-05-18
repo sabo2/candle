@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 2019/05/18 v0.9.0-beta1
+* ES6 module 対応のコードを `dist/candle.module.js` として出力するよう機能追加
+* `Candle` Objectに出力されるメンバ変数を減らした
+
 ## 2017/06/11 v0.8.2
 * svg: IE/EdgeでSVG text with textLength and textAlign=center, right指定時の描画位置がおかしい件のWorkAroundを追加
 
