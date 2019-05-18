@@ -56,7 +56,7 @@ console.log(obj.toBuffer()); // <-- output svg data to console buffer
 # APIs
 
 ## Documents
-* [Canvas context APIs](https://github.com/sabo2/pzprjs/blob/master/doc/CanvasAPI.md)
+* [Canvas context APIs](https://github.com/sabo2/candle/blob/master/doc/CanvasAPI.md)
 
 # Releases
 
