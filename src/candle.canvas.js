@@ -1,5 +1,4 @@
 // candle.canvas.js
-/* global Buffer:false */
 
 import env from './candle.env.js';
 import metrics from './candle.metrics.js';

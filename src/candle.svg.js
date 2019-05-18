@@ -1,5 +1,4 @@
 // candle.svg.js
-/* global Buffer:false */
 
 import env from './candle.env.js';
 import mocknode from './mocknode.js';

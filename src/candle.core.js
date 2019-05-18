@@ -1,5 +1,5 @@
 // candle.core.js
-/* global VERSION:false */
+/* global VERSION */
 
 import mocknode from './mocknode.js';
 import env from './candle.env.js';

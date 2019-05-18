@@ -19,7 +19,7 @@
   "scripts": {
     "build": "webpack",
     "release": "npm run clean && npm run lint && webpack --mode production",
-    "lint": "eslint --cache src/*.js",
+    "lint": "eslint --cache src",
     "test": "mocha --recursive test",
     "clean": "del dist/* pzpr-canvas-*.tgz *.svg",
     "prepublishOnly": "npm test"
